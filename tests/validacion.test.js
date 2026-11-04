@@ -125,3 +125,57 @@ test('I05 señala la primera línea que no se verá y las escenas sin nombre se 
   const i03 = validar(p.juego).find((a) => a.codigo === 'I03' && a.escena === sinNombre.id);
   assert.match(i03.mensaje, /sin nombre \(n\.º 4\)/);
 });
+
+// tests/validacion.test.js (agregar al final)
+import { agregarElemento } from '../plataforma/js/estado/modelo.js';
+import { cumpleMinimo, MINIMO } from '../plataforma/js/estado/validacion.js';
+
+function juegoMinimoCompleto() {
+  const { p, muelle, torre, amanecer } = juegoConTresEscenas();
+  const ana = p.juego.personajes[0];
+  const far = agregarPersonaje(p, { nombre: 'El farero' });
+  ana.retrato = agregarElemento(p, { tipo: 'retrato', nombre: 'Ana', archivo: 'a.png', origen: 'creado' }).id;
+  far.retrato = agregarElemento(p, { tipo: 'retrato', nombre: 'Farero', archivo: 'f.png', origen: 'creado' }).id;
+  muelle.fondo = agregarElemento(p, { tipo: 'fondo', nombre: 'Muelle', archivo: 'm.png', origen: 'creado' }).id;
+  const bib = { id: 'bib_m1', autor: 'Autora Ejemplo', licencia: 'CC-BY-4.0', creditoSugerido: 'crédito' };
+  muelle.musica = agregarElemento(p, { tipo: 'musica', nombre: 'Tema', archivo: 't.ogg', origen: 'biblioteca', biblioteca: bib }).id;
+  agregarElemento(p, { tipo: 'efecto', nombre: 'Olas', archivo: 'o.wav', origen: 'creado' });
+  return { p, muelle, torre, amanecer };
+}
+
+test('MINIMO refleja la tabla del spec', () => {
+  assert.deepEqual(MINIMO, { escenas: 3, personajesConRetrato: 2, decisiones: 1, fondos: 1, musica: 1, efectos: 1, ajenos: 1 });
+});
+
+test('un juego que cumple el mínimo pasa', () => {
+  const { p } = juegoMinimoCompleto();
+  assert.deepEqual(cumpleMinimo(p), { ok: true, faltantes: [] });
+});
+
+test('cumpleMinimo lista cada carencia con actual y requerido', () => {
+  const p = proyectoBase();
+  p.juego.titulo = '  ';
+  const { ok, faltantes } = cumpleMinimo(p);
+  assert.equal(ok, false);
+  const porCodigo = Object.fromEntries(faltantes.map((f) => [f.codigo, f]));
+  assert.deepEqual(Object.keys(porCodigo).sort(), ['M_AJENOS', 'M_DECISIONES', 'M_EFECTOS', 'M_ESCENAS', 'M_FONDOS', 'M_MUSICA', 'M_PERSONAJES', 'M_TITULO']);
+  assert.equal(porCodigo.M_ESCENAS.actual, 1);
+  assert.equal(porCodigo.M_ESCENAS.requerido, 3);
+  assert.equal(porCodigo.M_TITULO.actual, 0);
+});
+
+test('un elemento de otra persona cuenta como ajeno aunque no sea de biblioteca', () => {
+  const { p } = juegoMinimoCompleto();
+  const tema = p.juego.elementos.find((e) => e.tipo === 'musica');
+  tema.origen = 'subido';
+  p.fichas[tema.id].autoria = 'yo';
+  assert.ok(cumpleMinimo(p).faltantes.some((f) => f.codigo === 'M_AJENOS'));
+  p.fichas[tema.id].autoria = 'otra_persona';
+  assert.equal(cumpleMinimo(p).ok, true);
+});
+
+test('un personaje sin retrato no cuenta', () => {
+  const { p } = juegoMinimoCompleto();
+  p.juego.personajes[1].retrato = null;
+  assert.ok(cumpleMinimo(p).faltantes.some((f) => f.codigo === 'M_PERSONAJES' && f.actual === 1));
+});

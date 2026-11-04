@@ -100,3 +100,29 @@ export function validar(juego) {
   }
   return avisos;
 }
+
+// ---- Mínimo publicable (spec, sección 4) ----
+
+export const MINIMO = { escenas: 3, personajesConRetrato: 2, decisiones: 1, fondos: 1, musica: 1, efectos: 1, ajenos: 1 };
+
+export function cumpleMinimo(proyecto) {
+  const { juego, fichas } = proyecto;
+  const faltantes = [];
+  const exige = (codigo, mensaje, actual, requerido) => {
+    if (actual < requerido) faltantes.push({ codigo, mensaje, actual, requerido });
+  };
+  const cuenta = (tipo) => juego.elementos.filter((e) => e.tipo === tipo).length;
+
+  exige('M_TITULO', 'El juego necesita un título.', juego.titulo.trim() ? 1 : 0, 1);
+  exige('M_ESCENAS', 'Escenas', juego.escenas.length, MINIMO.escenas);
+  exige('M_PERSONAJES', 'Personajes con retrato', juego.personajes.filter((p) => p.retrato).length, MINIMO.personajesConRetrato);
+  const decisiones = juego.escenas.flatMap((e) => e.lineas).filter((l) => l.tipo === 'decision' && l.opciones.length >= 2).length;
+  exige('M_DECISIONES', 'Decisiones con al menos dos opciones', decisiones, MINIMO.decisiones);
+  exige('M_FONDOS', 'Fondos', cuenta('fondo'), MINIMO.fondos);
+  exige('M_MUSICA', 'Pistas musicales', cuenta('musica'), MINIMO.musica);
+  exige('M_EFECTOS', 'Efectos de sonido', cuenta('efecto'), MINIMO.efectos);
+  const ajenos = juego.elementos.filter((e) => e.origen === 'biblioteca' || fichas[e.id]?.autoria === 'otra_persona').length;
+  exige('M_AJENOS', 'Elementos que no hizo el estudiante (biblioteca u otra persona)', ajenos, MINIMO.ajenos);
+
+  return { ok: faltantes.length === 0, faltantes };
+}
