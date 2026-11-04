@@ -64,3 +64,25 @@ test('describir usa «esa persona» sin nombre y conserva las notas', () => {
   assert.equal(titulo.notas[0].codigo, 'N_TITULO');
   assert.equal(titulo.notas[0].breve, contenido.notas.N_TITULO.breve);
 });
+
+test('las fuentes dicen «por verificar» solo en las entradas pendientes', () => {
+  for (const grupo of [contenido.campos, contenido.tiposObra, contenido.reglas, contenido.notas]) {
+    for (const [clave, entrada] of Object.entries(grupo)) {
+      const dice = /por verificar/i.test(entrada.fuente);
+      assert.equal(dice, entrada.verificacion === 'pendiente', `${clave}: la fuente y la marca de verificación no coinciden`);
+    }
+  }
+});
+
+test('ningún texto hace las afirmaciones que el memo prohíbe', () => {
+  const prohibido = /\bnula\b|gratuit|una sola obra|categoría autónoma|titular originario|se pueden ceder los morales/i;
+  const textos = JSON.stringify(contenido);
+  assert.ok(!prohibido.test(textos), `encontrado: ${textos.match(prohibido)?.[0]}`);
+});
+
+test('describir no falla con un código desconocido ni con una ficha ausente', () => {
+  const d = describir({ color: 'amarillo', razones: ['A99'], notas: ['N_X'] }, null, contenido);
+  assert.equal(d.razones[0].breve, 'A99');
+  assert.equal(d.razones[0].verificacion, 'pendiente');
+  assert.equal(d.notas[0].codigo, 'N_X');
+});

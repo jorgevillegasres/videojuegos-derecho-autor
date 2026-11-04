@@ -7,7 +7,7 @@
  * @param {object} contenido el JSON de contenido/juridico.json ya cargado
  */
 export function describir(resultado, ficha, contenido) {
-  const autor = (ficha.autorNombre ?? '').trim() || 'esa persona';
+  const autor = (ficha?.autorNombre ?? '').trim() || 'esa persona';
   const razones = resultado.razones.map((codigo) => {
     const texto = contenido.reglas?.[codigo] ?? {};
     return {
