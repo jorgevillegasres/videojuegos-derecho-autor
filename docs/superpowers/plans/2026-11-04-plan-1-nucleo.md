@@ -1050,6 +1050,14 @@ test('un personaje sin retrato no cuenta', () => {
   p.juego.personajes[1].retrato = null;
   assert.ok(cumpleMinimo(p).faltantes.some((f) => f.codigo === 'M_PERSONAJES' && f.actual === 1));
 });
+
+test('una decisión con una sola opción no cuenta para el mínimo', () => {
+  const { p, muelle } = juegoMinimoCompleto();
+  muelle.lineas[1].opciones = [{ texto: 'Única', escena: p.juego.escenas[1].id }];
+  assert.ok(cumpleMinimo(p).faltantes.some((f) => f.codigo === 'M_DECISIONES' && f.actual === 0));
+  p.juego.titulo = null;
+  assert.ok(cumpleMinimo(p).faltantes.some((f) => f.codigo === 'M_TITULO' && f.mensaje === 'Título del juego'));
+});
 ```
 
 - [ ] **Step 2: Correr las pruebas para ver que fallan**
@@ -1064,6 +1072,7 @@ Expected: FAIL con `does not provide an export named 'cumpleMinimo'`.
 
 // ---- Mínimo publicable (spec, sección 4) ----
 
+// M_DECISIONES cuenta decisiones con dos o más opciones; el tope de cuatro lo bloquea validar() con B04. M_AJENOS mira solo elementos: son los únicos con origen y ficha de activo.
 export const MINIMO = { escenas: 3, personajesConRetrato: 2, decisiones: 1, fondos: 1, musica: 1, efectos: 1, ajenos: 1 };
 
 export function cumpleMinimo(proyecto) {
@@ -1074,7 +1083,7 @@ export function cumpleMinimo(proyecto) {
   };
   const cuenta = (tipo) => juego.elementos.filter((e) => e.tipo === tipo).length;
 
-  exige('M_TITULO', 'El juego necesita un título.', juego.titulo.trim() ? 1 : 0, 1);
+  exige('M_TITULO', 'Título del juego', juego.titulo?.trim() ? 1 : 0, 1);
   exige('M_ESCENAS', 'Escenas', juego.escenas.length, MINIMO.escenas);
   exige('M_PERSONAJES', 'Personajes con retrato', juego.personajes.filter((p) => p.retrato).length, MINIMO.personajesConRetrato);
   const decisiones = juego.escenas.flatMap((e) => e.lineas).filter((l) => l.tipo === 'decision' && l.opciones.length >= 2).length;
@@ -1092,7 +1101,7 @@ export function cumpleMinimo(proyecto) {
 - [ ] **Step 4: Correr las pruebas para ver que pasan**
 
 Run: `node --test tests/validacion.test.js`
-Expected: `# pass 16`, `# fail 0`. `npm test` → 38.
+Expected: `# pass 17`, `# fail 0`. `npm test` → 39.
 
 - [ ] **Step 5: Commit**
 
@@ -1626,7 +1635,7 @@ export function puedePublicar(proyecto, semaforos, avisos) {
 - [ ] **Step 5: Correr todas las pruebas**
 
 Run: `npm test`
-Expected: `# fail 0`. Total de pruebas: 10 (ficha) + 12 (modelo) + 19 (validación) + 34 (semáforo) = 75.
+Expected: `# fail 0`. Total de pruebas: 10 (ficha) + 12 (modelo) + 20 (validación) + 34 (semáforo) = 76.
 
 - [ ] **Step 6: Commit**
 
@@ -2490,11 +2499,13 @@ git commit -m "Contenido jurídico con fuentes del memo y textos del semáforo" 
 - [ ] **Step 1: Correr toda la suite**
 
 Run: `npm test`
-Expected: `# fail 0`. Total: 10 (ficha) + 12 (modelo) + 19 (validación) + 34 (semáforo) + 5 (archivos) + 5 (almacén) + 7 (copias) + 7 (contenido) = 99 pruebas.
+Expected: `# fail 0`. Total: 10 (ficha) + 12 (modelo) + 20 (validación) + 34 (semáforo) + 5 (archivos) + 5 (almacén) + 7 (copias) + 7 (contenido) = 100 pruebas.
 
-- [ ] **Step 1b: Ajuste menor de la revisión de la tarea 2**
+- [ ] **Step 1b: Ajustes menores acumulados de las revisiones**
 
 En `plataforma/js/juridico/ficha.js`, cambiar `if (!(biblioteca.licencia in LICENCIAS))` por `if (!Object.hasOwn(LICENCIAS, biblioteca.licencia))`, para que un código como `constructor` no pase por la cadena de prototipos. Correr `node --test tests/ficha.test.js` y confirmar `# pass 10`.
+
+En `tests/validacion.test.js` (y en cualquier otro archivo de pruebas donde haya quedado), borrar los comentarios marcadores del plan (`// tests/validacion.test.js (agregar al final)` y similares) y subir las sentencias `import` que quedaron a mitad del archivo hasta el bloque de importaciones del inicio, sin cambiar las pruebas. Correr `npm test` y confirmar que el total no cambia.
 
 - [ ] **Step 2: Borrar los `.gitkeep` y copiar la licencia de JSZip**
 
