@@ -103,6 +103,7 @@ export function validar(juego) {
 
 // ---- Mínimo publicable (spec, sección 4) ----
 
+// M_DECISIONES cuenta decisiones con dos o más opciones; el tope de cuatro lo bloquea validar() con B04. M_AJENOS mira solo elementos: son los únicos con origen y ficha de activo.
 export const MINIMO = { escenas: 3, personajesConRetrato: 2, decisiones: 1, fondos: 1, musica: 1, efectos: 1, ajenos: 1 };
 
 export function cumpleMinimo(proyecto) {
@@ -113,7 +114,7 @@ export function cumpleMinimo(proyecto) {
   };
   const cuenta = (tipo) => juego.elementos.filter((e) => e.tipo === tipo).length;
 
-  exige('M_TITULO', 'El juego necesita un título.', juego.titulo.trim() ? 1 : 0, 1);
+  exige('M_TITULO', 'Título del juego', juego.titulo?.trim() ? 1 : 0, 1);
   exige('M_ESCENAS', 'Escenas', juego.escenas.length, MINIMO.escenas);
   exige('M_PERSONAJES', 'Personajes con retrato', juego.personajes.filter((p) => p.retrato).length, MINIMO.personajesConRetrato);
   const decisiones = juego.escenas.flatMap((e) => e.lineas).filter((l) => l.tipo === 'decision' && l.opciones.length >= 2).length;

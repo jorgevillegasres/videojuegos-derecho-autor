@@ -179,3 +179,11 @@ test('un personaje sin retrato no cuenta', () => {
   p.juego.personajes[1].retrato = null;
   assert.ok(cumpleMinimo(p).faltantes.some((f) => f.codigo === 'M_PERSONAJES' && f.actual === 1));
 });
+
+test('una decisión con una sola opción no cuenta para el mínimo', () => {
+  const { p, muelle } = juegoMinimoCompleto();
+  muelle.lineas[1].opciones = [{ texto: 'Única', escena: p.juego.escenas[1].id }];
+  assert.ok(cumpleMinimo(p).faltantes.some((f) => f.codigo === 'M_DECISIONES' && f.actual === 0));
+  p.juego.titulo = null;
+  assert.ok(cumpleMinimo(p).faltantes.some((f) => f.codigo === 'M_TITULO' && f.mensaje === 'Título del juego'));
+});
