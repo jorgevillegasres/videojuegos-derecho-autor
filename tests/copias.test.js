@@ -71,3 +71,68 @@ test('validarEstructura enumera los problemas', () => {
   delete p.fichas[el.id];
   assert.deepEqual(validarEstructura(p), ['el elemento «Muelle» no tiene ficha']);
 });
+
+test('un paquete de entrega con archivos extra se importa igual', async () => {
+  const { proyecto, archivos } = proyectoConArchivos();
+  const blob = await exportarCopia(proyecto, archivos, { JSZip });
+  const zip = await JSZip.loadAsync(await blob.arrayBuffer());
+  zip.file('juego.html', '<!doctype html>');
+  zip.file('informe-juridico.html', '<!doctype html>');
+  const paquete = await zip.generateAsync({ type: 'uint8array' });
+  const importado = await importarCopia(paquete, { JSZip });
+  assert.deepEqual(importado.proyecto, proyecto);
+});
+
+test('los errores llevan código estable', async () => {
+  const codigo = async (promesa) => promesa.then(() => null, (e) => e.codigo);
+  assert.equal(await codigo(importarCopia(new TextEncoder().encode('x').buffer, { JSZip })), 'no_es_zip');
+  assert.equal(await codigo(importarCopia(await new JSZip().file('a.txt', 'x').generateAsync({ type: 'uint8array' }), { JSZip })), 'sin_proyecto');
+  assert.equal(await codigo(importarCopia(await new JSZip().file('proyecto.json', '{').generateAsync({ type: 'uint8array' }), { JSZip })), 'json_danado');
+  const { proyecto, archivos, fondo } = proyectoConArchivos();
+  delete proyecto.fichas[fondo.id];
+  const sinFicha = await new JSZip().file('proyecto.json', JSON.stringify(proyecto)).generateAsync({ type: 'uint8array' });
+  const error = await importarCopia(sinFicha, { JSZip }).catch((e) => e);
+  assert.equal(error.codigo, 'forma');
+  assert.deepEqual(error.problemas, ['el elemento «Muelle» no tiene ficha']);
+  assert.equal(await codigo(exportarCopia(proyecto, archivos, { JSZip })), 'forma', 'exportar también valida');
+  proyecto.fichas[fondo.id] = { tipo: 'fondo' };
+  archivos.delete(fondo.id);
+  assert.equal(await codigo(exportarCopia(proyecto, archivos, { JSZip })), 'archivo_faltante');
+});
+
+test('validarEstructura detecta lo que una copia editada a mano puede traer, sin lanzar', () => {
+  const base = () => proyectoConArchivos().proyecto;
+
+  let p = base();
+  p.juego.elementos[1].id = p.juego.elementos[0].id;
+  assert.ok(validarEstructura(p).some((m) => /está repetido/.test(m)), 'id repetido');
+
+  p = base();
+  p.juego.elementos[0].archivo = '../x';
+  assert.ok(validarEstructura(p).some((m) => /nombre de archivo no permitido/.test(m)), 'ruta relativa');
+  p.juego.elementos[0].archivo = '';
+  assert.ok(validarEstructura(p).some((m) => /nombre de archivo no permitido/.test(m)), 'nombre vacío');
+
+  p = base();
+  p.juego.elementos[1].archivo = p.juego.elementos[0].archivo;
+  assert.ok(validarEstructura(p).some((m) => /archivo «el_1.png» está repetido/.test(m)), 'archivo repetido');
+
+  p = base();
+  p.juego.destino = 'alquiler';
+  assert.ok(validarEstructura(p).some((m) => /destino «alquiler» no es válido/.test(m)), 'destino');
+
+  p = base();
+  p.fichas.el_fantasma = { tipo: 'fondo' };
+  assert.ok(validarEstructura(p).some((m) => /ficha «el_fantasma» no corresponde/.test(m)), 'ficha huérfana');
+
+  p = base();
+  p.juego.elementos.push(null);
+  assert.ok(validarEstructura(p).some((m) => /sin identificador/.test(m)), 'entrada nula');
+
+  p = base();
+  p.fichas = [];
+  assert.ok(validarEstructura(p).includes('faltan las fichas'), 'fichas como lista');
+
+  assert.equal(validarEstructura({ juego: {} })[0], 'no indica su versión');
+  assert.deepEqual(validarEstructura(base()), [], 'un proyecto sano no tiene problemas');
+});
