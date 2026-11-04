@@ -181,6 +181,8 @@ Un catálogo pequeño que viene con la plataforma: al menos 8 fondos, 8 retratos
 
 La mezcla es intencional. Cada tipo de medio incluye al menos una pieza `CC-BY-4.0` y una `CC0` o `DP`; hay al menos una pista `CC-BY-NC-4.0`, una imagen `CC-BY-ND-4.0`, una imagen `CC-BY-SA-4.0`, una pieza `CURSO` y una pieza `DESCONOCIDO`. El audio con `CC-BY-ND-4.0` queda fuera del catálogo mientras el docente resuelve el punto 10 de la sección 19.
 
+**Licencia del curso.** La licencia `CURSO` tiene un texto propio, publicado en `biblioteca/LICENCIA-CURSO.md` y enlazado desde la ficha, porque la regla R05 se apoya en ese texto y no en una norma.
+
 **Honestidad del catálogo.** Las piezas `CURSO` y `DESCONOCIDO` son en realidad piezas `CC0` o de dominio público, que la plataforma puede distribuir. El catálogo guarda su licencia y fuente reales en un campo `simulado`, y la explicación de la ficha lo revela en «ver más»: «en la vida real esta pieza es CC0 de tal autor; aquí se presenta así para que practiques». No se inventa ningún autor ni ninguna fuente.
 
 **Procedencia.** Las piezas se toman de repositorios con licencias abiertas (por ejemplo OpenGameArt, Freesound, Kenney, Wikimedia Commons), verificando la licencia en la fuente al momento de incluirlas. `biblioteca/CREDITOS.md` lista todas con autor, licencia y enlace.

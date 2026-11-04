@@ -2220,7 +2220,7 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
     },
     "titular": {
       "breve": "El autor siempre es quien creó. El titular de los derechos patrimoniales puede ser otra persona, si hubo una cesión escrita o un encargo con contrato escrito.",
-      "completo": "Los derechos patrimoniales, los que permiten explotar la obra, se pueden ceder o licenciar. Los morales no: son perpetuos, inalienables e irrenunciables (Ley 23 de 1982, art. 30; Decisión 351, art. 11), y la transmisión de los patrimoniales no los comprende (Ley 23, art. 182, parágrafo). Si alguien te cedió los derechos sobre su obra, tú eres el titular patrimonial y ella sigue siendo la autora. Si la obra se hizo por encargo o dentro de un trabajo, la ley presume que los patrimoniales pasan a quien la encargó, siempre con contrato escrito y solo en la medida de sus actividades habituales (Ley 23, art. 20).",
+      "completo": "Los derechos patrimoniales, los que permiten explotar la obra, se pueden ceder o licenciar. Los morales no: son perpetuos, inalienables e irrenunciables (Ley 23 de 1982, art. 30; Decisión 351, art. 11), y la transmisión de los patrimoniales no los comprende (Ley 23, art. 182, parágrafo). Si alguien te cedió los derechos sobre su obra, tú eres el titular patrimonial y ella sigue siendo la autora. Si la obra se hizo por encargo o dentro de un trabajo, la ley presume que los patrimoniales pasan a quien la encargó o al empleador, siempre con contrato escrito y solo en la medida de sus actividades habituales (Ley 23, art. 20).",
       "fuente": "Memo, sección 2: Ley 23 de 1982, arts. 20, 30 y 182; Decisión 351, art. 11.",
       "verificacion": "verificada"
     },
@@ -2254,7 +2254,7 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
     "literaria": {
       "breve": "Historia, narración y diálogos son obra literaria. La lógica de las decisiones también está escrita en texto.",
       "completo": "La ley protege los programas de ordenador en los mismos términos que las obras literarias (Decisión 351, art. 23), y la DNDA registra el guion de un videojuego como obra literaria. Tu guion con decisiones no es software, pero sirve para entender por qué la ley protege el código de un juego como obra literaria.",
-      "fuente": "Memo, sección 2: Decisión 351, arts. 4 y 23; DNDA, registro por partes.",
+      "fuente": "Memo, sección 2: Decisión 351, art. 23; DNDA, registro por partes.",
       "verificacion": "verificada"
     },
     "artistica": {
@@ -2336,7 +2336,7 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
       "breve": "Esta licencia exige dar crédito y todavía no lo escribiste.",
       "completo": "La condición BY (atribución) obliga a nombrar al autor y la licencia, y a indicar si hubo cambios. Usa el crédito sugerido o escríbelo con esos datos.",
       "fuente": "Texto de las licencias Creative Commons BY (creativecommons.org/licenses).",
-      "accion": "Escribe el crédito con autor, obra y licencia.",
+      "accion": "Escribe el crédito con autor y licencia.",
       "verificacion": "verificada"
     },
     "A02": {
@@ -2397,7 +2397,7 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
     },
     "A10": {
       "breve": "Tienes una autorización informal y tu juego se va a vender.",
-      "completo": "Para explotar comercialmente una obra ajena necesitas un contrato escrito de cesión o de licencia, con usos, territorio y plazo (Ley 1955 de 2019, art. 181). Un mensaje de «úsalo tranquilo» sirve para un ejercicio, no para vender.",
+      "completo": "Para explotar comercialmente una obra ajena necesitas un contrato escrito de cesión o de licencia (Ley 1955 de 2019, art. 181); conviene que diga usos, territorio y plazo. Un mensaje de «úsalo tranquilo» sirve para un ejercicio, no para vender.",
       "fuente": "Memo, sección 5: Ley 1955 de 2019, art. 181.",
       "accion": "Pide a {autor} una cesión o una licencia por escrito.",
       "verificacion": "verificada"
@@ -2529,6 +2529,8 @@ Expected: `# fail 0`. Total: 10 (ficha) + 12 (modelo) + 22 (validación) + 46 (s
 En `plataforma/js/juridico/ficha.js`, cambiar `if (!(biblioteca.licencia in LICENCIAS))` por `if (!Object.hasOwn(LICENCIAS, biblioteca.licencia))`, para que un código como `constructor` no pase por la cadena de prototipos. Correr `node --test tests/ficha.test.js` y confirmar `# pass 10`.
 
 En `plataforma/js/estado/archivos.js`: agregar `'image/jpg': 'jpg'` a `EXTENSION_POR_MIME` (algunos navegadores lo emiten) y `.trim()` a la extensión en `mimePorExtension` (`String(nombre).trim().split('.').pop().toLowerCase()`); en `huellaSha256`, lanzar `new Error('Este navegador no permite calcular huellas (se necesita HTTPS o localhost).')` si `globalThis.crypto?.subtle` no existe. Agregar a `tests/archivos.test.js` una prueba con `extensionPorMime('image/jpg')` → `'jpg'` y `mimePorExtension('a.PNG ')` → `'image/png'`; conteo de archivos pasa a 6.
+
+Volver a extraer `plataforma/contenido/juridico.json` del bloque JSON de la tarea 12 con el mismo comando de esa tarea (el bloque recibió cuatro retoques de redacción tras la revisión: A10, titular, acción de A01 y fuente de literaria). Confirmar con `git diff --stat` que cambian unas pocas líneas y que `node --test tests/contenido.test.js` sigue en 10.
 
 En `plataforma/js/estado/copias.js`, dentro de `validarEstructura`, cambiar `if (!Object.hasOwn(proyecto.fichas, elemento.id))` por `if (!esObjeto(proyecto.fichas[elemento.id]))` para que una ficha que no sea un objeto (por ejemplo un número) cuente como faltante; `Object.hasOwn` solo prueba que la clave existe. Las pruebas de copias deben seguir en 10.
 
