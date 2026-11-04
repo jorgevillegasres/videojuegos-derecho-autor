@@ -117,3 +117,34 @@ test('moverLinea reordena dentro de los límites', () => {
   moverLinea(escena, 0, -1);
   assert.deepEqual(escena.lineas.map((l) => l.texto), ['b', 'a', 'c'], 'no se sale del inicio');
 });
+
+test('agregarElemento no deja un elemento huérfano si la ficha falla', () => {
+  const p = proyectoBase();
+  assert.throws(() => agregarElemento(p, { tipo: 'fondo', nombre: 'x', archivo: 'x.png', origen: 'biblioteca' }), /requiere la entrada de biblioteca/);
+  assert.equal(p.juego.elementos.length, 0);
+  assert.deepEqual(Object.keys(p.fichas), ['titulo', 'historia']);
+});
+
+test('eliminar un id inexistente no hace nada ni falla', () => {
+  const p = proyectoBase();
+  const ana = agregarPersonaje(p, { nombre: 'Ana' });
+  const fondo = agregarElemento(p, { tipo: 'fondo', nombre: 'Muelle', archivo: 'f.png', origen: 'creado' });
+  eliminarElemento(p, 'el_noexiste');
+  eliminarPersonaje(p, 'per_noexiste');
+  eliminarEscena(p, 'esc_noexiste');
+  assert.equal(p.juego.elementos.length, 1);
+  assert.equal(p.juego.personajes.length, 1);
+  assert.equal(p.juego.escenas.length, 1);
+  assert.ok(p.fichas[ana.id] && p.fichas[fondo.id]);
+});
+
+test('eliminar un personaje deja intactas las demás fichas; nombres vacíos por defecto', () => {
+  const p = proyectoBase();
+  const ana = agregarPersonaje(p, { nombre: 'Ana' });
+  const luis = agregarPersonaje(p);
+  assert.equal(luis.nombre, '');
+  assert.equal(agregarEscena(p).nombre, '');
+  eliminarPersonaje(p, ana.id);
+  assert.equal(p.fichas[luis.id].tipo, 'personaje');
+  assert.equal(p.fichas.titulo.tipo, 'titulo');
+});

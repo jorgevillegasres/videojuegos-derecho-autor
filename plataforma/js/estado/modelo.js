@@ -1,6 +1,9 @@
 // plataforma/js/estado/modelo.js
 // El documento del juego: cómo se crea y cómo cambia. Las funciones mutan el
 // proyecto que reciben y devuelven lo que crean. No tocan el DOM ni el almacén.
+// Convenciones: se valida antes de mutar; un id o índice inexistente se ignora
+// sin error; la validez estructural (nombres vacíos, opciones de más o de menos,
+// referencias rotas) la informa validar(), no los mutadores.
 import { crearFicha } from '../juridico/ficha.js';
 
 export const VERSION_PROYECTO = 1;
@@ -29,11 +32,11 @@ export function crearProyecto({ estudiante = '', titulo = '', destino = 'gratis'
 
 // ---- Escenas ----
 
-export function crearEscena(nombre) {
+export function crearEscena(nombre = '') {
   return { id: nuevoId('esc'), nombre, fondo: null, musica: null, lineas: [] };
 }
 
-export function agregarEscena(proyecto, nombre) {
+export function agregarEscena(proyecto, nombre = '') {
   const escena = crearEscena(nombre);
   proyecto.juego.escenas.push(escena);
   return escena;
@@ -53,7 +56,7 @@ export function eliminarEscena(proyecto, id) {
 
 // ---- Personajes ----
 
-export function agregarPersonaje(proyecto, { nombre, descripcion = '' }) {
+export function agregarPersonaje(proyecto, { nombre = '', descripcion = '' } = {}) {
   const personaje = { id: nuevoId('per'), nombre, descripcion, retrato: null };
   proyecto.juego.personajes.push(personaje);
   proyecto.fichas[personaje.id] = crearFicha('personaje');
@@ -74,9 +77,10 @@ export function eliminarPersonaje(proyecto, id) {
 export function agregarElemento(proyecto, { tipo, nombre, archivo, origen, sello = null, biblioteca = null }) {
   if (!TIPOS_ELEMENTO.includes(tipo)) throw new Error(`Tipo de elemento inválido: ${tipo}`);
   if (!ORIGENES.includes(origen)) throw new Error(`Origen inválido: ${origen}`);
+  const ficha = crearFicha(tipo, { origen, biblioteca });
   const elemento = { id: nuevoId('el'), tipo, nombre, archivo, origen, sello, biblioteca };
   proyecto.juego.elementos.push(elemento);
-  proyecto.fichas[elemento.id] = crearFicha(tipo, { origen, biblioteca });
+  proyecto.fichas[elemento.id] = ficha;
   return elemento;
 }
 
