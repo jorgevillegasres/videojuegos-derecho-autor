@@ -134,8 +134,10 @@ git commit -m "Andamiaje de la plataforma: paquete, carpetas y JSZip vendorizado
 // tests/ficha.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { LICENCIAS, condicionesDe } from '../plataforma/js/juridico/licencias.js';
-import { TIPOS_FICHA, TIPOS_OBRA, tipoObraPara, crearFicha } from '../plataforma/js/juridico/ficha.js';
+import { LICENCIAS, CONDICIONES, condicionesDe } from '../plataforma/js/juridico/licencias.js';
+import {
+  TIPOS_FICHA, TIPOS_OBRA, ORIGENES_FICHA, AUTORIAS, TITULARES, RESPALDOS, PRUEBAS, tipoObraPara, crearFicha,
+} from '../plataforma/js/juridico/ficha.js';
 
 test('el catálogo de licencias tiene los ocho códigos del spec más OTRA', () => {
   assert.deepEqual(Object.keys(LICENCIAS).sort(), [
@@ -207,6 +209,32 @@ test('las fichas escritas (título, historia, personaje) tienen origen escrito',
   assert.equal(crearFicha('personaje').basadoEnObraAjena, false);
   assert.throws(() => crearFicha('fondo', { origen: 'robado' }), /Origen inválido/);
 });
+
+test('crearFicha exige la entrada de biblioteca y una licencia conocida', () => {
+  assert.throws(() => crearFicha('fondo', { origen: 'biblioteca' }), /requiere la entrada de biblioteca/);
+  assert.throws(() => crearFicha('fondo', { origen: 'biblioteca', biblioteca: { autor: 'X', licencia: 'INVENTADA' } }), /Licencia desconocida/);
+});
+
+test('condicionesDe devuelve copias: mutarlas no toca el catálogo ni la ficha', () => {
+  const copia = condicionesDe({ licencia: 'CC-BY-4.0' });
+  copia.push('NC');
+  assert.deepEqual(LICENCIAS['CC-BY-4.0'].condiciones, ['BY']);
+  const otra = { licencia: 'OTRA', condicionesOtra: ['BY'] };
+  condicionesDe(otra).push('SA');
+  assert.deepEqual(otra.condicionesOtra, ['BY']);
+});
+
+test('los valores por defecto de la ficha pertenecen a sus enumeraciones', () => {
+  const f = crearFicha('voz', { origen: 'subido' });
+  assert.ok(ORIGENES_FICHA.includes(f.origen));
+  assert.ok(AUTORIAS.includes(f.autoria));
+  assert.ok(TITULARES.includes(f.titular));
+  assert.ok(RESPALDOS.includes(f.respaldo));
+  assert.ok(PRUEBAS.includes(f.prueba));
+  for (const entrada of Object.values(LICENCIAS)) {
+    for (const condicion of entrada.condiciones ?? []) assert.ok(CONDICIONES.includes(condicion), `${condicion} no está en CONDICIONES`);
+  }
+});
 ```
 
 - [ ] **Step 2: Correr las pruebas para ver que fallan**
@@ -237,11 +265,11 @@ export const LICENCIAS = {
 
 export const CONDICIONES = ['BY', 'NC', 'SA', 'ND'];
 
-/** Condiciones que impone la licencia de una ficha. Con OTRA, las que marcó el estudiante. */
+/** Condiciones que impone la licencia de una ficha. Con OTRA, las que marcó el estudiante. Devuelve una copia. */
 export function condicionesDe(ficha) {
   if (!ficha.licencia) return [];
-  if (ficha.licencia === 'OTRA') return Array.isArray(ficha.condicionesOtra) ? ficha.condicionesOtra : [];
-  return LICENCIAS[ficha.licencia]?.condiciones ?? [];
+  if (ficha.licencia === 'OTRA') return Array.isArray(ficha.condicionesOtra) ? [...ficha.condicionesOtra] : [];
+  return [...(LICENCIAS[ficha.licencia]?.condiciones ?? [])];
 }
 ```
 
@@ -250,6 +278,7 @@ export function condicionesDe(ficha) {
 ```js
 // plataforma/js/juridico/ficha.js
 // Qué es una ficha jurídica y cómo nace, con sus precargas según el origen.
+import { LICENCIAS } from './licencias.js';
 
 export const TIPOS_FICHA = ['titulo', 'historia', 'personaje', 'fondo', 'retrato', 'musica', 'efecto', 'voz'];
 export const ORIGENES_FICHA = ['escrito', 'creado', 'subido', 'biblioteca'];
@@ -292,6 +321,10 @@ export function tipoObraPara(tipoFicha) {
 export function crearFicha(tipoFicha, { origen = 'escrito', biblioteca = null } = {}) {
   const tipoObra = tipoObraPara(tipoFicha);
   if (!ORIGENES_FICHA.includes(origen)) throw new Error(`Origen inválido: ${origen}`);
+  if (origen === 'biblioteca') {
+    if (!biblioteca) throw new Error('El origen biblioteca requiere la entrada de biblioteca.');
+    if (!(biblioteca.licencia in LICENCIAS)) throw new Error(`Licencia desconocida en la biblioteca: ${biblioteca.licencia}`);
+  }
   const ficha = {
     tipo: tipoFicha,
     tipoObra,
@@ -315,12 +348,12 @@ export function crearFicha(tipoFicha, { origen = 'escrito', biblioteca = null } 
     prueba: 'ninguna',
   };
   if (origen === 'creado') ficha.prueba = 'sello';
-  if (origen === 'biblioteca' && biblioteca) {
+  if (origen === 'biblioteca') {
     ficha.autoria = 'otra_persona';
     ficha.autorNombre = biblioteca.autor ?? '';
     ficha.titular = 'otra_persona';
     ficha.respaldo = 'licencia';
-    ficha.licencia = biblioteca.licencia ?? null;
+    ficha.licencia = biblioteca.licencia;
     ficha.credito = biblioteca.creditoSugerido ?? '';
   }
   return ficha;
@@ -330,7 +363,7 @@ export function crearFicha(tipoFicha, { origen = 'escrito', biblioteca = null } 
 - [ ] **Step 5: Correr las pruebas para ver que pasan**
 
 Run: `node --test tests/ficha.test.js`
-Expected: `# pass 7`, `# fail 0`.
+Expected: `# pass 10`, `# fail 0`.
 
 - [ ] **Step 6: Commit**
 
@@ -1079,7 +1112,7 @@ Expected: FAIL con `Cannot find module` para `semaforo.js`.
 import { condicionesDe } from './licencias.js';
 
 export const CODIGOS_ROJO = ['R01', 'R02', 'R03', 'R04', 'R05', 'R06'];
-export const CODIGOS_AMARILLO = ['A01', 'A02', 'A03', 'A04', 'A05', 'A06', 'A07', 'A08', 'A09', 'A10'];
+export const CODIGOS_AMARILLO = ['A01', 'A02', 'A03', 'A04', 'A05', 'A06', 'A07', 'A08', 'A09', 'A10', 'A11'];
 export const CODIGOS_NOTAS = ['N_TITULO', 'N_IA', 'N_IA_APORTE', 'N_SELLO'];
 
 const vacio = (texto) => !(texto ?? '').trim();
@@ -1270,6 +1303,20 @@ Insertar estos objetos dentro del arreglo, antes del corchete final (con la coma
     "ficha": { "autoria": "otra_persona", "autorNombre": "Ana", "titular": "otra_persona", "respaldo": "licencia", "licencia": "OTRA", "licenciaTexto": "Uso libre con crédito", "condicionesOtra": ["BY"], "licenciaLeida": true },
     "contexto": { "destino": "gratis" },
     "esperado": { "color": "amarillo", "razones": ["A01", "A02"] }
+  },
+  {
+    "nombre": "C32 A11 otra licencia sin describir",
+    "base": { "tipo": "efecto", "origen": "subido" },
+    "ficha": { "autoria": "otra_persona", "autorNombre": "Ana", "titular": "otra_persona", "respaldo": "licencia", "licencia": "OTRA", "licenciaLeida": true, "credito": "«Viento» de Ana" },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "amarillo", "razones": ["A11"] }
+  },
+  {
+    "nombre": "C33 otra licencia descrita sin condiciones marcadas: verde",
+    "base": { "tipo": "efecto", "origen": "subido" },
+    "ficha": { "autoria": "otra_persona", "autorNombre": "Ana", "titular": "otra_persona", "respaldo": "licencia", "licencia": "OTRA", "licenciaTexto": "Ana me autorizó por correo a usarlo en cualquier juego mío, sin condiciones", "licenciaLeida": true, "credito": "«Viento» de Ana" },
+    "contexto": { "destino": "venta" },
+    "esperado": { "color": "verde", "razones": [] }
   }
 ```
 
@@ -1294,6 +1341,7 @@ Reemplazar la línea `// ---- Amarillo ---- (Task 7)` por:
   if (ficha.autoria === 'otra_persona' && vacio(ficha.autorNombre)) razones.push('A08');
   if (ficha.respaldo === 'cesion' && ficha.titular === 'otra_persona') razones.push('A09');
   if (ficha.respaldo === 'autorizacion' && destino === 'venta') razones.push('A10');
+  if (tieneLicencia && ficha.licencia === 'OTRA' && vacio(ficha.licenciaTexto)) razones.push('A11');
 ```
 
 Y reemplazar el bloque `// ---- Notas ----` por:
@@ -1308,7 +1356,7 @@ Y reemplazar el bloque `// ---- Notas ----` por:
 - [ ] **Step 4: Correr las pruebas para ver que pasan**
 
 Run: `node --test tests/semaforo.test.js`
-Expected: `# pass 32`, `# fail 0` (31 casos más la prueba de cobertura).
+Expected: `# pass 34`, `# fail 0` (33 casos más la prueba de cobertura).
 
 - [ ] **Step 5: Commit**
 
@@ -1437,7 +1485,7 @@ export function puedePublicar(proyecto, semaforos, avisos) {
 - [ ] **Step 5: Correr todas las pruebas**
 
 Run: `npm test`
-Expected: `# fail 0`. Total de pruebas: 7 (ficha) + 23 (modelo) + 32 (semáforo) = 62.
+Expected: `# fail 0`. Total de pruebas: 10 (ficha) + 23 (modelo) + 34 (semáforo) = 67.
 
 - [ ] **Step 6: Commit**
 
@@ -2194,6 +2242,13 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
       "fuente": "Memo, sección 5: Ley 1955 de 2019, art. 181.",
       "accion": "Pide a {autor} una cesión o una licencia por escrito.",
       "verificacion": "verificada"
+    },
+    "A11": {
+      "breve": "Dices que hay otra licencia, pero no la describiste.",
+      "completo": "Una licencia que la plataforma no conoce solo se puede evaluar si dices qué permite y qué no. Escribe de dónde sale (un correo, un contrato, un aviso en la página de descarga), qué usos autoriza y marca las condiciones que impone: crédito, no comercial, compartir igual, sin derivadas. Si no marcas ninguna, la plataforma confía en tu lectura.",
+      "fuente": "Memo, sección 5: Ley 1955 de 2019, art. 181 (los contratos autorizan solo los usos pactados).",
+      "accion": "Describe la licencia y marca sus condiciones.",
+      "verificacion": "verificada"
     }
   },
 
@@ -2294,12 +2349,12 @@ git commit -m "Contenido jurídico con fuentes del memo y textos del semáforo" 
 - [ ] **Step 1: Correr toda la suite**
 
 Run: `npm test`
-Expected: `# fail 0`. Total: 7 (ficha) + 23 (modelo) + 32 (semáforo) + 5 (archivos) + 5 (almacén) + 7 (copias) + 7 (contenido) = 86 pruebas.
+Expected: `# fail 0`. Total: 10 (ficha) + 23 (modelo) + 34 (semáforo) + 5 (archivos) + 5 (almacén) + 7 (copias) + 7 (contenido) = 91 pruebas.
 
-- [ ] **Step 2: Borrar los `.gitkeep`**
+- [ ] **Step 2: Borrar los `.gitkeep` y copiar la licencia de JSZip**
 
-Run: `node -e "for(const f of ['plataforma/js/estado/.gitkeep','plataforma/js/juridico/.gitkeep','plataforma/contenido/.gitkeep','tests/.gitkeep']){require('fs').rmSync(f,{force:true})};console.log('listo')"`
-Expected: `listo`.
+Run: `node -e "const fs=require('fs');for(const f of ['plataforma/js/estado/.gitkeep','plataforma/js/juridico/.gitkeep','plataforma/js/vendor/.gitkeep','plataforma/contenido/.gitkeep','tests/.gitkeep']){fs.rmSync(f,{force:true})};fs.copyFileSync('node_modules/jszip/LICENSE.markdown','plataforma/js/vendor/LICENSE-jszip.md');console.log('listo')"`
+Expected: `listo`. La licencia acompaña al archivo vendorizado porque la plataforma se publica en GitHub Pages.
 
 - [ ] **Step 3: Escribir `plataforma/README.md`**
 
@@ -2337,7 +2392,7 @@ publicarse sin cotejo. `npm test` imprime la lista.
 - [ ] **Step 4: Confirmar que el repositorio queda limpio salvo lo nuevo**
 
 Run: `git status --short`
-Expected: solo `D` para los cuatro `.gitkeep` y `??` para `plataforma/README.md`.
+Expected: solo `D` para los cinco `.gitkeep` y `??` para `plataforma/README.md` y `plataforma/js/vendor/LICENSE-jszip.md`.
 
 - [ ] **Step 5: Commit**
 

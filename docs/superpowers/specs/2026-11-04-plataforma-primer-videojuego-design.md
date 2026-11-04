@@ -248,6 +248,9 @@ Las bases legales de interpretación, fonograma, obra derivada y título están 
 | A08 | `autoria` es `otra_persona` y el nombre vacío | Escribir el nombre |
 | A09 | `respaldo` es `cesion` y `titular` es `otra_persona` | Revisar: si te cedieron los derechos, el titular eres tú |
 | A10 | `respaldo` es `autorizacion` y `destino` es `venta` | Una autorización informal no basta para vender; pedir cesión o licencia escrita |
+| A11 | Licencia «otra» sin describir (texto vacío) | Describir la licencia y marcar sus condiciones; sin descripción, una licencia desconocida no puede leerse como permisiva |
+
+Una ficha con origen biblioteca siempre nace de una entrada del catálogo con licencia conocida; crearla sin entrada es un error de programación, no un estado posible.
 
 **Verde**: ninguna regla aplica. Algunos verdes llevan nota informativa en el informe: contenido con IA reconocido (A04 resuelta), aporte humano sobre IA (A05 resuelta, la protección cubre solo el aporte), y el título (información sobre marca).
 
