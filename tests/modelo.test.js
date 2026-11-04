@@ -148,3 +148,79 @@ test('eliminar un personaje deja intactas las demás fichas; nombres vacíos por
   assert.equal(p.fichas[luis.id].tipo, 'personaje');
   assert.equal(p.fichas.titulo.tipo, 'titulo');
 });
+
+// tests/modelo.test.js (agregar al final)
+import { validar, escenasAlcanzables } from '../plataforma/js/estado/modelo.js';
+
+function juegoConTresEscenas() {
+  const p = proyectoBase();
+  const muelle = p.juego.escenas[0];
+  muelle.nombre = 'El muelle';
+  const torre = agregarEscena(p, 'La torre');
+  const amanecer = agregarEscena(p, 'Amanecer');
+  const ana = agregarPersonaje(p, { nombre: 'Ana' });
+  agregarLinea(muelle, 'dialogo', { personaje: ana.id, texto: 'Hola' });
+  agregarLinea(muelle, 'decision', { texto: '¿Subes?', opciones: [{ texto: 'Sí', escena: torre.id }, { texto: 'No', escena: amanecer.id }] });
+  agregarLinea(torre, 'fin', { texto: 'Fin' });
+  agregarLinea(amanecer, 'narracion', { texto: 'Amanece.' });
+  return { p, muelle, torre, amanecer, ana };
+}
+
+test('un juego bien armado no tiene avisos bloqueantes', () => {
+  const { p } = juegoConTresEscenas();
+  const avisos = validar(p.juego);
+  assert.deepEqual(avisos.filter((a) => a.nivel === 'bloqueante'), []);
+});
+
+test('escenasAlcanzables sigue decisiones y el avance natural a la siguiente escena', () => {
+  const { p, muelle, torre, amanecer } = juegoConTresEscenas();
+  const extra = agregarEscena(p, 'Extra');
+  agregarLinea(amanecer, 'narracion', { texto: 'sin decisión ni fin: sigue a la siguiente' });
+  assert.deepEqual([...escenasAlcanzables(p.juego)].sort(), [muelle.id, torre.id, amanecer.id, extra.id].sort());
+  agregarLinea(amanecer, 'fin', { texto: 'Fin' });
+  assert.equal(escenasAlcanzables(p.juego).has(extra.id), false, 'con fin en Amanecer, Extra ya no se alcanza');
+});
+
+test('B01: sin escena inicial válida', () => {
+  const { p } = juegoConTresEscenas();
+  p.juego.escenaInicial = 'esc_noexiste';
+  assert.ok(validar(p.juego).some((a) => a.codigo === 'B01' && a.nivel === 'bloqueante'));
+});
+
+test('B02: opción de decisión sin escena destino', () => {
+  const { p, muelle } = juegoConTresEscenas();
+  muelle.lineas[1].opciones[1].escena = null;
+  const aviso = validar(p.juego).find((a) => a.codigo === 'B02');
+  assert.equal(aviso.nivel, 'bloqueante');
+  assert.equal(aviso.escena, muelle.id);
+  assert.equal(aviso.linea, 1);
+  assert.match(aviso.mensaje, /opción 2/);
+});
+
+test('B03: diálogo sin personaje', () => {
+  const { p, muelle } = juegoConTresEscenas();
+  muelle.lineas[0].personaje = null;
+  assert.ok(validar(p.juego).some((a) => a.codigo === 'B03' && a.nivel === 'bloqueante'));
+});
+
+test('I01: escena inalcanzable', () => {
+  const { p, amanecer } = juegoConTresEscenas();
+  agregarLinea(amanecer, 'fin', { texto: 'Fin' });
+  const perdida = agregarEscena(p, 'Perdida');
+  const aviso = validar(p.juego).find((a) => a.codigo === 'I01');
+  assert.equal(aviso.nivel, 'informativo');
+  assert.equal(aviso.escena, perdida.id);
+});
+
+test('I02: personaje sin retrato; I03: escena sin líneas; I04: sin fin alcanzable; I05: líneas tras el corte', () => {
+  const { p, torre, ana } = juegoConTresEscenas();
+  const vacia = agregarEscena(p, 'Vacía');
+  torre.lineas = [{ tipo: 'narracion', texto: 'Nunca termina' }];
+  agregarLinea(p.juego.escenas[0], 'narracion', { texto: 'después de la decisión' });
+  const codigos = validar(p.juego).map((a) => a.codigo);
+  assert.ok(codigos.includes('I02'), 'Ana no tiene retrato');
+  assert.ok(codigos.includes('I03'), `Vacía (${vacia.id}) no tiene líneas`);
+  assert.ok(codigos.includes('I04'), 'ninguna escena alcanzable termina en fin');
+  assert.ok(codigos.includes('I05'), 'hay una línea después de la decisión del muelle');
+  assert.ok(!codigos.includes('B03'), `${ana.nombre} sigue existiendo`);
+});
