@@ -2166,7 +2166,31 @@ test('describir usa «esa persona» sin nombre y conserva las notas', () => {
   assert.equal(titulo.notas[0].codigo, 'N_TITULO');
   assert.equal(titulo.notas[0].breve, contenido.notas.N_TITULO.breve);
 });
+
+test('las fuentes dicen «por verificar» solo en las entradas pendientes', () => {
+  for (const grupo of [contenido.campos, contenido.tiposObra, contenido.reglas, contenido.notas]) {
+    for (const [clave, entrada] of Object.entries(grupo)) {
+      const dice = /por verificar/i.test(entrada.fuente);
+      assert.equal(dice, entrada.verificacion === 'pendiente', `${clave}: la fuente y la marca de verificación no coinciden`);
+    }
+  }
+});
+
+test('ningún texto hace las afirmaciones que el memo prohíbe', () => {
+  const prohibido = /\bnula\b|gratuit|una sola obra|categoría autónoma|titular originario|se pueden ceder los morales/i;
+  const textos = JSON.stringify(contenido);
+  assert.ok(!prohibido.test(textos), `encontrado: ${textos.match(prohibido)?.[0]}`);
+});
+
+test('describir no falla con un código desconocido ni con una ficha ausente', () => {
+  const d = describir({ color: 'amarillo', razones: ['A99'], notas: ['N_X'] }, null, contenido);
+  assert.equal(d.razones[0].breve, 'A99');
+  assert.equal(d.razones[0].verificacion, 'pendiente');
+  assert.equal(d.notas[0].codigo, 'N_X');
+});
 ```
+
+Las dos pruebas de vigilancia hacen mecánica la regla de la casa: lo que el memo no cubre va marcado como pendiente, y lo que el memo prohíbe no aparece.
 
 - [ ] **Step 2: Correr las pruebas para ver que fallan**
 
@@ -2179,7 +2203,7 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
 {
   "nombre": "Mi primer videojuego",
   "aviso": "Material educativo. No constituye asesoría legal personalizada. Cada contrato debe revisarse con un abogado.",
-  "fuentePrincipal": "Memo de verificación legal (Bonasera, 4 de noviembre de 2026), en 07-memo-verificacion-bonasera.md. Toda cita de norma sale de ahí.",
+  "fuentePrincipal": "Memo de verificación legal (Bonasera, 4 de noviembre de 2026), en 07-memo-verificacion-bonasera.md. Toda cita de norma sale de ahí. Lo que describe licencias Creative Commons sale del texto de esas licencias, no del derecho colombiano.",
 
   "campos": {
     "tipoObra": {
@@ -2190,19 +2214,19 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
     },
     "autoria": {
       "breve": "Autor es quien crea la obra, y nace con derechos sin registrar nada. Solo las personas son autoras: una herramienta de IA no lo es.",
-      "completo": "El derecho nace con la creación, sin ninguna formalidad (Ley 23 de 1982, art. 9; Decisión 351, art. 52). La ley presume autor a quien aparece como tal en la obra divulgada, salvo prueba en contrario (Ley 23, art. 10, parágrafo, texto de la Ley 1915 de 2018). La DNDA no registra resultados generados por inteligencia artificial sin aporte humano: solo reconoce como autoras a las personas físicas (pronunciamientos y resoluciones de 2023 a 2025).",
+      "completo": "El derecho nace con la creación, sin ninguna formalidad (Ley 23 de 1982, art. 9; Decisión 351, art. 52). La ley presume, salvo prueba en contrario, que es titular quien divulgó la obra con su nombre o seudónimo (Ley 23, art. 10, parágrafo, texto de la Ley 1915 de 2018). La DNDA no registra resultados generados por inteligencia artificial sin aporte humano: solo reconoce como autoras a las personas físicas (pronunciamientos y resoluciones de 2023 a 2025).",
       "fuente": "Memo, sección 2: Ley 23 de 1982, arts. 9 y 10; Decisión 351, arts. 8 y 52; DNDA, pronunciamientos sobre IA.",
       "verificacion": "verificada"
     },
     "titular": {
-      "breve": "El autor siempre es quien creó. El titular de los derechos patrimoniales puede ser otra persona, si hubo una cesión escrita.",
-      "completo": "Los derechos patrimoniales (reproducir, comunicar al público, transformar, distribuir) se pueden ceder o licenciar. Los morales no: son perpetuos, inalienables e irrenunciables (Ley 23 de 1982, art. 30; Decisión 351, art. 11), y la transmisión de los patrimoniales no los comprende (Ley 23, art. 182, parágrafo). Si alguien te cedió los derechos sobre su obra, tú eres el titular patrimonial y ella sigue siendo la autora.",
-      "fuente": "Memo, sección 2: Ley 23 de 1982, arts. 30 y 182; Decisión 351, art. 11.",
+      "breve": "El autor siempre es quien creó. El titular de los derechos patrimoniales puede ser otra persona, si hubo una cesión escrita o un encargo con contrato escrito.",
+      "completo": "Los derechos patrimoniales, los que permiten explotar la obra, se pueden ceder o licenciar. Los morales no: son perpetuos, inalienables e irrenunciables (Ley 23 de 1982, art. 30; Decisión 351, art. 11), y la transmisión de los patrimoniales no los comprende (Ley 23, art. 182, parágrafo). Si alguien te cedió los derechos sobre su obra, tú eres el titular patrimonial y ella sigue siendo la autora. Si la obra se hizo por encargo o dentro de un trabajo, la ley presume que los patrimoniales pasan a quien la encargó, siempre con contrato escrito y solo en la medida de sus actividades habituales (Ley 23, art. 20).",
+      "fuente": "Memo, sección 2: Ley 23 de 1982, arts. 20, 30 y 182; Decisión 351, art. 11.",
       "verificacion": "verificada"
     },
     "respaldo": {
-      "breve": "Lo que no está escrito, se pelea. Una cesión o una licencia de derechos patrimoniales debe constar por escrito.",
-      "completo": "Desde 2019 los contratos sobre derechos patrimoniales deben constar por escrito como condición de validez; si no dicen plazo ni territorio, se entienden por cinco años y para el país; y para oponerlos a terceros deben inscribirse en el registro (Ley 1955 de 2019, art. 181, que modificó el art. 183 de la Ley 23 de 1982; Ley 44 de 1993, art. 6). Una licencia abierta, como Creative Commons, es un permiso de uso escrito con condiciones: léelas.",
+      "breve": "Lo que no está escrito, se pelea. Un contrato sobre derechos patrimoniales debe constar por escrito.",
+      "completo": "Desde 2019 los contratos sobre derechos patrimoniales deben constar por escrito como condición de validez; si no dicen plazo ni territorio, la ley les pone límites por defecto (cinco años); y para oponerlos a terceros deben inscribirse en el registro (Ley 1955 de 2019, art. 181, que modificó el art. 183 de la Ley 23 de 1982; Ley 44 de 1993, art. 6). Una licencia abierta, como Creative Commons, tiene condiciones escritas: léelas.",
       "fuente": "Memo, secciones 2 y 5: Ley 1955 de 2019, art. 181; Ley 23 de 1982, art. 183; Ley 44 de 1993, art. 6.",
       "verificacion": "verificada"
     },
@@ -2215,13 +2239,13 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
     "prueba": {
       "breve": "El registro no crea derechos: los prueba. Mientras tanto, guarda lo que demuestre cuándo y cómo creaste.",
       "completo": "El registro ante la Dirección Nacional de Derecho de Autor es declarativo: presume ciertos los hechos inscritos salvo prueba en contrario y deja a salvo los derechos de terceros (Decisión 351, art. 53). Se hace en línea en registroenlinea.gov.co, por partes: software, obra musical, obra artística, obra literaria, obra audiovisual. Desde 2023 tiene una tasa con tope de 2 UVT (Ley 2294 de 2023, art. 169); confirma la tarifa vigente en el portal. El sello de esta plataforma solo guarda fecha y huella del archivo: es un indicio, no un registro.",
-      "fuente": "Memo, secciones 2, 3 y 6: Decisión 351, art. 53; Ley 2294 de 2023, art. 169; DNDA, guía de registro. Tarifa vigente: laguna 8 del memo.",
+      "fuente": "Memo, secciones 2, 3 y 6: Decisión 351, art. 53; Ley 2294 de 2023, art. 169; DNDA, guía de registro. Tarifa vigente: por verificar (laguna 8 del memo).",
       "verificacion": "pendiente"
     },
     "destino": {
       "breve": "Las licencias delimitan usos. Lo que sirve para un juego gratis puede no servir para uno que se vende.",
-      "completo": "Un contrato o una licencia solo autoriza los usos que dice, en el territorio y por el plazo que dice (Ley 1955 de 2019, art. 181). Una licencia no comercial no cubre un juego que se vende; una licencia limitada a este curso no cubre publicar fuera de él. Si cambias el destino del juego, la plataforma revisa cada elemento otra vez.",
-      "fuente": "Memo, sección 5: Ley 1955 de 2019, art. 181.",
+      "completo": "Cada licencia o contrato describe los usos que permite: una licencia no comercial no cubre un juego que se vende, y una licencia limitada a este curso no cubre publicar fuera de él. Para los contratos sobre derechos patrimoniales, además, la ley exige que consten por escrito y pone plazo y territorio por defecto cuando no se pactan (Ley 1955 de 2019, art. 181). Si cambias el destino del juego, la plataforma revisa cada elemento otra vez.",
+      "fuente": "Memo, sección 5: Ley 1955 de 2019, art. 181. Texto de las licencias Creative Commons (creativecommons.org/licenses).",
       "verificacion": "verificada"
     }
   },
@@ -2229,37 +2253,37 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
   "tiposObra": {
     "literaria": {
       "breve": "Historia, narración y diálogos son obra literaria. La lógica de las decisiones también está escrita en texto.",
-      "completo": "La ley protege toda creación original expresada en forma literaria, y protege los programas de ordenador en los mismos términos que las obras literarias (Decisión 351, arts. 4 y 23). Tu guion con decisiones no es software, pero muestra por qué el código de un juego también es obra: es texto creativo. La DNDA registra el guion de un videojuego como obra literaria.",
-      "fuente": "Memo, sección 2: Decisión 351, arts. 4 y 23; Ley 23 de 1982, art. 2; DNDA, registro por partes.",
+      "completo": "La ley protege los programas de ordenador en los mismos términos que las obras literarias (Decisión 351, art. 23), y la DNDA registra el guion de un videojuego como obra literaria. Tu guion con decisiones no es software, pero sirve para entender por qué la ley protege el código de un juego como obra literaria.",
+      "fuente": "Memo, sección 2: Decisión 351, arts. 4 y 23; DNDA, registro por partes.",
       "verificacion": "verificada"
     },
     "artistica": {
       "breve": "Fondos y retratos son obras artísticas: dibujo, pintura o ilustración, con o sin píxeles.",
-      "completo": "La DNDA registra las ilustraciones y animaciones de un videojuego como obras artísticas. La protección no depende de la técnica ni de la calidad: depende de que sea tu expresión original y no una copia.",
-      "fuente": "Memo, sección 2: DNDA, preguntas frecuentes sobre registro de videojuegos; Ley 23 de 1982, art. 2.",
+      "completo": "La DNDA registra las ilustraciones y animaciones de un videojuego como obras artísticas. El derecho sobre lo que dibujaste nace cuando lo creas, sin registro (Ley 23 de 1982, art. 9).",
+      "fuente": "Memo, sección 2: DNDA, preguntas frecuentes sobre registro de videojuegos; Ley 23 de 1982, art. 9.",
       "verificacion": "verificada"
     },
     "musical_fonograma": {
       "breve": "Una pista tiene dos capas: la composición (obra musical) y la grabación (fonograma). Pueden tener titulares distintos.",
-      "completo": "La DNDA registra la música de un videojuego como obra musical. La grabación, además, tiene derechos propios de quien la produce. Esta ficha trata el archivo como una sola pieza: si compusiste y grabaste tú, las dos capas son tuyas; si la grabación es de otra persona, necesitas su autorización aunque la composición sea tuya.",
+      "completo": "La DNDA registra la música de un videojuego como obra musical. La grabación, además, puede tener derechos propios de quien la produce; el régimen exacto está por verificar. Esta ficha trata el archivo como una sola pieza: si compusiste y grabaste tú, las dos capas son tuyas; si la grabación es de otra persona, pídele autorización aunque la composición sea tuya.",
       "fuente": "Memo, sección 2: DNDA, registro por partes (obra musical). Derechos del productor de fonogramas: por verificar en la Ley 23 de 1982 y la Decisión 351 (spec, sección 19, punto 1).",
       "verificacion": "pendiente"
     },
     "fonograma": {
-      "breve": "Un efecto de sonido es, al menos, una grabación (fonograma). Si tiene creación propia, también es obra.",
-      "completo": "Grabar el mar con el celular produce un fonograma con derechos de quien lo grabó. Diseñar un sonido desde cero puede ser, además, una obra. En los dos casos, si no lo hiciste tú necesitas permiso de quien lo hizo.",
+      "breve": "Un efecto de sonido es, al menos, una grabación (fonograma). Si tiene creación propia, también puede ser obra.",
+      "completo": "Grabar el mar con el celular produce una grabación que puede tener derechos de quien la hizo. Diseñar un sonido desde cero puede ser, además, una obra. En los dos casos, si no lo hiciste tú, pide permiso a quien lo hizo. El régimen exacto de las grabaciones está por verificar.",
       "fuente": "Derechos del productor de fonogramas: por verificar en la Ley 23 de 1982 y la Decisión 351 (spec, sección 19, punto 1).",
       "verificacion": "pendiente"
     },
     "interpretacion": {
-      "breve": "Una voz grabada trae los derechos de quien interpreta, además de los de la grabación. Si la voz es de otra persona, necesitas su autorización escrita.",
-      "completo": "Quien presta su voz a un personaje es intérprete y tiene derechos sobre esa interpretación, distintos de los del guion y de los de la grabación. Si grabaste tu propia voz, todo es tuyo. Si grabó un amigo, pídele autorización por escrito y dale crédito.",
+      "breve": "Una voz grabada puede traer derechos de quien interpreta, además de los de la grabación. Si la voz es de otra persona, pídele autorización por escrito y dale crédito.",
+      "completo": "Quien presta su voz a un personaje puede tener derechos propios sobre esa interpretación, distintos de los del guion y de los de la grabación; el régimen exacto está por verificar. Si grabaste tu propia voz, todo es tuyo. Si grabó un amigo, pídele autorización por escrito y dale crédito.",
       "fuente": "Derechos de los intérpretes: por verificar en la Ley 23 de 1982 y la Decisión 351 (spec, sección 19, punto 1).",
       "verificacion": "pendiente"
     },
     "titulo": {
-      "breve": "El título no es una obra en sí mismo. Si quieres exclusividad sobre el nombre, el camino es la marca, ante la Superintendencia de Industria y Comercio.",
-      "completo": "El derecho de autor protege la obra, no su nombre aislado. Para que nadie más use el nombre de tu juego en el mercado hay que registrarlo como marca, que es otro trámite y otra oficina. Esta ficha no bloquea nada; solo te lo recuerda.",
+      "breve": "El título, por sí solo, probablemente no es una obra. Si quieres exclusividad sobre el nombre, el camino suele ser la marca, ante la Superintendencia de Industria y Comercio.",
+      "completo": "El derecho de autor protege la obra; qué protección tiene el título por sí mismo, y cómo se relaciona con el registro de marca, está por verificar. Esta ficha no bloquea nada; solo te lo recuerda.",
       "fuente": "Protección del título y relación con la marca: por verificar (spec, sección 19, punto 3).",
       "verificacion": "pendiente"
     }
@@ -2267,71 +2291,71 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
 
   "reglas": {
     "R01": {
-      "breve": "No se sabe quién hizo esta pieza ni con qué permiso. Sin autor ni licencia, se presume que todos los derechos están reservados.",
-      "completo": "Que algo esté en internet no significa que sea libre. La protección nace con la creación, sin registro ni aviso (Ley 23 de 1982, art. 9; Decisión 351, art. 52). Sin saber quién es el autor no hay a quién pedirle permiso, y sin permiso no hay forma de usar la pieza. La única salida es reemplazarla.",
+      "breve": "No se sabe quién hizo esta pieza ni con qué permiso. Sin autor ni licencia, debes suponer que todos los derechos están reservados.",
+      "completo": "Que algo esté en internet no significa que sea libre. La protección nace con la creación, sin registro ni aviso (Ley 23 de 1982, art. 9; Decisión 351, art. 52). Sin autor ni licencia debes suponer que todos los derechos están reservados, y sin saber quién es el autor no hay a quién pedirle permiso: no hay forma segura de usar la pieza. La única salida es reemplazarla.",
       "fuente": "Memo, sección 2: Ley 23 de 1982, art. 9; Decisión 351, art. 52.",
       "accion": "Reemplaza esta pieza por una con autor y licencia conocidos.",
       "verificacion": "verificada"
     },
     "R02": {
       "breve": "Otra persona hizo esto, o es la titular de sus derechos, y no tienes nada escrito que te autorice a usarlo.",
-      "completo": "Si otra persona creó la obra, o si tú la creaste pero los derechos patrimoniales son de otra persona (por ejemplo, un encargo ya pagado o una cesión anterior), necesitas su permiso. Una cesión o una licencia de derechos patrimoniales debe constar por escrito (Ley 1955 de 2019, art. 181). Un «me dijo que sí» no basta para publicar. Pídele una cesión o una licencia por escrito, con usos, territorio, plazo y contraprestación.",
-      "fuente": "Memo, sección 5: Ley 1955 de 2019, art. 181.",
+      "completo": "Si otra persona creó la obra, o si tú la creaste pero los derechos patrimoniales son de otra persona (por ejemplo, la hiciste por encargo con contrato escrito, o ya le cediste los derechos), necesitas su permiso. Un contrato sobre derechos patrimoniales debe constar por escrito (Ley 1955 de 2019, art. 181). Un «me dijo que sí» no basta para vender. Pídele una cesión o una licencia por escrito, con usos, territorio y plazo, y acuerden la contraprestación.",
+      "fuente": "Memo, secciones 2 y 5: Ley 23 de 1982, art. 20; Ley 1955 de 2019, art. 181.",
       "accion": "Pide a {autor} una cesión o una licencia por escrito.",
       "verificacion": "verificada"
     },
     "R03": {
       "breve": "Esta licencia prohíbe el uso comercial y tu juego se va a vender.",
-      "completo": "Las licencias Creative Commons con la condición NC (no comercial) permiten usar la obra solo sin fines comerciales. Vender el juego, o monetizarlo, es un uso comercial. Los contratos autorizan solo los usos pactados (Ley 1955 de 2019, art. 181). Cambia el destino del juego o reemplaza la pieza.",
-      "fuente": "Texto de las licencias Creative Commons (creativecommons.org/licenses). Memo, sección 5: Ley 1955 de 2019, art. 181.",
+      "completo": "Las licencias Creative Commons con la condición NC (no comercial) permiten usar la obra solo sin fines comerciales. Vender el juego, o monetizarlo, es un uso comercial. Cambia el destino del juego o reemplaza la pieza.",
+      "fuente": "Texto de las licencias Creative Commons (creativecommons.org/licenses).",
       "accion": "Cambia el destino del juego o reemplaza esta pieza.",
       "verificacion": "verificada"
     },
     "R04": {
       "breve": "Esta licencia no permite obras derivadas y marcaste que la modificaste.",
-      "completo": "La condición ND (sin derivadas) permite copiar y distribuir la obra tal cual, pero no transformarla. Usa el original sin cambios o reemplázala por una pieza que sí permita modificaciones.",
+      "completo": "La condición ND (sin derivadas) permite copiar y distribuir la obra tal cual, pero no permite compartir versiones modificadas. Usa el original sin cambios o reemplázala por una pieza que sí permita modificaciones.",
       "fuente": "Texto de las licencias Creative Commons ND (creativecommons.org/licenses).",
       "accion": "Vuelve a la versión original de la pieza o reemplázala.",
       "verificacion": "verificada"
     },
     "R05": {
       "breve": "Esta pieza solo se puede usar dentro de la plataforma y del curso. Tu juego va a salir de ahí.",
-      "completo": "Una licencia limitada autoriza únicamente los usos que nombra. Esta cubre el ejercicio del curso; no cubre publicar el juego, ni gratis ni vendido. Es el mismo principio del art. 181 de la Ley 1955 de 2019: los usos no pactados no están autorizados.",
-      "fuente": "Memo, sección 5: Ley 1955 de 2019, art. 181.",
+      "completo": "Una licencia limitada describe los únicos usos que permite. Esta cubre el ejercicio del curso; no cubre publicar el juego, ni gratis ni vendido.",
+      "fuente": "Texto de la licencia CURSO de la biblioteca de la plataforma.",
       "accion": "Reemplaza la pieza o cambia el destino del juego a uso personal.",
       "verificacion": "verificada"
     },
     "R06": {
-      "breve": "Tu historia o tu personaje se basa en una obra ajena y no tienes autorización.",
-      "completo": "Transformar una obra (adaptarla, continuarla, hacer una secuela) es un derecho patrimonial de su titular; la obra derivada necesita su autorización. Si la obra original está en dominio público no la necesitas: dilo en la ficha y da el crédito.",
+      "breve": "Esta pieza se basa en una obra ajena y no tienes autorización.",
+      "completo": "Transformar una obra (adaptarla, continuarla, versionarla, hacer una secuela) requiere la autorización de su titular; la obra derivada no se puede usar sin ella. El fundamento exacto está por verificar. Si la obra original ya está en dominio público no hace falta pedirla: marca la casilla de autorización y dilo en el crédito.",
       "fuente": "Derecho de transformación y obra derivada: por verificar en la Ley 23 de 1982 y la Decisión 351 (spec, sección 19, punto 2).",
-      "accion": "Consigue la autorización por escrito o cambia la historia.",
+      "accion": "Consigue la autorización por escrito o cambia la obra.",
       "verificacion": "pendiente"
     },
     "A01": {
       "breve": "Esta licencia exige dar crédito y todavía no lo escribiste.",
-      "completo": "La condición BY (atribución) obliga a nombrar al autor, la obra y la licencia, y a indicar si hubo cambios. Usa el crédito sugerido o escríbelo con esos datos.",
+      "completo": "La condición BY (atribución) obliga a nombrar al autor y la licencia, y a indicar si hubo cambios. Usa el crédito sugerido o escríbelo con esos datos.",
       "fuente": "Texto de las licencias Creative Commons BY (creativecommons.org/licenses).",
       "accion": "Escribe el crédito con autor, obra y licencia.",
       "verificacion": "verificada"
     },
     "A02": {
       "breve": "Otra persona es la autora: nombrarla es su derecho moral, aunque te haya cedido los derechos patrimoniales.",
-      "completo": "La paternidad es un derecho moral perpetuo, inalienable e irrenunciable (Ley 23 de 1982, art. 30; Decisión 351, art. 11). Una cesión de derechos patrimoniales no la toca. Incluso con licencias que no exigen crédito, como CC0, en Colombia el autor conserva el derecho a ser nombrado.",
+      "completo": "La paternidad es un derecho moral perpetuo, inalienable e irrenunciable (Ley 23 de 1982, art. 30; Decisión 351, art. 11). Una cesión de derechos patrimoniales no la toca. Incluso con licencias que no exigen crédito, como CC0, en Colombia el autor no puede renunciar a su paternidad (Ley 23, art. 30, parágrafo 1).",
       "fuente": "Memo, sección 2: Ley 23 de 1982, art. 30; Decisión 351, art. 11.",
       "accion": "Escribe el crédito de {autor}.",
       "verificacion": "verificada"
     },
     "A03": {
       "breve": "Esta licencia exige compartir igual: tu juego tendría que llevar la misma licencia.",
-      "completo": "La condición SA (compartir igual) obliga a licenciar la obra derivada, es decir tu juego, bajo la misma licencia. Es una decisión sobre todo el juego, no solo sobre esta pieza. Si la aceptas, marca la casilla; si no, reemplaza la pieza.",
+      "completo": "La condición SA (compartir igual) puede obligarte a licenciar tu juego bajo la misma licencia, porque incorpora la obra. Es una decisión sobre todo el juego, no solo sobre esta pieza. Si la aceptas, marca la casilla; si no, reemplaza la pieza.",
       "fuente": "Texto de las licencias Creative Commons SA (creativecommons.org/licenses).",
       "accion": "Acepta licenciar tu juego igual o reemplaza la pieza.",
       "verificacion": "verificada"
     },
     "A04": {
-      "breve": "Esto lo generó una herramienta de IA sin aporte tuyo. No tendrás derechos sobre ello y debes declararlo.",
-      "completo": "La DNDA niega el registro de resultados generados por inteligencia artificial sin aporte humano: solo las personas físicas son autoras (resoluciones de 2023 a 2025). Puedes usarlo en tu juego, pero cualquiera podrá usar lo mismo, y conviene revisar los términos de la herramienta. Reconócelo en la ficha y decláralo en los créditos.",
+      "breve": "Esto lo generó una herramienta de IA sin aporte tuyo. No podrás reclamarlo como obra tuya, y la plataforma te pide declararlo.",
+      "completo": "La DNDA niega el registro de resultados generados por inteligencia artificial sin aporte humano: solo las personas físicas son autoras (resoluciones de 2023 a 2025). Puedes usarlo en tu juego si los términos de la herramienta lo permiten; revísalos. Reconócelo en la ficha y la plataforma lo declarará en los créditos.",
       "fuente": "Memo, sección 2: DNDA, pronunciamientos sobre IA y resoluciones 2023-2025.",
       "accion": "Marca que lo entiendes y escribe el crédito como «generado con IA (nombre de la herramienta)».",
       "verificacion": "verificada"
@@ -2344,16 +2368,16 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
       "verificacion": "pendiente"
     },
     "A06": {
-      "breve": "Subiste algo que hiciste tú, pero no tienes nada que pruebe cuándo.",
-      "completo": "El derecho nace con la creación (Ley 23 de 1982, art. 9), pero si alguien discute la autoría tendrás que probarla. Sirven el archivo original con sus datos, un repositorio con historial, o el registro ante la DNDA, que es la prueba fuerte y presume ciertos los hechos inscritos (Decisión 351, art. 53).",
+      "breve": "Subiste algo hecho por ti, o con tu aporte, y no tienes nada que pruebe cuándo.",
+      "completo": "El derecho nace con la creación (Ley 23 de 1982, art. 9), pero si alguien discute la autoría tendrás que probarla; si hubo IA de por medio, lo que tendrás que mostrar es tu aporte. Sirven el archivo original con sus datos o un repositorio con historial; para una obra tuya, también el registro ante la DNDA, que presume ciertos los hechos inscritos (Decisión 351, art. 53).",
       "fuente": "Memo, sección 2: Ley 23 de 1982, art. 9; Decisión 351, art. 53.",
       "accion": "Indica qué prueba tienes: archivo original, repositorio o registro.",
       "verificacion": "verificada"
     },
     "A07": {
       "breve": "Hay una licencia y no la has leído.",
-      "completo": "Una licencia es un contrato: autoriza lo que dice y nada más (Ley 1955 de 2019, art. 181). Léela antes de marcar la casilla; las condiciones de esta pieza están en su ficha.",
-      "fuente": "Memo, sección 5: Ley 1955 de 2019, art. 181.",
+      "completo": "Una licencia autoriza lo que dice: léela antes de marcar la casilla. Las condiciones de esta pieza están en su ficha.",
+      "fuente": "Texto de las licencias Creative Commons (creativecommons.org/licenses).",
       "accion": "Lee la licencia y marca la casilla.",
       "verificacion": "verificada"
     },
@@ -2373,7 +2397,7 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
     },
     "A10": {
       "breve": "Tienes una autorización informal y tu juego se va a vender.",
-      "completo": "Para explotar comercialmente una obra ajena necesitas un contrato escrito de cesión o de licencia, con usos, plazo y contraprestación (Ley 1955 de 2019, art. 181). Un mensaje de «úsalo tranquilo» sirve para un ejercicio, no para vender.",
+      "completo": "Para explotar comercialmente una obra ajena necesitas un contrato escrito de cesión o de licencia, con usos, territorio y plazo (Ley 1955 de 2019, art. 181). Un mensaje de «úsalo tranquilo» sirve para un ejercicio, no para vender.",
       "fuente": "Memo, sección 5: Ley 1955 de 2019, art. 181.",
       "accion": "Pide a {autor} una cesión o una licencia por escrito.",
       "verificacion": "verificada"
@@ -2381,21 +2405,21 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
     "A11": {
       "breve": "Dices que hay otra licencia, pero no la describiste.",
       "completo": "Una licencia que la plataforma no conoce solo se puede evaluar si dices qué permite y qué no. Escribe de dónde sale (un correo, un contrato, un aviso en la página de descarga), qué usos autoriza y marca las condiciones que impone: crédito, no comercial, compartir igual, sin derivadas. Si no marcas ninguna, la plataforma confía en tu lectura.",
-      "fuente": "Memo, sección 5: Ley 1955 de 2019, art. 181 (los contratos autorizan solo los usos pactados).",
+      "fuente": "Regla de la plataforma, sin afirmación legal: una licencia que no se describe no se puede evaluar.",
       "accion": "Describe la licencia y marca sus condiciones.",
       "verificacion": "verificada"
     },
     "A12": {
       "breve": "Dices que te respalda una licencia, pero no elegiste cuál.",
       "completo": "Sin saber qué licencia es, la plataforma no puede decir qué usos permite. Elige una de la lista o marca «otra» y descríbela.",
-      "fuente": "Memo, sección 5: Ley 1955 de 2019, art. 181 (los contratos autorizan solo los usos pactados).",
+      "fuente": "Regla de la plataforma, sin afirmación legal.",
       "accion": "Elige la licencia que te dieron.",
       "verificacion": "verificada"
     },
     "A13": {
       "breve": "Este elemento se hizo con IA y no dijiste con qué herramienta.",
-      "completo": "El crédito de un elemento generado con IA debe nombrar la herramienta, y los términos de uso de cada herramienta son distintos: algunos permiten uso comercial y otros no. Sin el nombre, ni el crédito ni la revisión de términos se pueden hacer.",
-      "fuente": "Memo, sección 2: DNDA, pronunciamientos sobre IA (solo las personas físicas son autoras). Términos de cada herramienta: por verificar en cada caso.",
+      "completo": "La plataforma arma el crédito con el nombre de la herramienta y necesita saber cuál es. Además, cada herramienta tiene sus propios términos de uso, y algunos no permiten uso comercial. Sin el nombre, ni el crédito ni la revisión de términos se pueden hacer.",
+      "fuente": "Memo, sección 2: DNDA, pronunciamientos sobre IA (solo las personas físicas son autoras). Regla de la plataforma para el crédito.",
       "accion": "Escribe el nombre de la herramienta de IA.",
       "verificacion": "verificada"
     }
@@ -2403,14 +2427,14 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
 
   "notas": {
     "N_TITULO": {
-      "breve": "El título no es una obra. Si quieres que nadie más lo use, es un asunto de marca, ante la Superintendencia de Industria y Comercio.",
-      "completo": "El derecho de autor protege la obra, no su nombre aislado. El registro de marca es otro trámite, en otra oficina, y da exclusividad sobre el nombre en el mercado.",
+      "breve": "El título, por sí solo, probablemente no es una obra. Si quieres que nadie más lo use, el camino suele ser la marca, ante la Superintendencia de Industria y Comercio.",
+      "completo": "El derecho de autor protege la obra; qué protección tiene el título por sí mismo está por verificar. El registro de marca es otro trámite, en otra oficina, y da exclusividad sobre el nombre en el mercado.",
       "fuente": "Protección del título y relación con la marca: por verificar (spec, sección 19, punto 3).",
       "verificacion": "pendiente"
     },
     "N_IA": {
-      "breve": "Este elemento fue generado con IA y está declarado. No tienes derechos sobre él.",
-      "completo": "La DNDA no lo registraría: no hay autor humano. Cualquiera puede usar el mismo resultado. Queda declarado en los créditos y en el informe.",
+      "breve": "Este elemento fue generado con IA y está declarado. No podrás reclamarlo como obra tuya.",
+      "completo": "La DNDA no lo registraría como obra: solo reconoce como autoras a las personas. Queda declarado en los créditos y en el informe.",
       "fuente": "Memo, sección 2: DNDA, pronunciamientos sobre IA y resoluciones 2023-2025.",
       "verificacion": "verificada"
     },
@@ -2422,7 +2446,7 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
     },
     "N_SELLO": {
       "breve": "El sello de la plataforma guarda fecha, hora y huella del archivo. Es un indicio de cuándo existía; no es un registro.",
-      "completo": "El sello se calcula en tu navegador y queda en el proyecto y en el informe. Puede ayudarte a mostrar que el archivo existía en esa fecha, pero no presume nada ante nadie. La prueba fuerte es el registro ante la DNDA (Decisión 351, art. 53).",
+      "completo": "El sello se calcula en tu navegador, con la hora de tu propio equipo, y queda en el proyecto y en el informe. Es un indicio débil de cuándo existía el archivo; no presume nada ante nadie. La prueba fuerte es el registro ante la DNDA (Decisión 351, art. 53).",
       "fuente": "Memo, sección 2: Decisión 351, art. 53. Fórmula exacta para describir el sello: por verificar (spec, sección 19, punto 8).",
       "verificacion": "pendiente"
     }
@@ -2442,7 +2466,7 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
  * @param {object} contenido el JSON de contenido/juridico.json ya cargado
  */
 export function describir(resultado, ficha, contenido) {
-  const autor = (ficha.autorNombre ?? '').trim() || 'esa persona';
+  const autor = (ficha?.autorNombre ?? '').trim() || 'esa persona';
   const razones = resultado.razones.map((codigo) => {
     const texto = contenido.reglas?.[codigo] ?? {};
     return {
@@ -2478,7 +2502,7 @@ export async function cargarContenido(url = new URL('../../contenido/juridico.js
 - [ ] **Step 5: Correr las pruebas para ver que pasan**
 
 Run: `node --test tests/contenido.test.js`
-Expected: `# pass 7`, `# fail 0`, y en la salida la línea `Entradas pendientes de verificación jurídica (10): campos.prueba, tiposObra.musical_fonograma, tiposObra.fonograma, tiposObra.interpretacion, tiposObra.titulo, reglas.R06, reglas.A05, notas.N_TITULO, notas.N_IA_APORTE, notas.N_SELLO`.
+Expected: `# pass 10`, `# fail 0`, y en la salida la línea `Entradas pendientes de verificación jurídica (10): campos.prueba, tiposObra.musical_fonograma, tiposObra.fonograma, tiposObra.interpretacion, tiposObra.titulo, reglas.R06, reglas.A05, notas.N_TITULO, notas.N_IA_APORTE, notas.N_SELLO`.
 
 - [ ] **Step 6: Commit**
 
@@ -2498,7 +2522,7 @@ git commit -m "Contenido jurídico con fuentes del memo y textos del semáforo" 
 - [ ] **Step 1: Correr toda la suite**
 
 Run: `npm test`
-Expected: `# fail 0`. Total: 10 (ficha) + 12 (modelo) + 22 (validación) + 46 (semáforo) + 6 (archivos) + 8 (almacén) + 10 (copias) + 7 (contenido) = 121 pruebas.
+Expected: `# fail 0`. Total: 10 (ficha) + 12 (modelo) + 22 (validación) + 46 (semáforo) + 6 (archivos) + 8 (almacén) + 10 (copias) + 10 (contenido) = 124 pruebas.
 
 - [ ] **Step 1b: Ajustes menores acumulados de las revisiones**
 
