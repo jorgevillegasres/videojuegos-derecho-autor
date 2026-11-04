@@ -2,7 +2,7 @@
 import 'fake-indexeddb/auto';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { abrirAlmacen } from '../plataforma/js/estado/almacen.js';
+import { abrirAlmacen, traducirError } from '../plataforma/js/estado/almacen.js';
 import { crearProyecto } from '../plataforma/js/estado/modelo.js';
 
 let contador = 0;
@@ -51,4 +51,34 @@ test('borrarTodo vacía proyecto y archivos', async () => {
 
 test('sin IndexedDB, abrirAlmacen explica el problema', () => {
   assert.throws(() => abrirAlmacen({ nombre: 'x', indexedDB: null }), /IndexedDB no disponible/);
+});
+
+test('guardar un archivo con el mismo id lo reemplaza y la lista sale ordenada', async () => {
+  const almacen = abrir();
+  const datos = (texto) => new TextEncoder().encode(texto).buffer;
+  await almacen.guardarArchivo('c', { tipo: 'image/png', datos: datos('c') });
+  await almacen.guardarArchivo('a', { tipo: 'image/png', datos: datos('a') });
+  await almacen.guardarArchivo('b', { tipo: 'image/png', datos: datos('b') });
+  await almacen.guardarArchivo('a', { tipo: 'image/webp', datos: datos('a2') });
+  assert.deepEqual(await almacen.listarArchivos(), ['a', 'b', 'c']);
+  const a = await almacen.leerArchivo('a');
+  assert.equal(a.tipo, 'image/webp');
+  assert.equal(new TextDecoder().decode(a.datos), 'a2');
+  await almacen.cerrar();
+});
+
+test('guardarArchivo rechaza lo que no sea ArrayBuffer y las llamadas tras cerrar fallan', async () => {
+  const almacen = abrir();
+  await assert.rejects(almacen.guardarArchivo('x', { tipo: 'image/png', datos: 'texto' }), /ArrayBuffer/);
+  await almacen.cerrar();
+  await assert.rejects(almacen.cargar());
+});
+
+test('traducirError convierte la falta de espacio en un mensaje con código', () => {
+  const e = traducirError({ name: 'QuotaExceededError' });
+  assert.equal(e.codigo, 'sin_espacio');
+  assert.match(e.message, /Guarda una copia/);
+  assert.equal(traducirError(null).message, 'Transacción cancelada');
+  const otro = new Error('x');
+  assert.equal(traducirError(otro), otro);
 });

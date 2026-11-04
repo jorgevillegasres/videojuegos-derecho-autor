@@ -8,6 +8,19 @@ export const NOMBRE_BD_DEFECTO = 'mi-primer-videojuego';
 const VERSION_BD = 1;
 const CLAVE_PROYECTO = 'actual';
 
+/** Traduce los errores del navegador a mensajes para el estudiante, con un código estable para la interfaz. */
+export function traducirError(error) {
+  if (error?.name === 'QuotaExceededError') {
+    return Object.assign(
+      new Error('No hay espacio en el navegador para guardar. Guarda una copia y libera espacio.'),
+      { codigo: 'sin_espacio', cause: error },
+    );
+  }
+  return error ?? new Error('Transacción cancelada');
+}
+
+const esArrayBuffer = (valor) => Object.prototype.toString.call(valor) === '[object ArrayBuffer]';
+
 export function abrirAlmacen({ nombre = NOMBRE_BD_DEFECTO, indexedDB = globalThis.indexedDB } = {}) {
   if (!indexedDB) throw new Error('Este navegador no permite guardar el proyecto (IndexedDB no disponible).');
 
@@ -18,32 +31,55 @@ export function abrirAlmacen({ nombre = NOMBRE_BD_DEFECTO, indexedDB = globalThi
       if (!db.objectStoreNames.contains('proyecto')) db.createObjectStore('proyecto');
       if (!db.objectStoreNames.contains('archivos')) db.createObjectStore('archivos');
     };
-    solicitud.onsuccess = () => resolve(solicitud.result);
-    solicitud.onerror = () => reject(solicitud.error);
+    solicitud.onblocked = () => reject(new Error('Cierra las otras pestañas de la plataforma y vuelve a intentar.'));
+    solicitud.onsuccess = () => {
+      const db = solicitud.result;
+      db.onversionchange = () => db.close();
+      resolve(db);
+    };
+    solicitud.onerror = () => reject(traducirError(solicitud.error));
   });
+  bd.catch(() => {}); // la falla se reporta en cada uso; esto solo evita un rechazo sin manejar
+
+  function transaccionCompleta(db, almacenes, modo, accion) {
+    return new Promise((resolve, reject) => {
+      const transaccion = db.transaction(almacenes, modo);
+      const resultado = accion(transaccion);
+      transaccion.oncomplete = () => resolve(resultado?.result);
+      transaccion.onerror = () => reject(traducirError(transaccion.error));
+      transaccion.onabort = () => reject(traducirError(transaccion.error));
+    });
+  }
 
   async function correr(almacen, modo, accion) {
     const db = await bd;
-    return new Promise((resolve, reject) => {
-      const transaccion = db.transaction(almacen, modo);
-      const solicitud = accion(transaccion.objectStore(almacen));
-      transaccion.oncomplete = () => resolve(solicitud.result);
-      transaccion.onerror = () => reject(transaccion.error);
-      transaccion.onabort = () => reject(transaccion.error ?? new Error('Transacción cancelada'));
-    });
+    return transaccionCompleta(db, almacen, modo, (transaccion) => accion(transaccion.objectStore(almacen)));
   }
 
   return {
     cargar: () => correr('proyecto', 'readonly', (s) => s.get(CLAVE_PROYECTO)).then((v) => v ?? null),
     guardar: (proyecto) => correr('proyecto', 'readwrite', (s) => s.put(proyecto, CLAVE_PROYECTO)),
-    guardarArchivo: (id, archivo) => correr('archivos', 'readwrite', (s) => s.put(archivo, id)),
+    guardarArchivo: async (id, archivo) => {
+      if (!esArrayBuffer(archivo?.datos)) throw new Error('Los archivos se guardan como { tipo, datos: ArrayBuffer }.');
+      return correr('archivos', 'readwrite', (s) => s.put(archivo, id));
+    },
     leerArchivo: (id) => correr('archivos', 'readonly', (s) => s.get(id)).then((v) => v ?? null),
     borrarArchivo: (id) => correr('archivos', 'readwrite', (s) => s.delete(id)),
     listarArchivos: () => correr('archivos', 'readonly', (s) => s.getAllKeys()),
     borrarTodo: async () => {
-      await correr('proyecto', 'readwrite', (s) => s.clear());
-      await correr('archivos', 'readwrite', (s) => s.clear());
+      const db = await bd;
+      await transaccionCompleta(db, ['proyecto', 'archivos'], 'readwrite', (transaccion) => {
+        transaccion.objectStore('proyecto').clear();
+        transaccion.objectStore('archivos').clear();
+        return null;
+      });
     },
-    cerrar: async () => (await bd).close(),
+    cerrar: async () => {
+      try {
+        (await bd).close();
+      } catch {
+        // si la base nunca abrió, no hay nada que cerrar
+      }
+    },
   };
 }
