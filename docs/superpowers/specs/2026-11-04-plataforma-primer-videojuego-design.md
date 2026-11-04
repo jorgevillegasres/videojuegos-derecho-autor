@@ -229,7 +229,7 @@ Las bases legales de interpretación, fonograma, obra derivada y título están 
 
 | Código | Condición | Acción sugerida |
 |---|---|---|
-| R01 | Pieza de biblioteca con licencia `DESCONOCIDO` | Reemplazar la pieza |
+| R01 | Licencia `DESCONOCIDO` (autor desconocido), venga de donde venga la pieza | Reemplazar la pieza |
 | R02 | `autoria` es `otra_persona` o `titular` es `otra_persona`, y `respaldo` es `ninguno` | Pedir cesión o licencia escrita a esa persona |
 | R03 | Respaldo de licencia con condición no comercial y `destino` es `venta` | Cambiar el destino o reemplazar la pieza |
 | R04 | Respaldo de licencia con condición sin derivadas y «lo modifiqué» marcado | Usar la pieza sin modificar o reemplazarla |
