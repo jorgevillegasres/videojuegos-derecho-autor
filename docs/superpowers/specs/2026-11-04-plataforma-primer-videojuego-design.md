@@ -179,7 +179,7 @@ Un catálogo pequeño que viene con la plataforma: al menos 8 fondos, 8 retratos
 | `CURSO` | Licencia limitada al curso | Solo para uso dentro de la plataforma y del curso; no se puede publicar fuera |
 | `DESCONOCIDO` | Autor desconocido, «encontrado en internet» | Se presume reservado; no se puede usar |
 
-La mezcla es intencional. Cada tipo de medio incluye al menos una pieza `CC-BY-4.0` y una `CC0` o `DP`; hay al menos una pista `CC-BY-NC-4.0`, una imagen `CC-BY-ND-4.0`, una imagen `CC-BY-SA-4.0`, una pieza `CURSO` y una pieza `DESCONOCIDO`.
+La mezcla es intencional. Cada tipo de medio incluye al menos una pieza `CC-BY-4.0` y una `CC0` o `DP`; hay al menos una pista `CC-BY-NC-4.0`, una imagen `CC-BY-ND-4.0`, una imagen `CC-BY-SA-4.0`, una pieza `CURSO` y una pieza `DESCONOCIDO`. El audio con `CC-BY-ND-4.0` queda fuera del catálogo mientras el docente resuelve el punto 10 de la sección 19.
 
 **Honestidad del catálogo.** Las piezas `CURSO` y `DESCONOCIDO` son en realidad piezas `CC0` o de dominio público, que la plataforma puede distribuir. El catálogo guarda su licencia y fuente reales en un campo `simulado`, y la explicación de la ficha lo revela en «ver más»: «en la vida real esta pieza es CC0 de tal autor; aquí se presenta así para que practiques». No se inventa ningún autor ni ninguna fuente.
 
@@ -223,18 +223,18 @@ Las bases legales de interpretación, fonograma, obra derivada y título están 
 
 ### 12.4 Reglas del semáforo
 
-`evaluar(ficha, contexto)` es una función pura. Entra la ficha y el contexto (`destino` del juego, y la entrada de biblioteca si la hay). Sale `{ color, razones, acciones }`, donde cada razón tiene código, texto y fuente, y cada acción es una frase concreta. Se evalúan todas las reglas; el color es el peor que aplique. Sin reglas aplicables, verde.
+`evaluar(ficha, contexto)` es una función pura. Entra la ficha y el contexto (`destino` del juego, obligatorio y validado). Sale `{ color, razones, notas }`, donde `razones` y `notas` son listas de códigos; los textos, fuentes y acciones de cada código los agrega aparte `describir()` desde el archivo de contenido. Dos atajos: la ficha del título siempre es verde con la nota de marca, y una pieza de autor desconocido (R01) devuelve solo R01, porque nada la arregla salvo reemplazarla. En los demás casos se evalúan todas las reglas; el color es el peor que aplique. Sin reglas aplicables, verde.
 
 **Rojo** (incompatibilidad o vacío):
 
 | Código | Condición | Acción sugerida |
 |---|---|---|
 | R01 | Pieza de biblioteca con licencia `DESCONOCIDO` | Reemplazar la pieza |
-| R02 | `autoria` es `otra_persona` y `respaldo` es `ninguno` | Pedir cesión o licencia escrita a esa persona |
-| R03 | Licencia con condición no comercial y `destino` es `venta` | Cambiar el destino o reemplazar la pieza |
-| R04 | Licencia con condición sin derivadas y «lo modifiqué» marcado | Usar la pieza sin modificar o reemplazarla |
-| R05 | Licencia `CURSO` y `destino` distinto de `personal` | Reemplazar la pieza o cambiar el destino |
-| R06 | Historia o personaje basado en obra ajena sin autorización | Pedir autorización o cambiar la historia |
+| R02 | `autoria` es `otra_persona` o `titular` es `otra_persona`, y `respaldo` es `ninguno` | Pedir cesión o licencia escrita a esa persona |
+| R03 | Respaldo de licencia con condición no comercial y `destino` es `venta` | Cambiar el destino o reemplazar la pieza |
+| R04 | Respaldo de licencia con condición sin derivadas y «lo modifiqué» marcado | Usar la pieza sin modificar o reemplazarla |
+| R05 | Respaldo de licencia `CURSO` y `destino` distinto de `personal` | Reemplazar la pieza o cambiar el destino |
+| R06 | Cualquier ficha (historia, personaje o elemento) basada en obra ajena sin autorización: adaptaciones, versiones de canciones, fan art | Pedir autorización o cambiar la obra |
 
 **Amarillo** (falta algo subsanable):
 
@@ -245,12 +245,16 @@ Las bases legales de interpretación, fonograma, obra derivada y título están 
 | A03 | Licencia con compartir igual y la casilla de aceptación sin marcar | Marcar la casilla, o reemplazar la pieza |
 | A04 | `autoria` es `ia` y la casilla de reconocimiento sin marcar | Marcar la casilla y escribir el crédito como «generado con IA (herramienta)» |
 | A05 | `autoria` es `ia_con_aporte` y el aporte humano sin describir | Describir el aporte |
-| A06 | Origen `subido`, `autoria` `yo` y `prueba` `ninguna` | Elegir una prueba: archivo original, repositorio o registro |
+| A06 | Origen `subido`, `autoria` `yo` o `ia_con_aporte`, y `prueba` `ninguna` | Elegir una prueba: archivo original, repositorio o registro |
 | A07 | Hay licencia y «leí la licencia» sin marcar | Leerla y marcar |
 | A08 | `autoria` es `otra_persona` y el nombre vacío | Escribir el nombre |
 | A09 | `respaldo` es `cesion` y `titular` es `otra_persona` | Revisar: si te cedieron los derechos, el titular eres tú |
 | A10 | `respaldo` es `autorizacion` y `destino` es `venta` | Una autorización informal no basta para vender; pedir cesión o licencia escrita |
 | A11 | Licencia «otra» sin describir (texto vacío) | Describir la licencia y marcar sus condiciones; sin descripción, una licencia desconocida no puede leerse como permisiva |
+| A12 | `respaldo` es `licencia` pero no se eligió cuál | Elegir la licencia |
+| A13 | `autoria` es `ia` o `ia_con_aporte` y la herramienta no está escrita | Escribir la herramienta; sin ella no se puede armar el crédito «generado con IA (herramienta)» |
+
+Las reglas R03, R04 y R05 solo aplican cuando el respaldo es una licencia; un código de licencia que quedó de una elección anterior no dispara nada. El formulario (plan 3) limpia los campos de licencia cuando el respaldo deja de ser «licencia», oculta el respaldo cuando autoría y titular son «yo», oculta los campos que no aplican al título, y presenta A01 y A02 como una sola acción cuando coinciden. La pregunta «¿basado en una obra ajena?» se muestra en todas las fichas salvo el título.
 
 Una ficha con origen biblioteca siempre nace de una entrada del catálogo con licencia conocida; crearla sin entrada es un error de programación, no un estado posible.
 
@@ -435,6 +439,12 @@ Lo que la plataforma necesita afirmar y el memo de verificación no cubre. Ningu
 6. **IA con aporte humano**: qué grado de aporte reconoce la DNDA según las resoluciones 2023-2025 que el memo cita; la plataforma solo afirma hoy que sin aporte humano no hay registro.
 7. **Tarifa vigente de la DNDA** (laguna 8 del memo), para el texto de la decisión de registro.
 8. **Fórmula para el sello de la plataforma**: cómo describirlo (indicio de fecha, no prueba en sentido legal) sin sobrevender.
+
+**Decisiones del docente que la revisión técnica dejó abiertas** (no cambian el código hasta que se resuelvan):
+
+9. **Severidad de A10.** Una autorización informal con destino «venta» hoy es amarilla. La revisión observa que el arreglo es el mismo que el de R02 (conseguir un contrato escrito o cambiar el destino), lo que la acercaría a rojo. Decidir con el memo si la autorización informal basta siquiera para «gratis».
+10. **Música con licencia sin derivadas (ND).** Las licencias Creative Commons 4.0 tratan como obra adaptada la música sincronizada con imágenes en movimiento. Si incorporar una pista a un juego cuenta como sincronización, R04 debería aplicar a música, efectos y voces con ND aunque no se hayan modificado, o la biblioteca no debería ofrecer audio ND. Mientras se decide, el catálogo del plan 4 evita audio con ND.
+11. **Voz y retrato de personas reales.** La ficha no puede expresar «la voz es mía como grabación pero la persona que habla es otra», ni «el retrato es de una persona real». El formulario del plan 3 debe preguntar de quién es la voz y si el retrato representa a alguien real, y el memo debe decir qué tratamiento corresponde (derechos del intérprete, imagen).
 
 ## 20. Segunda etapa (no incluida)
 

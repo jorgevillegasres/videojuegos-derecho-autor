@@ -1114,12 +1114,16 @@ git commit -m "Juego mínimo publicable" -m "Co-Authored-By: Claude Fable 5.1 <n
 
 ### Task 6: Semáforo, reglas rojas
 
+### Task 7: Semáforo, reglas amarillas y notas
+
+> Las tareas 6 y 7 se ejecutaron y se revisaron juntas, porque forman un solo módulo. Esta sección describe el estado final después de la revisión de diseño de reglas, que agregó A12 y A13, amplió R02 (titular ajeno), R06 (cualquier tipo de ficha) y A06 (IA con aporte), condicionó R05 a que el respaldo sea una licencia, y exigió un destino válido. La tabla de casos creció de 33 a 43.
+
 **Files:**
 - Create: `plataforma/js/juridico/semaforo.js`
 - Create: `tests/semaforo.casos.json`
 - Test: `tests/semaforo.test.js`
 
-La prueba lee una tabla de casos. Cada caso tiene `base` (con qué `crearFicha` se construye), `ficha` (campos que se sobreescriben), `contexto` y `esperado` (color, razones exactas en orden, notas exactas). El orden de las razones es siempre R01…R06 y luego A01…A10.
+La prueba lee una tabla de casos. Cada caso tiene `base` (con qué `crearFicha` se construye), `ficha` (campos que se sobreescriben), `contexto` y `esperado` (color, razones exactas en orden, notas exactas). El orden de las razones es siempre R01…R06 y luego A01…A13. Tres pruebas adicionales comprueban que la tabla cubre todas las reglas y notas, que los códigos de cada caso existen y que el nombre del caso no menciona un código que no esté en lo esperado, y que un destino desconocido lanza error.
 
 - [ ] **Step 1: Escribir el ejecutor de casos**
 
@@ -1129,13 +1133,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { crearFicha } from '../plataforma/js/juridico/ficha.js';
-import { evaluar, CODIGOS_ROJO, CODIGOS_AMARILLO } from '../plataforma/js/juridico/semaforo.js';
+import { evaluar, CODIGOS_ROJO, CODIGOS_AMARILLO, CODIGOS_NOTAS } from '../plataforma/js/juridico/semaforo.js';
 
 const casos = JSON.parse(readFileSync(new URL('./semaforo.casos.json', import.meta.url), 'utf8'));
 
 for (const caso of casos) {
   test(`semáforo: ${caso.nombre}`, () => {
-    const ficha = { ...crearFicha(caso.base.tipo, { origen: caso.base.origen ?? 'escrito', biblioteca: caso.base.biblioteca ?? null }), ...caso.ficha };
+    const ficha = Object.freeze({ ...crearFicha(caso.base.tipo, { origen: caso.base.origen ?? 'escrito', biblioteca: caso.base.biblioteca ?? null }), ...caso.ficha });
     const resultado = evaluar(ficha, caso.contexto ?? { destino: 'gratis' });
     assert.equal(resultado.color, caso.esperado.color, `color de «${caso.nombre}»`);
     assert.deepEqual(resultado.razones, caso.esperado.razones, `razones de «${caso.nombre}»`);
@@ -1143,116 +1147,58 @@ for (const caso of casos) {
   });
 }
 
-test('la tabla de casos cubre todas las reglas rojas y amarillas', () => {
+test('la tabla de casos cubre todas las reglas y todas las notas', () => {
   const vistos = new Set(casos.flatMap((c) => c.esperado.razones));
   for (const codigo of [...CODIGOS_ROJO, ...CODIGOS_AMARILLO]) assert.ok(vistos.has(codigo), `ningún caso dispara ${codigo}`);
+  const notasVistas = new Set(casos.flatMap((c) => c.esperado.notas ?? []));
+  for (const codigo of CODIGOS_NOTAS) assert.ok(notasVistas.has(codigo), `ningún caso produce la nota ${codigo}`);
+});
+
+test('los códigos esperados existen y los nombres de los casos son honestos', () => {
+  const conocidos = new Set([...CODIGOS_ROJO, ...CODIGOS_AMARILLO]);
+  for (const caso of casos) {
+    for (const codigo of caso.esperado.razones) assert.ok(conocidos.has(codigo), `${caso.nombre}: código desconocido ${codigo}`);
+    for (const codigo of caso.nombre.match(/\b[RA]\d\d\b/g) ?? []) {
+      assert.ok(caso.esperado.razones.includes(codigo), `${caso.nombre}: el nombre menciona ${codigo} pero no está en lo esperado`);
+    }
+  }
+});
+
+test('un destino desconocido es un error, no un verde silencioso', () => {
+  assert.throws(() => evaluar(crearFicha('fondo', { origen: 'creado' }), { destino: 'ventas' }), /Destino inválido/);
+  assert.throws(() => evaluar(crearFicha('fondo', { origen: 'creado' }), {}), /Destino inválido/);
 });
 ```
 
-- [ ] **Step 2: Escribir los casos de las reglas rojas y el caso verde base**
+- [ ] **Step 2: Escribir la tabla de casos**
 
-```json
-[
-  {
-    "nombre": "C01 creado dentro, destino gratis: verde con nota del sello",
-    "base": { "tipo": "fondo", "origen": "creado" },
-    "ficha": {},
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "verde", "razones": [], "notas": ["N_SELLO"] }
-  },
-  {
-    "nombre": "C02 R01 pieza de biblioteca de autor desconocido",
-    "base": { "tipo": "retrato", "origen": "biblioteca", "biblioteca": { "id": "bib_r9", "autor": "Desconocido", "licencia": "DESCONOCIDO", "creditoSugerido": "" } },
-    "ficha": { "licenciaLeida": true },
-    "contexto": { "destino": "personal" },
-    "esperado": { "color": "rojo", "razones": ["R01"] }
-  },
-  {
-    "nombre": "C03 R02 otra persona sin ningún respaldo",
-    "base": { "tipo": "retrato", "origen": "subido" },
-    "ficha": { "autoria": "otra_persona", "autorNombre": "Camila", "titular": "otra_persona" },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "rojo", "razones": ["R02"] }
-  },
-  {
-    "nombre": "C08 biblioteca BY-NC, destino gratis, leída: verde",
-    "base": { "tipo": "musica", "origen": "biblioteca", "biblioteca": { "id": "bib_m1", "autor": "Autora Ejemplo", "licencia": "CC-BY-NC-4.0", "creditoSugerido": "«Tema» de Autora Ejemplo, CC BY-NC 4.0" } },
-    "ficha": { "licenciaLeida": true },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "verde", "razones": [] }
-  },
-  {
-    "nombre": "C09 R03 biblioteca BY-NC con destino venta",
-    "base": { "tipo": "musica", "origen": "biblioteca", "biblioteca": { "id": "bib_m1", "autor": "Autora Ejemplo", "licencia": "CC-BY-NC-4.0", "creditoSugerido": "«Tema» de Autora Ejemplo, CC BY-NC 4.0" } },
-    "ficha": { "licenciaLeida": true },
-    "contexto": { "destino": "venta" },
-    "esperado": { "color": "rojo", "razones": ["R03"] }
-  },
-  {
-    "nombre": "C12 R04 biblioteca BY-ND modificada",
-    "base": { "tipo": "fondo", "origen": "biblioteca", "biblioteca": { "id": "bib_f3", "autor": "Autor Ejemplo", "licencia": "CC-BY-ND-4.0", "creditoSugerido": "«Faro» de Autor Ejemplo, CC BY-ND 4.0" } },
-    "ficha": { "licenciaLeida": true, "modificado": true },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "rojo", "razones": ["R04"] }
-  },
-  {
-    "nombre": "C13 biblioteca BY-ND sin modificar: verde",
-    "base": { "tipo": "fondo", "origen": "biblioteca", "biblioteca": { "id": "bib_f3", "autor": "Autor Ejemplo", "licencia": "CC-BY-ND-4.0", "creditoSugerido": "«Faro» de Autor Ejemplo, CC BY-ND 4.0" } },
-    "ficha": { "licenciaLeida": true },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "verde", "razones": [] }
-  },
-  {
-    "nombre": "C16 biblioteca CURSO con destino personal: verde",
-    "base": { "tipo": "efecto", "origen": "biblioteca", "biblioteca": { "id": "bib_e2", "autor": "La Casa", "licencia": "CURSO", "creditoSugerido": "«Campana» de La Casa, solo para el curso" } },
-    "ficha": { "licenciaLeida": true },
-    "contexto": { "destino": "personal" },
-    "esperado": { "color": "verde", "razones": [] }
-  },
-  {
-    "nombre": "C17 R05 biblioteca CURSO con destino gratis",
-    "base": { "tipo": "efecto", "origen": "biblioteca", "biblioteca": { "id": "bib_e2", "autor": "La Casa", "licencia": "CURSO", "creditoSugerido": "«Campana» de La Casa, solo para el curso" } },
-    "ficha": { "licenciaLeida": true },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "rojo", "razones": ["R05"] }
-  },
-  {
-    "nombre": "C25 R06 historia basada en obra ajena sin autorización",
-    "base": { "tipo": "historia" },
-    "ficha": { "basadoEnObraAjena": true },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "rojo", "razones": ["R06"] }
-  },
-  {
-    "nombre": "C26 historia basada en obra ajena con autorización: verde",
-    "base": { "tipo": "historia" },
-    "ficha": { "basadoEnObraAjena": true, "autorizacionDerivada": true },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "verde", "razones": [] }
-  },
-  {
-    "nombre": "C27 personaje propio: verde",
-    "base": { "tipo": "personaje" },
-    "ficha": {},
-    "contexto": { "destino": "venta" },
-    "esperado": { "color": "verde", "razones": [] }
-  },
-  {
-    "nombre": "C30 el título siempre es verde con nota de marca",
-    "base": { "tipo": "titulo" },
-    "ficha": { "autoria": "otra_persona", "respaldo": "ninguno" },
-    "contexto": { "destino": "venta" },
-    "esperado": { "color": "verde", "razones": [], "notas": ["N_TITULO"] }
-  }
-]
-```
+`tests/semaforo.casos.json` es la fuente de verdad de los 43 casos (C01 a C43, ordenados por número, con sangría de dos espacios). Cada caso parte de `crearFicha(base.tipo, { origen, biblioteca })` y sobreescribe solo los campos que importan. Resumen de lo que cubre:
+
+| Casos | Qué prueban |
+|---|---|
+| C01 | Creado dentro, destino gratis: verde con nota N_SELLO |
+| C02, C42 | R01: pieza de biblioteca de autor desconocido, con y sin leer la licencia; solo R01 |
+| C03, C35, C41 | R02: otra persona sin respaldo; titular ajeno sin respaldo aunque lo hice yo; R02 junto con A08 |
+| C04–C07 | Cesión: verde con crédito; A02 sin crédito; A09 si el titular sigue siendo la otra persona; A08 sin nombre |
+| C08–C11 | Biblioteca BY-NC: verde en gratis (C08), R03 en venta (C09), A07 sin leer (C10); BY con crédito borrado: A01 y A02 (C11) |
+| C12, C13, C40 | ND: R04 si se modificó; verde sin modificar; R03 y R04 juntas con «otra» licencia NC+ND |
+| C14, C15 | SA: A03 sin aceptar compartir igual; verde aceptando |
+| C16, C17, C39 | CURSO: verde en personal; R05 en gratis y en venta |
+| C18 | CC0 leída: verde |
+| C19–C22, C37, C43 | IA: A04 sin reconocer; verde con nota N_IA al reconocer; A05 sin describir el aporte; verde con N_IA_APORTE al describirlo; A13 sin herramienta; A06 sin prueba del aporte |
+| C23, C24 | Subido por mí: A06 sin prueba; verde con el original |
+| C25, C26, C36 | R06: historia basada en obra ajena sin autorización; verde con autorización; música basada en una canción ajena |
+| C27 | Personaje propio: verde |
+| C28, C29 | Autorización informal: A10 en venta; verde en gratis |
+| C30 | Título: siempre verde con nota N_TITULO |
+| C31–C34, C38 | «Otra» licencia: A01 y A02 con BY sin crédito; A11 sin describirla; verde descrita sin condiciones; A12 respaldo de licencia sin elegir cuál; R03 con NC en venta |
 
 - [ ] **Step 3: Correr las pruebas para ver que fallan**
 
 Run: `node --test tests/semaforo.test.js`
 Expected: FAIL con `Cannot find module` para `semaforo.js`.
 
-- [ ] **Step 4: Escribir `semaforo.js` con las reglas rojas**
+- [ ] **Step 4: Escribir `semaforo.js`**
 
 ```js
 // plataforma/js/juridico/semaforo.js
@@ -1262,39 +1208,57 @@ Expected: FAIL con `Cannot find module` para `semaforo.js`.
 import { condicionesDe } from './licencias.js';
 
 export const CODIGOS_ROJO = ['R01', 'R02', 'R03', 'R04', 'R05', 'R06'];
-export const CODIGOS_AMARILLO = ['A01', 'A02', 'A03', 'A04', 'A05', 'A06', 'A07', 'A08', 'A09', 'A10', 'A11'];
+export const CODIGOS_AMARILLO = ['A01', 'A02', 'A03', 'A04', 'A05', 'A06', 'A07', 'A08', 'A09', 'A10', 'A11', 'A12', 'A13'];
 export const CODIGOS_NOTAS = ['N_TITULO', 'N_IA', 'N_IA_APORTE', 'N_SELLO'];
+const DESTINOS = ['personal', 'gratis', 'venta']; // los mismos valores que estado/modelo.js
 
 const vacio = (texto) => !(texto ?? '').trim();
 
 export function evaluar(ficha, contexto) {
-  const destino = contexto?.destino ?? 'gratis';
-  const notas = [];
+  const destino = contexto?.destino;
+  if (!DESTINOS.includes(destino)) throw new Error(`Destino inválido: ${destino}`);
 
   if (ficha.tipo === 'titulo') {
     return { color: 'verde', razones: [], notas: ['N_TITULO'] };
   }
   // Sin autor ni licencia no hay nada que corregir: solo reemplazar.
   if (ficha.licencia === 'DESCONOCIDO') {
-    return { color: 'rojo', razones: ['R01'], notas };
+    return { color: 'rojo', razones: ['R01'], notas: [] };
   }
 
   const condiciones = condicionesDe(ficha);
   const tieneLicencia = ficha.respaldo === 'licencia' && Boolean(ficha.licencia);
-  const esDerivable = ficha.tipo === 'historia' || ficha.tipo === 'personaje';
+  const ajeno = ficha.autoria === 'otra_persona' || ficha.titular === 'otra_persona';
+  const conIA = ficha.autoria === 'ia' || ficha.autoria === 'ia_con_aporte';
   const razones = [];
+  const notas = [];
 
   // ---- Rojo ----
-  if (ficha.autoria === 'otra_persona' && ficha.respaldo === 'ninguno') razones.push('R02');
+  if (ajeno && ficha.respaldo === 'ninguno') razones.push('R02');
   if (tieneLicencia && condiciones.includes('NC') && destino === 'venta') razones.push('R03');
   if (tieneLicencia && condiciones.includes('ND') && ficha.modificado) razones.push('R04');
-  if (ficha.licencia === 'CURSO' && destino !== 'personal') razones.push('R05');
-  if (esDerivable && ficha.basadoEnObraAjena && !ficha.autorizacionDerivada) razones.push('R06');
+  if (tieneLicencia && ficha.licencia === 'CURSO' && destino !== 'personal') razones.push('R05');
+  if (ficha.basadoEnObraAjena && !ficha.autorizacionDerivada) razones.push('R06');
 
-  // ---- Amarillo ---- (Task 7)
+  // ---- Amarillo ----
+  if (tieneLicencia && condiciones.includes('BY') && vacio(ficha.credito)) razones.push('A01');
+  if (ficha.autoria === 'otra_persona' && ficha.respaldo !== 'ninguno' && vacio(ficha.credito)) razones.push('A02');
+  if (tieneLicencia && condiciones.includes('SA') && !ficha.aceptaCompartirIgual) razones.push('A03');
+  if (ficha.autoria === 'ia' && !ficha.reconoceSinDerechos) razones.push('A04');
+  if (ficha.autoria === 'ia_con_aporte' && vacio(ficha.aporteHumano)) razones.push('A05');
+  if (ficha.origen === 'subido' && (ficha.autoria === 'yo' || ficha.autoria === 'ia_con_aporte') && ficha.prueba === 'ninguna') razones.push('A06');
+  if (tieneLicencia && !ficha.licenciaLeida) razones.push('A07');
+  if (ficha.autoria === 'otra_persona' && vacio(ficha.autorNombre)) razones.push('A08');
+  if (ficha.respaldo === 'cesion' && ficha.titular === 'otra_persona') razones.push('A09');
+  if (ficha.respaldo === 'autorizacion' && destino === 'venta') razones.push('A10');
+  if (tieneLicencia && ficha.licencia === 'OTRA' && vacio(ficha.licenciaTexto)) razones.push('A11');
+  if (ficha.respaldo === 'licencia' && !ficha.licencia) razones.push('A12');
+  if (conIA && vacio(ficha.herramientaIA)) razones.push('A13');
 
-  // ---- Notas ----
+  // ---- Notas (solo informan; no cambian el color) ----
   if (ficha.origen === 'creado' && ficha.prueba === 'sello') notas.push('N_SELLO');
+  if (ficha.autoria === 'ia' && ficha.reconoceSinDerechos) notas.push('N_IA');
+  if (ficha.autoria === 'ia_con_aporte' && !vacio(ficha.aporteHumano)) notas.push('N_IA_APORTE');
 
   const color = razones.some((c) => CODIGOS_ROJO.includes(c)) ? 'rojo'
     : razones.length ? 'amarillo'
@@ -1303,216 +1267,16 @@ export function evaluar(ficha, contexto) {
 }
 ```
 
-- [ ] **Step 5: Correr las pruebas**
+- [ ] **Step 5: Correr las pruebas para ver que pasan**
 
 Run: `node --test tests/semaforo.test.js`
-Expected: los 13 casos pasan; la prueba de cobertura FALLA con `ningún caso dispara A01` (se completa en la tarea 7). Es el único fallo esperado.
+Expected: `# pass 46`, `# fail 0` (43 casos más tres pruebas de la tabla). `npm test` → 85.
 
 - [ ] **Step 6: Commit**
 
 ```bash
 git add plataforma/js/juridico/semaforo.js tests/semaforo.test.js tests/semaforo.casos.json
-git commit -m "Semáforo: reglas rojas y tabla de casos" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
-```
-
----
-
-### Task 7: Semáforo, reglas amarillas y notas
-
-**Files:**
-- Modify: `plataforma/js/juridico/semaforo.js`
-- Modify: `tests/semaforo.casos.json` (agregar casos)
-
-- [ ] **Step 1: Agregar los casos amarillos a `semaforo.casos.json`**
-
-Insertar estos objetos dentro del arreglo, antes del corchete final (con la coma que corresponda):
-
-```json
-  {
-    "nombre": "C04 otra persona con cesión y crédito: verde",
-    "base": { "tipo": "retrato", "origen": "subido" },
-    "ficha": { "autoria": "otra_persona", "autorNombre": "Camila", "titular": "yo", "respaldo": "cesion", "credito": "Retrato de Ana: Camila" },
-    "contexto": { "destino": "venta" },
-    "esperado": { "color": "verde", "razones": [] }
-  },
-  {
-    "nombre": "C05 A02 otra persona con cesión y sin crédito",
-    "base": { "tipo": "retrato", "origen": "subido" },
-    "ficha": { "autoria": "otra_persona", "autorNombre": "Camila", "titular": "yo", "respaldo": "cesion" },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "amarillo", "razones": ["A02"] }
-  },
-  {
-    "nombre": "C06 A09 cesión pero el titular sigue siendo la otra persona",
-    "base": { "tipo": "retrato", "origen": "subido" },
-    "ficha": { "autoria": "otra_persona", "autorNombre": "Camila", "titular": "otra_persona", "respaldo": "cesion", "credito": "Retrato: Camila" },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "amarillo", "razones": ["A09"] }
-  },
-  {
-    "nombre": "C07 A08 otra persona sin nombre",
-    "base": { "tipo": "retrato", "origen": "subido" },
-    "ficha": { "autoria": "otra_persona", "autorNombre": "", "titular": "yo", "respaldo": "cesion", "credito": "Retrato: una amiga" },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "amarillo", "razones": ["A08"] }
-  },
-  {
-    "nombre": "C10 A07 biblioteca sin leer la licencia",
-    "base": { "tipo": "musica", "origen": "biblioteca", "biblioteca": { "id": "bib_m1", "autor": "Autora Ejemplo", "licencia": "CC-BY-NC-4.0", "creditoSugerido": "«Tema» de Autora Ejemplo, CC BY-NC 4.0" } },
-    "ficha": {},
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "amarillo", "razones": ["A07"] }
-  },
-  {
-    "nombre": "C11 A01 y A02 biblioteca BY con el crédito borrado",
-    "base": { "tipo": "fondo", "origen": "biblioteca", "biblioteca": { "id": "bib_f1", "autor": "Autora Ejemplo", "licencia": "CC-BY-4.0", "creditoSugerido": "«Muelle» de Autora Ejemplo, CC BY 4.0" } },
-    "ficha": { "licenciaLeida": true, "credito": "" },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "amarillo", "razones": ["A01", "A02"] }
-  },
-  {
-    "nombre": "C14 A03 biblioteca BY-SA sin aceptar compartir igual",
-    "base": { "tipo": "fondo", "origen": "biblioteca", "biblioteca": { "id": "bib_f2", "autor": "Autor Ejemplo", "licencia": "CC-BY-SA-4.0", "creditoSugerido": "«Torre» de Autor Ejemplo, CC BY-SA 4.0" } },
-    "ficha": { "licenciaLeida": true },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "amarillo", "razones": ["A03"] }
-  },
-  {
-    "nombre": "C15 biblioteca BY-SA aceptando compartir igual: verde",
-    "base": { "tipo": "fondo", "origen": "biblioteca", "biblioteca": { "id": "bib_f2", "autor": "Autor Ejemplo", "licencia": "CC-BY-SA-4.0", "creditoSugerido": "«Torre» de Autor Ejemplo, CC BY-SA 4.0" } },
-    "ficha": { "licenciaLeida": true, "aceptaCompartirIgual": true },
-    "contexto": { "destino": "venta" },
-    "esperado": { "color": "verde", "razones": [] }
-  },
-  {
-    "nombre": "C18 biblioteca CC0 leída: verde (el crédito sugerido viene precargado)",
-    "base": { "tipo": "efecto", "origen": "biblioteca", "biblioteca": { "id": "bib_e1", "autor": "Autor Ejemplo", "licencia": "CC0", "creditoSugerido": "«Olas» de Autor Ejemplo, CC0" } },
-    "ficha": { "licenciaLeida": true },
-    "contexto": { "destino": "venta" },
-    "esperado": { "color": "verde", "razones": [] }
-  },
-  {
-    "nombre": "C19 A04 generado con IA sin reconocer",
-    "base": { "tipo": "fondo", "origen": "subido" },
-    "ficha": { "autoria": "ia", "herramientaIA": "Generador X" },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "amarillo", "razones": ["A04"] }
-  },
-  {
-    "nombre": "C20 generado con IA reconocido y declarado: verde con nota",
-    "base": { "tipo": "fondo", "origen": "subido" },
-    "ficha": { "autoria": "ia", "herramientaIA": "Generador X", "reconoceSinDerechos": true, "credito": "Generado con IA (Generador X)" },
-    "contexto": { "destino": "venta" },
-    "esperado": { "color": "verde", "razones": [], "notas": ["N_IA"] }
-  },
-  {
-    "nombre": "C21 A05 IA con aporte sin describir",
-    "base": { "tipo": "retrato", "origen": "subido" },
-    "ficha": { "autoria": "ia_con_aporte", "herramientaIA": "Generador X" },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "amarillo", "razones": ["A05"] }
-  },
-  {
-    "nombre": "C22 IA con aporte descrito: verde con nota",
-    "base": { "tipo": "retrato", "origen": "subido" },
-    "ficha": { "autoria": "ia_con_aporte", "herramientaIA": "Generador X", "aporteHumano": "Redibujé la cara y cambié la paleta" },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "verde", "razones": [], "notas": ["N_IA_APORTE"] }
-  },
-  {
-    "nombre": "C23 A06 subido por mí sin prueba",
-    "base": { "tipo": "musica", "origen": "subido" },
-    "ficha": {},
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "amarillo", "razones": ["A06"] }
-  },
-  {
-    "nombre": "C24 subido por mí con el archivo original: verde",
-    "base": { "tipo": "musica", "origen": "subido" },
-    "ficha": { "prueba": "original" },
-    "contexto": { "destino": "venta" },
-    "esperado": { "color": "verde", "razones": [] }
-  },
-  {
-    "nombre": "C28 A10 autorización informal con destino venta",
-    "base": { "tipo": "voz", "origen": "subido" },
-    "ficha": { "autoria": "otra_persona", "autorNombre": "Luis", "titular": "otra_persona", "respaldo": "autorizacion", "credito": "Voz del farero: Luis" },
-    "contexto": { "destino": "venta" },
-    "esperado": { "color": "amarillo", "razones": ["A10"] }
-  },
-  {
-    "nombre": "C29 autorización informal con destino gratis: verde",
-    "base": { "tipo": "voz", "origen": "subido" },
-    "ficha": { "autoria": "otra_persona", "autorNombre": "Luis", "titular": "otra_persona", "respaldo": "autorizacion", "credito": "Voz del farero: Luis" },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "verde", "razones": [] }
-  },
-  {
-    "nombre": "C31 subido con otra licencia que exige atribución y sin crédito",
-    "base": { "tipo": "fondo", "origen": "subido" },
-    "ficha": { "autoria": "otra_persona", "autorNombre": "Ana", "titular": "otra_persona", "respaldo": "licencia", "licencia": "OTRA", "licenciaTexto": "Uso libre con crédito", "condicionesOtra": ["BY"], "licenciaLeida": true },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "amarillo", "razones": ["A01", "A02"] }
-  },
-  {
-    "nombre": "C32 A11 otra licencia sin describir",
-    "base": { "tipo": "efecto", "origen": "subido" },
-    "ficha": { "autoria": "otra_persona", "autorNombre": "Ana", "titular": "otra_persona", "respaldo": "licencia", "licencia": "OTRA", "licenciaLeida": true, "credito": "«Viento» de Ana" },
-    "contexto": { "destino": "gratis" },
-    "esperado": { "color": "amarillo", "razones": ["A11"] }
-  },
-  {
-    "nombre": "C33 otra licencia descrita sin condiciones marcadas: verde",
-    "base": { "tipo": "efecto", "origen": "subido" },
-    "ficha": { "autoria": "otra_persona", "autorNombre": "Ana", "titular": "otra_persona", "respaldo": "licencia", "licencia": "OTRA", "licenciaTexto": "Ana me autorizó por correo a usarlo en cualquier juego mío, sin condiciones", "licenciaLeida": true, "credito": "«Viento» de Ana" },
-    "contexto": { "destino": "venta" },
-    "esperado": { "color": "verde", "razones": [] }
-  }
-```
-
-- [ ] **Step 2: Correr las pruebas para ver que fallan**
-
-Run: `node --test tests/semaforo.test.js`
-Expected: FAIL en los casos amarillos (por ejemplo `razones de «C05 …»` esperaba `['A02']` y obtuvo `[]`).
-
-- [ ] **Step 3: Completar `semaforo.js` con las reglas amarillas y las notas de IA**
-
-Reemplazar la línea `// ---- Amarillo ---- (Task 7)` por:
-
-```js
-  // ---- Amarillo ----
-  if (tieneLicencia && condiciones.includes('BY') && vacio(ficha.credito)) razones.push('A01');
-  if (ficha.autoria === 'otra_persona' && ficha.respaldo !== 'ninguno' && vacio(ficha.credito)) razones.push('A02');
-  if (tieneLicencia && condiciones.includes('SA') && !ficha.aceptaCompartirIgual) razones.push('A03');
-  if (ficha.autoria === 'ia' && !ficha.reconoceSinDerechos) razones.push('A04');
-  if (ficha.autoria === 'ia_con_aporte' && vacio(ficha.aporteHumano)) razones.push('A05');
-  if (ficha.origen === 'subido' && ficha.autoria === 'yo' && ficha.prueba === 'ninguna') razones.push('A06');
-  if (tieneLicencia && !ficha.licenciaLeida) razones.push('A07');
-  if (ficha.autoria === 'otra_persona' && vacio(ficha.autorNombre)) razones.push('A08');
-  if (ficha.respaldo === 'cesion' && ficha.titular === 'otra_persona') razones.push('A09');
-  if (ficha.respaldo === 'autorizacion' && destino === 'venta') razones.push('A10');
-  if (tieneLicencia && ficha.licencia === 'OTRA' && vacio(ficha.licenciaTexto)) razones.push('A11');
-```
-
-Y reemplazar el bloque `// ---- Notas ----` por:
-
-```js
-  // ---- Notas (solo informan; no cambian el color) ----
-  if (ficha.origen === 'creado' && ficha.prueba === 'sello') notas.push('N_SELLO');
-  if (ficha.autoria === 'ia' && ficha.reconoceSinDerechos) notas.push('N_IA');
-  if (ficha.autoria === 'ia_con_aporte' && !vacio(ficha.aporteHumano)) notas.push('N_IA_APORTE');
-```
-
-- [ ] **Step 4: Correr las pruebas para ver que pasan**
-
-Run: `node --test tests/semaforo.test.js`
-Expected: `# pass 34`, `# fail 0` (33 casos más la prueba de cobertura).
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add plataforma/js/juridico/semaforo.js tests/semaforo.casos.json
-git commit -m "Semáforo: reglas amarillas y notas informativas" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "Semáforo: reglas, notas y tabla de casos" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -1635,7 +1399,7 @@ export function puedePublicar(proyecto, semaforos, avisos) {
 - [ ] **Step 5: Correr todas las pruebas**
 
 Run: `npm test`
-Expected: `# fail 0`. Total de pruebas: 10 (ficha) + 12 (modelo) + 20 (validación) + 34 (semáforo) = 76.
+Expected: `# fail 0`. Total de pruebas: 10 (ficha) + 12 (modelo) + 20 (validación) + 46 (semáforo) = 88.
 
 - [ ] **Step 6: Commit**
 
@@ -2499,7 +2263,7 @@ git commit -m "Contenido jurídico con fuentes del memo y textos del semáforo" 
 - [ ] **Step 1: Correr toda la suite**
 
 Run: `npm test`
-Expected: `# fail 0`. Total: 10 (ficha) + 12 (modelo) + 20 (validación) + 34 (semáforo) + 5 (archivos) + 5 (almacén) + 7 (copias) + 7 (contenido) = 100 pruebas.
+Expected: `# fail 0`. Total: 10 (ficha) + 12 (modelo) + 20 (validación) + 46 (semáforo) + 5 (archivos) + 5 (almacén) + 7 (copias) + 7 (contenido) = 112 pruebas.
 
 - [ ] **Step 1b: Ajustes menores acumulados de las revisiones**
 
