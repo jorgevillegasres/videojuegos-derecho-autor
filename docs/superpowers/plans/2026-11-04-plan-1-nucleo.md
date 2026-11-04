@@ -2351,6 +2351,10 @@ git commit -m "Contenido jurídico con fuentes del memo y textos del semáforo" 
 Run: `npm test`
 Expected: `# fail 0`. Total: 10 (ficha) + 23 (modelo) + 34 (semáforo) + 5 (archivos) + 5 (almacén) + 7 (copias) + 7 (contenido) = 91 pruebas.
 
+- [ ] **Step 1b: Ajuste menor de la revisión de la tarea 2**
+
+En `plataforma/js/juridico/ficha.js`, cambiar `if (!(biblioteca.licencia in LICENCIAS))` por `if (!Object.hasOwn(LICENCIAS, biblioteca.licencia))`, para que un código como `constructor` no pase por la cadena de prototipos. Correr `node --test tests/ficha.test.js` y confirmar `# pass 10`.
+
 - [ ] **Step 2: Borrar los `.gitkeep` y copiar la licencia de JSZip**
 
 Run: `node -e "const fs=require('fs');for(const f of ['plataforma/js/estado/.gitkeep','plataforma/js/juridico/.gitkeep','plataforma/js/vendor/.gitkeep','plataforma/contenido/.gitkeep','tests/.gitkeep']){fs.rmSync(f,{force:true})};fs.copyFileSync('node_modules/jszip/LICENSE.markdown','plataforma/js/vendor/LICENSE-jszip.md');console.log('listo')"`
