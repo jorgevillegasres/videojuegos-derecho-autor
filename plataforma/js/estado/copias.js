@@ -122,7 +122,7 @@ export function validarEstructura(proyecto) {
       } else {
         usados.add(elemento.archivo);
       }
-      if (!Object.hasOwn(proyecto.fichas, elemento.id)) problemas.push(`el elemento «${nombre}» no tiene ficha`);
+      if (!esObjeto(proyecto.fichas[elemento.id])) problemas.push(`el elemento «${nombre}» no tiene ficha`);
     }
   }
   for (const id of Object.keys(proyecto.fichas)) {

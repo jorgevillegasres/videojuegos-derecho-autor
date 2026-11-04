@@ -39,3 +39,8 @@ test('los límites de tamaño son los del spec', () => {
   assert.equal(LIMITES.audioBytes, 5 * 1024 * 1024);
   assert.equal(LIMITES.avisoPaqueteBytes, 50 * 1024 * 1024);
 });
+
+test('alias image/jpg y espacios alrededor del nombre', () => {
+  assert.equal(extensionPorMime('image/jpg'), 'jpg');
+  assert.equal(mimePorExtension('a.PNG '), 'image/png');
+});

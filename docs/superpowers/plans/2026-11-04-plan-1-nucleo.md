@@ -2522,7 +2522,7 @@ git commit -m "Contenido jurídico con fuentes del memo y textos del semáforo" 
 - [ ] **Step 1: Correr toda la suite**
 
 Run: `npm test`
-Expected: `# fail 0`. Total: 10 (ficha) + 12 (modelo) + 22 (validación) + 46 (semáforo) + 6 (archivos) + 8 (almacén) + 10 (copias) + 10 (contenido) = 124 pruebas.
+Expected: `# fail 0`. Total antes de los ajustes: 123 (10 ficha + 12 modelo + 22 validación + 46 semáforo + 5 archivos + 8 almacén + 10 copias + 10 contenido). Después del paso 1b: 124.
 
 - [ ] **Step 1b: Ajustes menores acumulados de las revisiones**
 
@@ -2552,9 +2552,9 @@ en `docs/superpowers/specs/2026-11-04-plataforma-primer-videojuego-design.md`.
 
 ## Estado
 
-Plan 1 (núcleo) terminado: modelo del juego, fichas, licencias, semáforo, contenido
-jurídico, almacén en IndexedDB y copias comprimidas. Todavía no hay interfaz: llega
-con el plan 2.
+Plan 1 (núcleo) terminado: modelo del juego, validación, fichas, licencias, semáforo,
+contenido jurídico, almacén en IndexedDB y copias comprimidas. Todavía no hay
+interfaz: llega con el plan 2.
 
 ## Pruebas
 
@@ -2571,19 +2571,33 @@ salen.
 
 Todos los textos que ve el estudiante están en `contenido/juridico.json`. Las entradas
 con `"verificacion": "pendiente"` corresponden a la sección 19 del diseño y no deben
-publicarse sin cotejo. `npm test` imprime la lista.
+publicarse sin cotejo. `npm test` imprime la lista. Dos pruebas vigilan que las fuentes
+digan «por verificar» solo en las entradas pendientes y que ningún texto haga las
+afirmaciones que el memo de verificación prohíbe.
+
+## Requisitos del navegador
+
+La plataforma usa IndexedDB y Web Crypto. Web Crypto exige un contexto seguro: HTTPS
+(GitHub Pages) o `localhost`. Para probar en local, sirva la carpeta con un servidor
+estático en `localhost`; abrir `index.html` directamente desde el disco no funciona con
+módulos ES.
+
+## Dependencias
+
+`js/vendor/jszip.min.js` es la copia de JSZip 3.10.2 (licencia en
+`js/vendor/LICENSE-jszip.md`). Es la única dependencia en tiempo de ejecución.
 ````
 
 - [ ] **Step 4: Confirmar que el repositorio queda limpio salvo lo nuevo**
 
 Run: `git status --short`
-Expected: solo `D` para los cinco `.gitkeep` y `??` para `plataforma/README.md` y `plataforma/js/vendor/LICENSE-jszip.md`.
+Expected: `M` en los archivos tocados en el paso 1b, `D` para los cinco `.gitkeep` y `??` para `plataforma/README.md` y `plataforma/js/vendor/LICENSE-jszip.md`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add -A
-git commit -m "Cierre del plan 1: README de la plataforma y limpieza" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "Cierre del plan 1: ajustes de las revisiones, README de la plataforma y limpieza" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---

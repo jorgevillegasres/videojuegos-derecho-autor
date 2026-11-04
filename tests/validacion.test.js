@@ -1,8 +1,9 @@
 // tests/validacion.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { crearProyecto, agregarEscena, agregarPersonaje, agregarLinea } from '../plataforma/js/estado/modelo.js';
-import { validar, escenasAlcanzables } from '../plataforma/js/estado/validacion.js';
+import { crearProyecto, agregarEscena, agregarPersonaje, agregarLinea, agregarElemento } from '../plataforma/js/estado/modelo.js';
+import { validar, escenasAlcanzables, cumpleMinimo, MINIMO, puedePublicar, nombreDe } from '../plataforma/js/estado/validacion.js';
+import { evaluarTodo } from '../plataforma/js/juridico/semaforo.js';
 
 function proyectoBase() {
   return crearProyecto({ estudiante: 'Camila R.', titulo: 'La llave del faro', destino: 'gratis' }, new Date('2026-11-04T20:00:00Z'));
@@ -126,9 +127,6 @@ test('I05 señala la primera línea que no se verá y las escenas sin nombre se 
   assert.match(i03.mensaje, /sin nombre \(n\.º 4\)/);
 });
 
-// tests/validacion.test.js (agregar al final)
-import { agregarElemento } from '../plataforma/js/estado/modelo.js';
-import { cumpleMinimo, MINIMO } from '../plataforma/js/estado/validacion.js';
 
 function juegoMinimoCompleto() {
   const { p, muelle, torre, amanecer } = juegoConTresEscenas();
@@ -188,9 +186,6 @@ test('una decisión con una sola opción no cuenta para el mínimo', () => {
   assert.ok(cumpleMinimo(p).faltantes.some((f) => f.codigo === 'M_TITULO' && f.mensaje === 'Título del juego'));
 });
 
-// tests/validacion.test.js (agregar al final)
-import { puedePublicar, nombreDe } from '../plataforma/js/estado/validacion.js';
-import { evaluarTodo } from '../plataforma/js/juridico/semaforo.js';
 
 function dejarTodoEnVerde(p) {
   for (const ficha of Object.values(p.fichas)) {

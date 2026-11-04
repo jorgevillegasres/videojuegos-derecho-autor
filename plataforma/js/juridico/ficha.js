@@ -46,7 +46,7 @@ export function crearFicha(tipoFicha, { origen = 'escrito', biblioteca = null } 
   if (!ORIGENES_FICHA.includes(origen)) throw new Error(`Origen inválido: ${origen}`);
   if (origen === 'biblioteca') {
     if (!biblioteca) throw new Error('El origen biblioteca requiere la entrada de biblioteca.');
-    if (!(biblioteca.licencia in LICENCIAS)) throw new Error(`Licencia desconocida en la biblioteca: ${biblioteca.licencia}`);
+    if (!Object.hasOwn(LICENCIAS, biblioteca.licencia)) throw new Error(`Licencia desconocida en la biblioteca: ${biblioteca.licencia}`);
   }
   const ficha = {
     tipo: tipoFicha,

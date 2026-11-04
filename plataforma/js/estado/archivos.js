@@ -17,6 +17,7 @@ const MIME_POR_EXTENSION = {
 const EXTENSION_POR_MIME = {
   'image/png': 'png',
   'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
   'image/webp': 'webp',
   'audio/mpeg': 'mp3',
   'audio/ogg': 'ogg',
@@ -33,7 +34,7 @@ export const LIMITES = {
 };
 
 export function mimePorExtension(nombre) {
-  const extension = String(nombre).split('.').pop().toLowerCase();
+  const extension = String(nombre).trim().split('.').pop().toLowerCase();
   return MIME_POR_EXTENSION[extension] ?? 'application/octet-stream';
 }
 
@@ -44,6 +45,7 @@ export function extensionPorMime(mime) {
 
 /** @param {ArrayBuffer|Uint8Array} datos */
 export async function huellaSha256(datos) {
+  if (!globalThis.crypto?.subtle) throw new Error('Este navegador no permite calcular huellas (se necesita HTTPS o localhost).');
   const resumen = await crypto.subtle.digest('SHA-256', datos);
   const hex = [...new Uint8Array(resumen)].map((b) => b.toString(16).padStart(2, '0')).join('');
   return `sha256:${hex}`;
