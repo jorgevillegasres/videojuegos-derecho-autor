@@ -1,0 +1,1040 @@
+
+===== PAGINA 1 =====
+
+Revista Opinión Jurídica Universidad de Medellín
+Protección jurídica de los videojuegos
+a través del derecho de autor*
+Susana Fernanda Álvarez Cabrera**
+Katina Yaneth Reyes Hernández***
+Recibido: 28 de enero de 2016 • Aprobado: 22 de octubre de 2016
+DOI: 10.22395/ojum.v16n31a7
+RESUMEN
+La convergencia de elementos creativos como literatura, música,
+pintura e, incluso, cine en la producción de los videojuegos ha per-
+mitido que estos sean el octavo arte en el marco de las industrias
+creativas. No obstante, una obra de este tipo debe contar con un
+soporte informático que le permita ser jugada y determinada por el
+usuario, lo cual aporta un grado de interacción inusual en el resto
+de creaciones que hacen parte suya. El objetivo central de este
+trabajo es determinar, mediante una investigación cualitativa, la
+forma más adecuada de proteger jurídicamente los videojuegos,
+pues, si bien en el mundo se ha desarrollado una adecuación par-
+tiendo de dos grandes vertientes del derecho de autor (el software
+y las obras multimedia), ambas poseen falencias que podrían ser
+fácilmente superadas bien sea con la aplicación de una analogía
+con la obra cinematográfica o mediante la creación de una cate-
+goría de obra específica denominada videojuego.
+Palabras clave: Videojuegos; propiedad intelectual; protección; soft-
+ware; obras multimedia; obras cinematográficas.
+* Artículo de reflexión producto de investigación en el marco del proyecto “Nuevas dinámicas del derecho
+privado: desarrollo del derecho de propiedad intelectual en las industrias creativas colombianas”, del Grupo
+de Investigación Conflicto y Sociedad de la Universidad de Cartagena.
+** Abogada de la Universidad de Cartagena; joven investigadora del Grupo de Investigación Conflicto y Socie-
+dad; Cartagena, Colombia; susana.alvarez.ca@gmail.com
+*** Abogada de la Universidad de Cartagena; joven investigadora del Grupo de Investigación Conflicto y Socie-
+dad; Cartagena, Colombia; katinareyesh@gmail.com
+Opinión Jurídica, Vol. 16, N° 31, pp. 155-174- ISSN 1692-2530 • Enero-Junio de 2017 / 220 p. Medellín, Colombia
+
+===== PAGINA 2 =====
+
+156 Susana Fernanda Álvarez Cabrera - Katina Yaneth Reyes Hernández
+Juridical Protection of Videogames through copyrights
+ABSTRACT
+Convergence of creative elements such as literature, music, pain-
+ting, and even film in the production of videogames has allowed
+them to be ranked as the eighth art in the framework of creative
+industries. However, such a work should hold an information te-
+chnology support that allows it to be played and set by the user,
+which implies a degree of unusual interaction in all other creations
+made part of it. The main objective of this article is to set, through
+a qualitative research, the most appropriate way of legally pro-
+tecting videogames; despite an arrangement has been developed
+worldwide based on two important branches of copyrights (soft-
+ware and multimedia works), both show failures which could be
+easily repaired either by applying an analogy with cinematographic
+work or by creating a specific work category known as videogame.
+Key words: Videogames; intellectual property; protection; software;
+multimedia works; cinematographic works.
+Revista Opinión Jurídica Universidad de Medellín
+
+===== PAGINA 3 =====
+
+Protección jurídica de los videojuegos a través del derecho de autor 157
+INTRODUCCIÓN & Planells, 2012) y obtiene ganancias mul-
+timillonarias que se evidencian en datos
+Los elementos creativos empleados para como el siguiente:
+darles vida a los juegos de vídeo son hoy
+en día de tal complejidad, que trabajar en En las 24 horas siguientes a su pu-
+su producción puede equipararse a una blicación en septiembre de 2013,
+Grand Theft Auto 5 recaudó más
+película de Hollywood (Greespan, Boyd,
+de 880 millones de dólares, y se
+Purewal & Datum, 2013): bandas sonoras
+vendieron más de 11 millones de
+interpretadas por orquestas, conceptos
+ejemplares en el mundo entero.
+visuales, personajes y paisajes creados En un plazo récord de tres días,
+por diseñadores y artistas gráficos, argu- las ventas alcanzaron los 1000
+mentos y narrativas mucho más intrinca- millones de dólares. A modo de
+comparación, Iron Man 3, la pelí-
+das que la clásica simulación de tenis de
+cula más taquillera del verano de
+Pong, historias donde el jugador toma el
+2013, recaudó 372 millones de
+papel del personaje principal teniendo
+dólares, de la venta de billetes
+la oportunidad de desarrollar su propia
+en todo el mundo en su primer
+trama basada en sus elecciones persona- fin de semana (Greespan, Boyd,
+les, para así llegar a finales alternativos, & Purewal, 2014, p 11).
+y el elemento indispensable: un software
+soportado por un código informático que Sin más, resulta ineludible que los pro-
+permite conjugar todos los elementos blemas y retos que enfrenta el mundo de
+para lograr que el juego corra en la con- los juegos de vídeo, no solo como parte
+sola, ordenador o dispositivo móvil. de las industrias creativas en crecimiento,
+sino como parte de nuestra cultura, sean
+Pero ¿por qué preocuparse por saber objeto de estudio en la investigación,
+más acerca de los videojuegos? James máxime cuando desde el derecho se trata
+Newman (2004) esboza tres razones por de proteger la titularidad de aquellos que
+las cuales los juegos de vídeo merecen hacen posible su existencia.
+ser tomados en serio: su popularidad; el
+tamaño de la industria; y la posibilidad Esta investigación pretende estudiar la
+de verlos como un modelo de interacción naturaleza jurídica del videojuego para
+humano-computador. En efecto, este determinar una forma de protección que
+subsector de la economía creativa, que le resulte adecuada dentro de los regí-
+abarca la industria tanto cultural como menes de propiedad intelectual vigentes,
+del conocimiento, ha tenido un impacto tomándole en cuenta como un bien in-
+significativo en la Contemporaneidad, material único y no como la acumulación
+convirtiéndose en una de las formas más de varios tipos de obras. Así se pretende
+populares de entretenimiento de masas responder el cuestionamiento por una
+y una de las industrias creativas con ma- categoría de derecho de autor que haga
+yor crecimiento del mundo, que superan posible una protección en la que todos
+incluso a la del cine y la música (Donaire los elementos creativos que forman parte
+Opinión Jurídica, Vol. 16, N° 31, pp. 155-174- ISSN 1692-2530 • Enero-Junio de 2017 / 220 p. Medellín, Colombia
+
+===== PAGINA 4 =====
+
+158 Susana Fernanda Álvarez Cabrera - Katina Yaneth Reyes Hernández
+integral del videojuego como obra sean 1. BREVE INTRODUCCIÓN HISTÓRICA
+asociados.
+Sobre el tema de los juegos de vídeo pue-
+El presente artículo es producto de una de hablarse de tres historias paralelas: la
+investigación jurídica cualitativa, desa- de los juegos, la de las consolas, y la de la
+rrollada en el nivel dogmático, y de tipo industria. Estos tres componentes, si bien
+analítico documental, en la cual se pre- forman parte de un solo fenómeno (pues
+tendió concretar una forma de protección no se puede jugar un videojuego sin un
+eficiente para la creación autoral que son aparato que lo soporte y sin un produc-
+los juegos de vídeo. Las técnicas de re- tor y distribuidor), tuvieron sus inicios en
+colección de la información estuvieron décadas distintas.
+fundamentadas en el análisis documen-
+tal, lo cual implica que las fuentes son Ya en 1962 había sido inventado el pri-
+de carácter secundario, consistentes pri- mer juego de computador de la historia:
+mordialmente en la revisión de normas, Spacewar!, creado por el programador y
+sentencias y textos científicos, informa- científico Steve Russell del Instituto Tec-
+ción que fue recolectada y organizada nológico de Massachusetts (MIT), que en
+usando matrices de datos para luego 1971 sería superado por el primer juego
+proceder a su análisis. En tal sentido, las arcade de la historia (máquinas de vi-
+pregunta problema alrededor de la cual se deojuegos con fines recreativos ubicadas
+desarrolla la argumentación es: ¿En qué en lugares públicos): el Computer Space
+categoría de derecho de autor deben ser de Atari, que fue la versión mejorada de
+encuadrados los videojuegos para obte- Spacewar! creada por Nolan Bushnell, lo-
+ner una protección que abarque todos los grando así que paralelamente aparecieran
+aspectos creativos de la obra? en el mercado las primeras máquinas de
+videojuegos de arcade.
+Para tal efecto analizaremos las categorías
+donde sería posible encuadrarlos, bien Aunque Computer Space no tuvo el éxito
+sea software, multimedia, obra cinema- que se esperaba, quizá porque su com-
+tográfica u otro tipo de obra de derecho plejidad le resultaba intimidante al público
+de autor, y en tal caso, cuáles serían las de la época (Rabin, 2010), este videojuego
+implicaciones en materia de derechos hizo que la tecnología, como medio de
+subjetivos y titularidades. esparcimiento, saliera de las facultades
+de Ingeniería y Programación y fuera ac-
+Adicionalmente, teniendo en cuenta la cesible al público en los Estados Unidos
+relevancia que este sector de la industria a través de grandes máquinas instaladas
+del entretenimiento ha tomado en los en bares y lugares frecuentados por los
+mercados contemporáneos, se realizará jóvenes.
+un análisis comparativo de la tutela jurí-
+dica en otros Estados, a saber: Estados En 1972, fue lanzada al mercado la prime-
+Unidos, Japón, Francia y Argentina. ra consola que les permitiría a los video-
+Revista Opinión Jurídica Universidad de Medellín
+
+===== PAGINA 5 =====
+
+Protección jurídica de los videojuegos a través del derecho de autor 159
+juegos llegar al entretenimiento casero: primer videojuego en soportar color y
+la Odyssey de Magnavox, desarrollada Ms. Pac-Man en 1981, el primer juego
+por Ralph Baer, que soportaba un solo con una protagonista femenina.
+juego de tenis de mesa que no emitía so-
+nido alguno, pero que sí contaba con un • De 1983 a 1994: evolución de la na-
+atributo jurídicamente relevante: paten- rrativa, las ideas se hacen más pro-
+tes otorgadas, dando lugar así al primer minentes en términos de la historia
+litigio de patentes sobre videojuegos en que cuenta el juego. Ejemplos de esta
+el mundo y a la consolidación de una nueva generación de videojuegos son:
+industria, pues la compañía Atari logró The Legend of Zelda en 1986, Sim City
+generar con su videojuego Pong sumas de en 1989, y Mario Kart en 1992.
+dinero exorbitantes, que se imponían al
+pequeño éxito que había logrado Magna- • De 1994 a la actualidad: el auge tec-
+vox con su consola. “Al final, Atari acordó nológico logra hitos como el soporte
+con Magnavox en 1976 por el pago de una de gráficos poligonales y una consola
+licencia única de US$700.000. Después que permite correr juegos almacena-
+de eso, Atari fue libre de producir video- dos en CD-ROM: la PlayStation de
+juegos sin pagar más dinero a Magnavox” Sony. El avance continúa hasta llegar
+(Rabin, 2010, p 7). a la actualidad, donde se cuenta con
+gráficos generados con capturas de
+Sin funciones muy intrincadas o historias movimiento y la interactividad entre
+demasiado trascendentales, soportados usuarios que ofrecen los juegos en
+en escasos píxeles de color y con fondos línea.
+negros, ofreciendo formas geométricas
+simples y con efectos de sonido elemen- En 1985, surge la Famicon de Nintendo,
+tales, se abrió paso a la que se convertiría más adelante rebautizada como Ninten-
+en una de las industrias más relevantes en do Entertaintment System (NES), donde
+el ámbito del entretenimiento global (Ra- corrían dos de los videojuegos más famo-
+mos, López, Rodríguez, Meng & Abrams, sos de la historia: Súper Mario Bros y The
+2013). Esposito (2005), divide la evolución Legend of Zelda. A partir de ese momento
+histórica de los juegos de vídeo en cuatro sería la compañía Nintendo, y no Atari, la
+etapas, así: que dominaría el mercado y se convertiría
+en sinónimo de videojuegos alrededor el
+• De 1971 a 1978: el éxito de los pioneros mundo. Casi una década más tarde, en
+y el arcade, desde Computer Space en 1995, aparece la PlayStation de Sony en
+1971 a Space Invaders en 1978. los mercados de América y Europa, y el
+mundo de los juegos de vídeo vuelve a
+• De 1978 a 1983: la época dorada donde experimentar un avance colosal: ahora
+se desarrollaron múltiples géneros de los juegos cuentan con gráficos en 3D
+juego (deportes, aventura, combate, almacenados en CD-Rom, no en casetes.
+etc.) y apareció Galaxian en 1979, el Así, podemos sustentar la afirmación de
+Opinión Jurídica, Vol. 16, N° 31, pp. 155-174- ISSN 1692-2530 • Enero-Junio de 2017 / 220 p. Medellín, Colombia
+
+===== PAGINA 6 =====
+
+160 Susana Fernanda Álvarez Cabrera - Katina Yaneth Reyes Hernández
+Melissinos (citado por Jewel, 2012) en en Colombia consideraremos dos aristas:
+cuanto a que los videojuegos han dado, por un lado, la del consumo y, por el otro,
+en apenas unas cuantas décadas, “un sal- la del desarrollo, ambos al nivel nacional.
+to equivalente a pasar del arte rupestre al Para ello se tienen en cuenta dos estudios
+impresionismo”. que ofrecen datos al nivel mundial y al
+latinoamericano: el Global Market Report
+El grado de interacción y realismo, y la de 2015, realizado por la organización de
+minuciosidad presente en los fascinantes investigación del mercado de videojuegos
+universos de los videojuegos actuales Newzoo y el estudio del profesor Raúl
+poco o nada tienen que ver con los alie-
+Katz denominado El ecosistema y la eco-
+nígenas toscos en forma de píxeles que
+nomía digital en América Latina.
+aparecían en videojuegos clásicos como
+Space Invaders o Pac-Man. Hoy en día, los
+En ese sentido, “en Latinoamérica el
+videojuegos constituyen una amalgama
+mercado de los videojuegos es estimado
+de formas tradicionales de arte (música,
+en US$ 1.147 millones, aunque se carac-
+narración, escultura, pintura) que son re-
+teriza por un alto consumo de productos
+conocidos cada vez más como expresión
+importados de Estados Unidos y Asia”
+artística de pleno derecho. (Jewel, 2012)
+(Katz, 2015, p. 215).
+El grado de desarrollo contemporáneo en
+Por su parte, según el Global Market
+las herramientas provistas por la ciencia
+Report de octubre de 2015, Colombia se
+y la tecnología continúa haciendo posible
+posicionó como el cuarto país latinoa-
+que el arte tome un nuevo significado y
+mericano en consumo de videojuegos
+pase a nuevos contextos; no obstante,
+(por debajo de Brasil, México y Argenti-
+el videojuego no se trata de una de las
+na), y ocupó el puesto treinta y uno de
+formas tradicionales, como la literatura,
+cien, al nivel mundial, generando ingre-
+la música, la pintura o el cine, sino más
+sos a la industria de US$ 234,837,000
+bien de una expresión creativa en donde
+(Newzoo, 2015). Tal como se indica a
+confluyen elementos de todas las anterio-
+continuación:
+res y que, además, ofrece como agregado
+distintivo un grado de interacción difícil
+Tabla 1. Ingresos por consumo de
+de lograr de otra forma con el usuario, que
+videojuegos en Latinoamérica
+pasa de ser un mero espectador a formar
+parte y tomar decisiones que determinan
+Posición Ingresos totales en
+el devenir del juego (Ramos, 2014). País
+Mundial US$
+11 Brasil 1,148,902,000
+2. VIDEOJUEGOS EN COLOMBIA: UNA INDUSTRIA
+13 México 1,195,456,000
+EN CRECIMIENTO 22 Argentina 338,192,000
+31 Colombia 234,837,000
+Con el fin de apreciar el contexto y la po- 40 Chile 170,081,000
+sición de la industria de los videojuegos Fuente: Newzoo’s Global Market Report, 2015.
+Revista Opinión Jurídica Universidad de Medellín
+
+===== PAGINA 7 =====
+
+Protección jurídica de los videojuegos a través del derecho de autor 161
+Desde el punto de vista de ingresos por rrollo de videojuegos es la industria crea-
+el desarrollo de videojuegos, la industria tiva más significativa para su economía),
+latinoamericana exporta gran parte de sus existen más de 500 empresas dedicadas
+contenidos al exterior del continente, re- al sector, entre ellas 242 estudios de de-
+presentando aproximadamente US$ 237,5 sarrollo y 37 estudios de edición (Agence
+millones, (Según Katz (2014, p. 215), “las Française pour le Jeu Vidéo – AFJV, 2015), y
+estadísticas para este tipo de estimación con ingresos por la venta de videojuegos
+son limitadas, pero permiten estimar un que alcanzan los 2,7 mil millones de euros
+valor total para el sector, teniendo en (Gualbert, 2013).
+cuenta las estadísticas de las firmas, pro-
+gramadores e ingresos de las empresas Si bien Colombia no se ha posicionado en
+radicadas en América Latina.”, liderando el escalafón de los tres primeros países
+el sector Brasil, Argentina y México (Katz, productores de videojuegos en el mer-
+2015). En este contexto, en el 2014, Co- cado latinoamericano, no cabe duda de
+lombia contaba con 62 empresas dedica- la existencia de una industria dedicada a
+das a la producción de videojuegos, con la actividad, sobre todo porque algunos
+aproximadamente 1500 empleados y un títulos nacionales han conseguido alta
+volumen de ingresos estimado en US$ representatividad, entre ellos: Poltergeist:
+24,0 millones (Kazt, 2015). A pixelated horror (2014), un puzzle de
+horror desarrollado y editado por Glitchy
+Tabla 2. Ingresos por producción de Pixel, disponible en Steam, PS4 y PSVi-
+videojuegos en Latinoamérica ta; Story Warriors: Fairy Tales (2014), un
+puzzle educativo desarrollado por Below
+Ingresos
+N° The Game, disponible para iOS y distribui-
+País empresas (millones de Año
+empleados do por Thumbstar Games y El Chavo Kart
+dólares)
+(2014), un juego de carreras desarrollado
+Brasil 133 1133 98,7 2013
+por Efecto Studios y distribuido por Slang,
+Argentina 75 3000 55,0 2013
+disponible en PS3, Xbox 360 y Android
+México 93 N.A. 36,0 2013
+OS para dispositivos móviles Samsung.
+Colombia 62 1500 24,0 2014
+Chile 28 420 12,8 2014 3. DEFINICIÓN, ELEMENTOS CONSTITUTIVOS Y
+PROCESO CREATIVO DEL VIDEOJUEGO
+Perú 15 N.A. 6,0 2013
+Uruguay 12 N.A. 5,0 2013
+La complejidad de su composición es la
+Total 418 237,5
+principal característica en la producción
+Fuentes: Argentina Games Developers Association, de un videojuego, lo que está determina-
+s. f. BNDES, 2014; Tomic, 2015; Marisca, do por su entramado creativo y técnico.
+2014; Procolombia, 2014, como se citó en
+Atendiendo a ello, diversos autores coin-
+Katz, 2015.
+ciden en sus definiciones al señalar los
+Mientras que, a modo de comparación, distintos elementos que forman parte
+en países como Francia (donde el desa- de la obra, con el fin de hacer una deli-
+Opinión Jurídica, Vol. 16, N° 31, pp. 155-174- ISSN 1692-2530 • Enero-Junio de 2017 / 220 p. Medellín, Colombia
+
+===== PAGINA 8 =====
+
+162 Susana Fernanda Álvarez Cabrera - Katina Yaneth Reyes Hernández
+mitación precisa dirigida a resaltar dicha Al contrario que otras industrias
+particularidad. creativas, los videojuegos apro-
+vechan elementos tanto del ám-
+bito de la tecnología como de la
+Esposito aporta la siguiente definición:
+creatividad artística, conjugando
+“un videojuego es un juego que jugamos
+la expresión de la imaginación
+gracias a un aparato audiovisual y el cual artística con la tecnología más
+puede estar basado en una historia” avanzada. Los códigos informá-
+(2005, p. 6). De ello se puede abstraer ticos (software) subyacentes a
+que el videojuego está conformado bási- los juegos transforman las ideas
+en ricas expresiones de arte vi-
+camente por tres aspectos: el juego, visto
+sual que cobran vida en diversos
+como aquello que se juega, un sustanti-
+aparatos (hardware) -consolas,
+vo, y también como la acción del usuario
+computadoras, tabletas y telé-
+que determina su devenir dentro de la fonos inteligentes- (Greespan et
+arbitrariedad que le permite el sistema; el al., p. 8).
+aparato audiovisual, que es el objeto que
+materialmente permite que exista el juego, Por lo tanto, Ramos et al. (2013) entien-
+que lo soporta; y la historia, conformada den certeramente lo que podría definirse
+por todos los elementos narrativos del como un videojuego, al expresar que son
+juego (como el contexto de los persona- obras de autor complejas, pues contienen
+jes, los diálogos, etc.) que está presente múltiples formas de arte, como la música,
+la mayoría de las veces para hacer la los guiones, la trama o argumento, vídeo,
+experiencia más interesante al jugador, pinturas y personajes, que involucran in-
+aunque existen juegos que no contienen teracción humana mientras se ejecuta el
+estos elementos, como es el caso de Te- juego con un programa de computador
+tris, donde no existe una historia de fondo en un hardware específico.
+que motive el juego.
+Así las cosas, teniendo en cuenta los con-
+Sin embargo, la definición anterior no ceptos anteriores, un videojuego puede
+tiene en cuenta el elemento que permite ser definido como una obra interactiva
+que el aparato audiovisual y el argumento que involucra elementos audiovisuales
+se conjuguen de tal manera que ofrezcan respaldados por un programa informático
+interactividad y funcionalidad, es decir, que hace posible su ejecución a través de
+que el videojuego pueda ser jugado. En un hardware.
+ese sentido, Ramos (2014) entiende los
+videojuegos modernos como una com- En efecto, hoy en día los componentes
+binación de elementos audiovisuales, creativos del videojuego son muchos,
+por un lado, y de un software que ges- pero pueden ser clasificados, de acuerdo
+tiona técnicamente estos elementos y con Lipson & Brain (citado por Ramos
+permite a los usuarios interactuar con et al. 2013) en tres grupos: elementos
+los distintos componentes del juego, de audio, elementos de vídeo y código
+por el otro. informático.
+Revista Opinión Jurídica Universidad de Medellín
+
+===== PAGINA 9 =====
+
+Protección jurídica de los videojuegos a través del derecho de autor 163
+En ese orden, entre los elementos de que se encuentran el productor (que es
+audio encontramos composiciones mu- quien supervisa la obra y el trabajo de
+sicales, grabaciones y efectos de sonido. todos los demás), los diseñadores (como
+A su vez, hacen parte de los elementos de los escritores, guionistas y diseñadores
+vídeo: imágenes fotográficas, animacio- de interface), los artistas (que crean el
+nes, ilustraciones y tipografías, capturas aspecto visual del juego), los ingenieros
+digitales de imágenes en movimiento, de sonido (para los efectos de este tipo)
+entre otras. Ambos grupos también y los programadores (que desarrollan el
+pueden ser entendidos como elementos código), así como actores (de voz y movi-
+audiovisuales del videojuego. A su vez, el miento), productores musicales y audio-
+código informático o software, del cual visuales (Ramos et al., 2013).
+se derivan los otros componentes infor-
+máticos del juego tales como el motor, el Si en la década de 1980, con el
+código auxiliar y los plug-ins, es la piedra fin de crear un videojuego, la
+productora necesitaba el trabajo
+angular de la interactividad y se encuentra
+y el talento de solo unas pocas
+compuesto por dos especies: el código
+personas, las obras modernas
+fuente y el código objeto.
+requieren los esfuerzos conjuntos
+de decenas (a veces cientos) de
+Así, el código fuente son las instruccio- empleados artísticos y técnicos
+nes escritas en lenguaje informático por antes de que el videojuego pueda
+alcanzar los estantes (Ramos et
+el programador, de tal manera que pue-
+al., 2013, p. 9).
+den ser leídas por humanos, pues están
+escritas en un lenguaje de programación
+Es evidente, entonces, la existencia de
+como Java o Python. El programador
+una pluralidad de titulares de derechos
+crea el código fuente para determinar la
+de autor y conexos haciendo aportes al
+estructura del videojuego, imprimiendo
+proceso creativo, razón por la cual pre-
+su estilo y conocimiento al describir una
+tender el registro del videojuego como
+serie de instrucciones que más tarde
+una obra compacta significaría agrupar-
+serán procesadas de forma automática
+las también en su calidad de titulares de
+por la computadora para crear el código
+derechos, con todas las implicaciones en
+objeto, que es el resultado de la conver-
+materia de derechos patrimoniales que
+sión y descodificación realizadas por la
+ello implicaría.
+computadora, y el cual está expresado
+en lenguaje binario y, por ello, solo puede
+4. LA NATURALEZA JURÍDICA DEL VIDEOJUEGO
+ser entendido por la máquina que soporta
+el videojuego
+Como ha sido evidenciado, la producción
+y preproducción del videojuego resulta
+Vemos, entonces, cómo en el proceso
+tan complejo que necesariamente debe
+de creación y desarrollo de un juego
+agrupar un gran número de elementos
+de vídeo interviene un gran número de
+creativos (artísticos y tecnológicos) y na-
+profesionales especializados, entre los
+Opinión Jurídica, Vol. 16, N° 31, pp. 155-174- ISSN 1692-2530 • Enero-Junio de 2017 / 220 p. Medellín, Colombia
+
+===== PAGINA 10 =====
+
+164 Susana Fernanda Álvarez Cabrera - Katina Yaneth Reyes Hernández
+turalmente de autores, de lo cual surge información, indique, realice u
+la pregunta por el videojuego como obra obtenga una función, una tarea o
+un resultado específico (Decreto
+autónoma y, en consecuencia, por las
+1360 de 1989, artículo 3-a).
+titularidades que los involucrados en el
+proceso creativo deberían ostentar.
+En igual medida, la Comunidad Andina de
+Naciones (CAN) lo define en los siguientes
+A continuación, realizaremos un análisis
+términos:
+de tres categorías bajo las cuales podría
+pensarse una adecuación desde la legis-
+Programa de ordenador (soft-
+lación autoral vigente: el software, la obra ware): Expresión de un conjun-
+multimedia y la obra cinematográfica. to de instrucciones mediante
+palabras, códigos, planes o en
+cualquier otra forma que, al ser
+a. El videojuego como software
+incorporadas en un dispositivo
+de lectura automática, es capaz
+El marco jurídico del derecho de autor
+de hacer que un ordenador -un
+en Colombia encuentra su base legal en
+aparato electrónico o similar ca-
+la Ley 23 de 1982, que fue modificada y paz de elaborar informaciones-,
+adicionada por la Ley 44 de 1993; sin em- ejecute determinada tarea u
+bargo, en ninguna de ellas puede encon- obtenga determinado resultado.
+El programa de ordenador com-
+trarse una definición sobre la categoría
+prende también la documenta-
+de obras de soporte lógico, programas de
+ción técnica y los manuales de
+ordenador o software, como sí fue caso
+uso (CAN, Decisión 351 de 17 de
+de algunas otras clases de obras, como diciembre de 1993, artículo 3).
+la cinematográfica.
+De ambas definiciones se desprende con
+Es necesario acudir al Decreto 1360 de claridad la naturaleza utilitaria de este
+1989 por el cual se reglamenta la inscrip- tipo de obras, es decir, que existen en
+ción de soporte lógico (software) en el razón a una finalidad práctica, sin que
+Registro Nacional del Derecho de Autor, ello desvirtúe su valor como creación
+para acercarnos al concepto de lo que se intelectual o implique la inexistencia de
+entiende por software en el ordenamiento originalidad por parte del autor. El soft-
+jurídico colombiano. Así, el decreto en ware tiene, por consiguiente, una voca-
+cita menciona que se entiende por pro- ción meramente funcional (lograr que una
+grama de ordenador: máquina haga algo, obtener un resultado),
+que podría generar conflicto si se aplica-
+La expresión de un conjunto se a los juegos de vídeo, pues, como ya
+organizado de instrucciones, en
+fue visto en el capítulo anterior, estos se
+lenguaje natural o codificado,
+nutren de múltiples creaciones autorales,
+independientemente del medio
+muchas de las cuales constituyen formas
+en que se encuentre almacena-
+de arte que mal podrían ser incluidas bajo
+do, cuyo fin es el de hacer que
+una máquina capaz de procesar la categoría del software.
+Revista Opinión Jurídica Universidad de Medellín
+
+===== PAGINA 11 =====
+
+Protección jurídica de los videojuegos a través del derecho de autor 165
+En legislaciones como la europea se dis- de protección por el derecho de
+pone, en la motivación de su directiva autor, toda vez que la función
+de un programa o software es la
+sobre la protección jurídica de programas
+misma idea no protegible de la
+de ordenador, que “entre los criterios que
+obra. (Centro de Arbitraje y Con-
+deben utilizarse para determinar si un
+ciliación –Cámara de Comercio
+programa de ordenador constituye o no de Bogotá, 2006)
+una obra original, no deben aplicarse los
+de carácter cualitativo o los relativos al De lo anterior se puede abstraer la exis-
+valor estético del programa” (Dir. 2009/24/ tencia de una contradicción en relación,
+CE del Parlamento Europeo y el Consejo, no solo a por qué proteger los juegos de
+2009) y, además, menciona el artículo vídeo como programas de ordenador,
+1, numeral 3 de la misma norma que “el sino por qué proteger los programas de
+programa de ordenador quedará protegi- ordenador por derecho de autor, si de
+do si fuere original en el sentido de que las definiciones legales está claro que la
+sea una creación intelectual propia de su utilidad o aplicación, esto es, la idea que
+autor. No se aplicará ningún otro criterio los sustenta es su cualidad determinante.
+para conceder la protección”.
+En efecto, la protección del software por
+Más allá, se sabe que el objeto suscep- las vías del derecho de autor, aunque
+tible de protección jurídica por derecho es la tendencia que se ha generalizado
+de autor son las expresiones concretas normativamente en el mundo, no es la
+del intelecto, y no las ideas, es decir, las única planteada en la doctrina, pues hay
+obras, no la finalidad que ellas pretenden. quienes sostienen que una protección
+Bien menciona la ley sobre derecho de más eficiente podría ser lograda por el
+autor que: otorgamiento de patentes de invención
+o modelos de utilidad, mediante secretos
+Las ideas o contenido conceptual industriales, e incluso a través de regí-
+de las obras literarias, artísticas menes sui generis (Ruiz, 2009), ni por la
+y científicas no son objeto de
+jurisprudencia, teniendo en cuenta el caso
+apropiación. Esta Ley protege
+State Street Bank & Trust and Co. versus
+exclusivamente la forma literaria,
+Signature Financial Group Inc., proferida
+plástica o sonora, como las ideas
+del autor son descritas, explica- en 1998 por la Corte del Circuito Federal
+das, ilustradas o incorporadas en de los Estados Unidos, que determinó que
+las obras literarias, científicas y un algoritmo matemático, la base de un
+artísticas (Ley 23 de 1982, Art. 6). software, puede ser patentable siempre y
+cuando produzca un resultado concreto,
+En ese sentido,
+útil y tangible.
+Se ha entendido que en principio
+No obstante, a la fecha el software es
+el aspecto práctico de un progra-
+protegido en Colombia meramente como
+ma de computador, su aplicación
+o su funcionalidad no son objeto la descripción de una serie de algoritmos
+Opinión Jurídica, Vol. 16, N° 31, pp. 155-174- ISSN 1692-2530 • Enero-Junio de 2017 / 220 p. Medellín, Colombia
+
+===== PAGINA 12 =====
+
+166 Susana Fernanda Álvarez Cabrera - Katina Yaneth Reyes Hernández
+en lenguaje codificado, es decir, como en los personajes de Final Fantasy, los
+una obra literaria (expresada a través paisajes de The Elder Scrolls o la banda
+de letras, números o signos) que posee sonora de Destiny).
+necesariamente un valor funcional que
+se superpone a cualquier otra calidad Este tipo de elementos conformados por
+que pueda serle atribuida y, aunque es secuencias de imágenes y sonidos no son
+cierto que eventualmente el creador de el centro alrededor del cual gira la tutela
+un programa de ordenador no lo hará del derecho de autor en la categoría de
+para que sea bello sino para que cumpla software, sino que resultarían más bien
+una función, el producto final (la obra) accesorios a ella; es por ello que resul-
+contendrá indefectiblemente dejos de ta necesario plantear un esquema de
+una voluntad creativa expresada en for- protección distinto a los programas de
+ma de decisiones, como el conjunto de ordenador para este caso.
+palabras empleadas para su descripción,
+lo cual denota, en efecto, la impresión de b. El videojuego como obra multimedia
+un sello personal (originalidad) por parte
+del creador. Podemos definir, a falta de una norma ju-
+rídica precisa, las obras multimedia como
+Ahora bien, con respecto a la titularidad una composición de distintos géneros de
+de los derechos se abstrae del Decreto elementos creativos que son cohesiona-
+1360 de 1989 la existencia de un autor dos en un formato digital mediante el cual
+que ostente los derechos que le corres- les es permitido algún grado de interac-
+ponden a su naturaleza según la Ley 23 ción entre ellos.
+de 1982 y un productor que sea dueño de
+derechos conexos sobre la obra. Sin em- Cuando se trata de los elementos creati-
+bargo, ¿quién es el creador del software? vos de los cuales se nutre una creación
+La persona que desarrolla el programa, multimedia, puede hacerse referencia a
+naturalmente, que usualmente es distinta múltiples categorías de obras protegidas
+de quien diseña los personajes o los pai- por derecho de autor, como las literarias,
+sajes, para citar un ejemplo, con lo cual las imágenes fijas o en movimiento y
+surge otro problema frente a la adecua- obras musicales, mientras que el forma-
+ción de los videojuegos en esta categoría. to digital en el cual están soportadas es,
+esencialmente, un archivo de información
+Queda entonces la pregunta por los capaz de ser descifrado por un software
+aspectos estéticos del juego de vídeo que traduce todo el contenido (de imá-
+en caso de ser protegido como obra de genes, sonido, vídeo, etc.) a partir de una
+soporte lógico, pues estos forman parte serie de números binarios.
+de la obra vista como una unidad y se
+constituyen en un factor que brinda ver- Es por ello que cuando se emplea el tér-
+dadero mérito artístico y, en ocasiones, mino de obra multimedia en verdad no se
+un sello distintivo al juego (pensemos está refiriendo a varios medios en los que
+Revista Opinión Jurídica Universidad de Medellín
+
+===== PAGINA 13 =====
+
+Protección jurídica de los videojuegos a través del derecho de autor 167
+esté contenida la creación, sino más bien tegida por el derecho de autor,
+a la diversidad de formas de expresión a no obstante, todas las obras que
+incorpora –literarias o artísticas,
+partir de las cuales esta es cohesionada
+como son canciones, dibujos,
+(Ruiz, 2009). De tal forma, encontramos
+fotografías y textos escritos– ade-
+que un juego de vídeo podría ser fá-
+más del software sobre el cual se
+cilmente encuadrado hasta este punto
+estructura la interactividad, son
+como una obra multimedia, pues sus ca- objeto de protección por parte de
+racterísticas básicas corresponden, sobre la legislación autoral (Dirección
+todo si se tienen en cuenta conceptos de Nacional de Derecho de Autor,
+2007).
+multimedia como el de Ruiz, que lo define
+como:
+Razón por la cual, de considerarse el vi-
+deojuego como una creación multimedia
+La combinación de textos, imáge-
+nes reales o virtuales, animación en el marco colombiano, todavía nos
+y sonidos, los cuales interactúan estaríamos enfrentando a la pregunta de
+de manera armónica gracias a un cómo lograr una protección que lo tome
+programa de ordenador (software
+como un todo, como una obra única, y
+maestro), que hace posible que el
+no como la sumatoria de varios tipos
+usuario logre una interface con
+de obra.
+todos y cada uno de elementos,
+interactuando con ellos y dejando
+de ser un espectador pasivo fren- Esta tradición, que comparte Colombia en
+te a la obra, para constituirse en la actualidad con países como los Estados
+una parte integral de ella e infun-
+Unidos de América, se traduce, además,
+dir en su entorno (2009, p. 314).
+en un gran número de trámites de registro
+que deben ser adelantados ante la auto-
+Sin embargo, la razón por la cual no existe
+ridad competente para lograr un blindaje
+en Colombia una norma jurídica que es-
+jurídico efectivo: uno por cada tipo y cada
+tipule qué es el multimedia es que este
+obra contenidos en el multimedia; ade-
+tipo de creaciones no están concebidas
+más, que por cada tipo de obra pueden
+como una categoría de obra independien-
+existir otros tantos titulares de derechos
+te o autónoma dentro del ordenamiento
+de autor y conexos. Lo anterior implica, en
+jurídico vigente; de ahí que la protección
+un Estado como el nuestro, un desgaste
+se brinde más bien mediante una desfrag-
+de recursos de la Administración Pública
+mentación de las partes, y no al conjunto
+que bien podrían ser invertidos en cubrir
+en sí mismo.
+otras necesidades importantes si tan solo
+el trámite de registro del multimedia pu-
+La Dirección Nacional de Derecho de Au-
+diera iniciarse mediante la radicación de
+tor ha mencionado que:
+una sola solicitud.
+La multimedia no encaja dentro
+Además, es menester reflexionar sobre el
+del concepto de obra, por lo
+tanto, por sí misma no está pro- papel que cumple la Dirección Nacional
+Opinión Jurídica, Vol. 16, N° 31, pp. 155-174- ISSN 1692-2530 • Enero-Junio de 2017 / 220 p. Medellín, Colombia
+
+===== PAGINA 14 =====
+
+168 Susana Fernanda Álvarez Cabrera - Katina Yaneth Reyes Hernández
+de Derecho de Autor como autoridad na- un diseño animado. Si se aplica una ana-
+cional en materia de registro y promoción logía para los juegos de vídeo, podría el
+de los derechos de autor, que, teniendo en desarrollador del software, en tanto esta
+cuenta que el legislador Colombiano no es una obra literaria, ser asimilado a un
+establece otros criterios para reconocer guionista o libretista, especificando en el
+una creación intelectual como obra que el trámite de registro la naturaleza de código
+de la originalidad y la susceptibilidad de informático, mientras los demás titulares
+ser divulgada o reproducida, mal podría podrían permanecer más o menos iguales
+estar haciendo al negarle la calidad de tal en ambos casos.
+a un objeto que a todas luces cumple con
+tales requisitos. Además, el artículo 94 de la Ley de De-
+recho de Autor señala que “sin perjui-
+c. El videojuego como obra cinematográfica cio de los derechos de los autores de
+las obras adaptadas o incluidas en ella,
+Aunque una película y un videojuego son la obra cinematográfica será protegida
+dos tipos de arte distintos, sus similitu- como una obra original”, lo cual indica
+des podrían resultar útiles para superar que si bien para su creación participan
+el bache de la desfragmentación de la varios autores que realizan aportes ori-
+obra, planteado por el multimedia, y del ginales al proyecto, ellos forman una
+predominio del programa de ordenador sola obra independiente con un registro
+y la desestimación de los elementos ar- único ante la Dirección Nacional de De-
+tísticos, planteados por el registro como recho de Autor, algo muy parecido a lo
+software. que estamos tratando de lograr con los
+videojuegos.
+Lo que se pretende sustentar en este
+acápite es la posible aplicación de una De tal forma, al momento de la creación
+analogía para lograr que el juego de ví- del juego, se estaría trabajando en un
+deo sea registrado como una obra en plano de igualdad entre todos los creati-
+colaboración, “producida por un gru- vos, a los cuales se les permite mantener
+po de autores, por iniciativa y bajo la la titularidad de los derechos sobre sus
+orientación de una persona natural o propias contribuciones, aun cuando es
+jurídica que la coordine, divulgue y pu- el director o realizador quien ostenta la
+blique bajo su nombre” (Ley 23 de 1982, titularidad sobre el conjunto. Al respecto
+Art. 8- D). menciona la ley sobre los derechos mora-
+les de autor, es decir los que protegen la
+En el caso de las obras cinematográficas,
+paternidad, la publicación, la integridad,
+la Ley 23 de 1982 dispone en el artículo 95
+la modificación y el retiro de la obra,
+que los titulares de derechos sobre este
+que:
+tipo de obra son: el director, el autor del
+guion o libreto, el autor de la música y el El director o realizador de la
+dibujante o dibujantes, cuando se trata de obra cinematográfica es el titu-
+Revista Opinión Jurídica Universidad de Medellín
+
+===== PAGINA 15 =====
+
+Protección jurídica de los videojuegos a través del derecho de autor 169
+lar de los derechos morales de lo tanto, al momento de plantear qué
+la misma, sin perjuicio de los tipo de protección jurídica requieren es
+que corresponden a los diversos
+importante delimitar su propia naturale-
+autores, artistas, intérpretes o
+za teniendo en cuenta cada uno, hasta
+ejecutantes que hayan interve-
+adecuar el producto final en la categoría
+nido en ella, con respecto a sus
+propias contribuciones (Ley 23 de que proporcione una protección más
+1982, Art. 99). eficaz. Sin embargo, no existe consenso
+mundial acerca de la naturaleza de estas
+En relación con los derechos patrimonia- obras complejas, de lo cual se desprende
+les sobre la obra, que protegen la repro- el debate que se libra en los escenarios
+ducción, transformación y comunicación jurídicos de cada Estado donde se intenta
+al público, estos serán reconocidos “sal- regular la materia.
+vo estipulación en contrario a favor del
+productor” (Ley 23 de 1982, Art. 98). No Teniendo en cuenta la falta de unifor-
+obstante, la misma ley señala que “cada midad jurídica que se manifiesta en el
+uno de los coautores de la obra cinema- ámbito mundial, se presenta en esta di-
+tográfica podrá disponer libremente de sertación un análisis comparativo, tenien-
+la parte que constituya su contribución do en cuenta aspectos relevantes tales
+personal para utilizarla por un medio dis- como el marco jurídico, la clasificación
+tinto de comunicación, salvo estipulación legal del juego de vídeo, la titularidad y
+en contrario” (Art. 101). la transferencia de los derechos, basado
+en el estudio encargado por la Organiza-
+Lo anterior implica, por ejemplo, que ción Mundial de la Propiedad Intelectual
+los diseñadores de personajes icónicos (OMPI) denominado The Legal Status of
+como Mario, de la franquicia de Ninten- Video Games: Comparative Analysis in
+do, serían tenidos como coautores del National Approaches, donde se eviden-
+juego, y no únicamente como artistas cian dichas dicotomías.
+empleados de la compañía. De tal forma
+podemos sustentar que, aun cuando no Para abordar el análisis se tomarán como
+existe una legislación específica, el apa- referentes los siguientes países: Esta-
+rente vacío con respecto a la tutela de dos Unidos, Japón, Francia y Argentina,
+los juegos de vídeo podría ser superado atendiendo a su trascendencia cultural y
+por la aplicación análoga de las dispo- económica en el sector.
+siciones sobre obras cinematográficas
+situadas dentro de la misma legislación 5.1. Estados Unidos
+autoral.
+• Marco jurídico y clasificación legal
+5. ADECUACIÓN EN DERECHO COMPARADO
+La Ley estadounidense de Derechos
+Los elementos creativos que componen de Autor de 1978 no establece una
+un videojuego son de diversa índole; por clasificación expresa para los video-
+Opinión Jurídica, Vol. 16, N° 31, pp. 155-174- ISSN 1692-2530 • Enero-Junio de 2017 / 220 p. Medellín, Colombia
+
+===== PAGINA 16 =====
+
+170 Susana Fernanda Álvarez Cabrera - Katina Yaneth Reyes Hernández
+juegos. En ese sentido, Ramos et al. 5.2. Japón
+(2013) señalan que en la práctica se re-
+gistran como obra audiovisual o como • Marco jurídico y clasificación legal
+programa informático, dependiendo
+de los elementos creativos predomi- La Ley de Derechos de Autor japo-
+nantes del juego de vídeo, siempre y nesa (Ley 48 de 1970) no dispone
+cuando se trate de obras originales clasificación expresa que establezca
+fijadas en cualquier medio de expre- la naturaleza legal y precisa de los
+sión tangible, ya sea digital o analó- videojuegos. No obstante, la juris-
+gico, con el fin de ser reproducidos o prudencia japonesa, a través de los
+percibidos. precedentes establecidos por la Corte
+Suprema de dicho país, ha reconocido
+• Titularidad y transferencia de los estas creaciones como obras cinema-
+derechos tográficas, teniendo en cuenta que
+los videojuegos tienen una forma de
+En principio, el editor y el productor expresión similar a aquellas (Ramos et
+son los titulares de los derechos patri- al, 2013); sin embargo, no se deja de
+moniales, salvo que se pacten acuer- lado la clasificación distributiva, pues
+dos contractuales donde los autores también pueden ser protegidos como
+y empresas desarrolladoras puedan programas informáticos.
+tener parte en la titularidad de estos.
+De hecho, toda persona que haga con- • Titularidad y transferencia de los
+tribuciones originales a la obra puede derechos
+ser autor; sin embargo, si la contribu-
+ción es producto de una relación de Al igual que en la mayoría de las juris-
+subordinación laboral, la autoría esta- dicciones, se presume que el titular de
+rá en cabeza del empleador (Ramos et los derechos de autor es la persona
+al, 2013; Oficina de Derechos del Autor cuyo nombre aparezca en el original de
+de los Estados Unidos, 2008). la obra o en el lugar de su distribución
+(Copyright Research and Information
+Al igual que en el Estado colombiano, Center –CRIC-, 2016). Por otro lado,
+los derechos patrimoniales pueden el productor de la obra figurará como
+ser transferidos total o parcialmente. autor, tal como sucede con las obras
+Tal como refieren Ramos et al, (2013), cinematográficas, al igual que el editor
+si la obra es producto de una relación (Ramos et al; 2013).
+laboral, para la transferencia de los
+derechos basta con un acuerdo escri- En el mismo sentido, cualquier trans-
+to y firmado por las partes. Para los ferencia de derechos de autor, ya sea
+demás casos, la transferencia se hace parcial o total, que estén en cabeza del
+por medio de contratos de licencia o empleador, puede realizarse median-
+cesión. te un acuerdo verbal o escrito (CRIC,
+Revista Opinión Jurídica Universidad de Medellín
+
+===== PAGINA 17 =====
+
+Protección jurídica de los videojuegos a través del derecho de autor 171
+2016). En los demás casos se efectua- En el artículo 113-9 del CPI de Francia
+rá a través de contratos de licencia o se presume, salvo disposición contra-
+cesión. ria, que la transferencia de derechos
+será automática cuando la obra sea
+5.3. Francia un software creado en virtud de un
+contrato laboral y, en consecuencia, el
+empleador será el único facultado para
+• Marco jurídico y clasificación legal
+ejercer los derechos patrimoniales so-
+bre el programa informático, mientras
+El Código de Propiedad Intelectual
+que si se trata de una obra audiovisual
+de Francia (CPI) de 1992 no dispone
+se presumen como autores, salvo pac-
+un régimen especial para los video-
+to en contrario: al autor del escenario,
+juegos. Sin embargo, un sector de la
+al autor de la adaptación, al guionista,
+jurisprudencia francesa considera que
+al compositor musical, y al director, y
+los videojuegos son una obra compleja
+a su vez, también se presume al pro-
+que no puede ser reducida al progra-
+ductor como el titular de los derechos
+ma informático (Cardella, 2011) y, a su patrimoniales (Ramos et al; 2013).
+vez, deben ser considerados los demás
+componentes de la obra, que deberán 5.4 Argentina
+ser protegidos atendiendo su natura-
+leza particular (Cour de Cassation de • Marco jurídico y clasificación legal
+France, 2009), es decir, su clasificación
+es distributiva. En el Régimen Legal de Propiedad
+Intelectual o Ley 11.723 (1933), modi-
+• Titularidad y transferencia de los ficada por la Ley 26.570 (2009), no hay
+clasificación expresa para los juegos
+derechos
+de vídeo como un todo. Sin embar-
+go, “los videojuegos son entendidos,
+Cualquier persona natural que con-
+básicamente, como software con ca-
+tribuya, total o parcialmente, a la
+racterísticas especiales” (Ramos et al;
+creación de un videojuego puede ser
+2013, p. 12); es decir, se trata de un
+calificada como autor, siempre que
+programa informático que, a su vez,
+su contribución sea creativa y origi-
+incluye otros elementos creativos.
+nal, entre ellas: autores, productores,
+editores, diseñadores de sonido, dise-
+• Titularidad y transferencia de los
+ñadores de arte, guionistas, y progra-
+derechos
+madores (Ramos et al; 2013). Al igual
+que en otras jurisdicciones, si la obra La titularidad de los derechos de
+es producto de una relación laboral, el autor está en cabeza de los autores,
+empleador será el titular de los dere- editores, productores, y demás per-
+chos. sonas que hagan aportes creativos y
+Opinión Jurídica, Vol. 16, N° 31, pp. 155-174- ISSN 1692-2530 • Enero-Junio de 2017 / 220 p. Medellín, Colombia
+
+===== PAGINA 18 =====
+
+172 Susana Fernanda Álvarez Cabrera - Katina Yaneth Reyes Hernández
+originales a la obra. Cuando la obra se Tal como se evidenció en el capítulo de
+haga en virtud de un contrato laboral, derecho comparado, en ninguno de los
+la titularidad de los derechos estará países estudiados existe un régimen jurí-
+en cabeza del empleador, y la transfe- dico especial para proteger los videojue-
+rencia de los derechos debe hacerse gos como una obra independiente de las
+a través de contrato escrito (Ramos et categorías de programa informático, obra
+al; 2013). multimedia o cinematográfica (esta última
+reconocida judicialmente).
+El artículo 4 del régimen de propie-
+dad intelectual argentino presume En Estados como Francia y EE. UU. se ha
+que la titularidad de los derechos se propendido por efectuar una clasificación
+considerará propiedad del estudio distributiva, es decir, no considerar que
+desarrollador del videojuego, a menos el videojuego es una sola obra, sino ac-
+que se exprese lo contrario. Mientras, ceder al registro individual de cada uno
+cuando se realice la obra en virtud de sus aportes: registrar el código como
+de un contrato laboral, Ramos et. software, las composiciones musicales
+al (2013) indican que será suficiente y fotografías como obras de esos tipos,
+una cláusula expresa que disponga la etc. Para evitar ese desgaste, en ordena-
+transferencia de los derechos de autor mientos jurídicos como el japonés la juris-
+del empleador al trabajador prudencia ha acudido a una analogía que
+encuadra a los videojuegos como obras
+CONCLUSIONES cinematográficas, sin que quede resuelta
+la particularidad sobre el código, mientras
+Para la creación de un videojuego se en Argentina, estando también ausente
+suman varios elementos creativos, tales una normativa específica, este tipo de
+como imágenes, animaciones, composi- obras son entendidas únicamente como
+ciones musicales y literarias (código fuen- software. En tal sentido, la adopción de
+te y objeto), razón por la cual es impor- una clasificación distributiva no resuelve
+tante reconocer que proteger los juegos el problema en la práctica, pues los suje-
+de vídeo únicamente como software frag- tos implicados en la producción de esta
+menta la obra, es decir, le niega su com- obra necesitan un modelo único que les
+plejidad restando importancia al resto de ofrezca seguridad jurídica al momento de
+sus componentes creativos, mientras que registrarla y protegerla, ni resulta eficiente
+una protección que los tenga como obras por el desgaste de tiempo y recursos que
+audiovisuales o multimedia les niega, has- ella implica.
+ta la fecha, la posibilidad de mantenerse
+unidos como una sola creación. Es por Dicha solución puede lograrse, bien apli-
+ello que encuadrar el juego de vídeo como cando la regulación autoral sobre obras
+un todo dentro de una sola categoría de cinematográficas por analogía, que como
+derecho de autor se mantiene como un fue visto ofrece un modelo que supera la
+reto en el derecho a la actualidad. desfragmentación innecesaria de la obra
+Revista Opinión Jurídica Universidad de Medellín
+
+===== PAGINA 19 =====
+
+Protección jurídica de los videojuegos a través del derecho de autor 173
+y, en consecuencia, protege los derechos Comunidad Andina de Naciones. Decisión 351
+morales y patrimoniales de todos los su- de 17 de diciembre de 1993, que establece
+el Régimen Común sobre Derecho de Autor
+jetos implicados en su proceso creativo,
+y Derechos Conexos. Gaceta Oficial de la
+ya sea el desarrollador de software, los
+Comunidad Andina 145, 21 de diciembre
+músicos o los diseñadores y dibujantes, de 1993.
+o bien, mediante el registro de un tipo
+de obra. Copyright Research and Information Center.
+(2016). Copyright Law of Japan. Recuperado
+de: http://www.kidscric.com/english/clj/
+Al respecto, el reconocimiento de una
+index.html
+obra específica denominada juego de ví-
+deo es posible teniendo en cuenta que, Cour de Cassation de France, première chambre
+civile, arrêt 732 du 25 de juin, 2009.
+en primer lugar, el listado de obras que
+ofrece el legislador es meramente enun-
+Decreto 1360 de 1989 [Raúl Orjuela Bueno,
+ciativo, no taxativo y, además, el registro Ministro de Gobierno], Por el cual se
+proferido por la autoridad administrativa reglamenta la Inscripción del Soporte
+en materia de derecho de autor no crea Lógico (software) en el Registro Nacional
+del Derecho de Autor, 23 de junio de 1989.
+derechos, como sí sucede en el caso de
+los bienes de propiedad industrial, aun
+Dirección Nacional de Derecho de Autor,
+cuando este constituye un medio proba- concepto emitido el 24 de septiembre de
+torio idóneo para acreditar los derechos 2007, radicado 1-2007-23558.
+sobre la obra, y en ese sentido, el video-
+Donaire, F. J. y Planells, A. J. (2012). La protección
+juego se encuentra protegido como un
+jurídica de los derechos de autor de los
+todo aun cuando la Dirección Nacional de
+creadores de videojuegos: “Statu quo”
+Derecho de Autor no lo reconozca en su perspectivas y desafíos. Madrid: Trama.
+plataforma web de trámite de solicitudes.
+Esposito, N. (2005). A Short and Simple Definition
+of What a Videogame Is. DiGRA 2005:
+REFERENCIAS BIBLIOGRÁFICAS
+Changing Views: Worlds in Play, 2005
+International Conference http://summit.sfu.
+Agence Française pour le Jeu Vidéo. (2015). ca/item/258
+Annuaires des sociétés de jeux vidéo.
+AFJV. Recuperado de: http://www.afjv.com/ Greespan, D., Boyd, S. G., Purewall, J. (2014). Los
+annuaires_jeux_video.php videojuegos y la PI: Perspectiva mundial.
+Revista de la OMPI, (2): 7-11.
+Cardella, B. (2011). Le droit des jeux vidéo, de la
+virtualité à la réalité juridique. Université du Greespan, D., Boyd, S. G., Purewal, J. y
+Sud Toulon Var. Recuperado de: https://tel. Datum, M. (2013). Mastering the game:
+archives-ouvertes.fr/tel-00658291 Business and Legal Issues for Video
+Game Developers. Recuperado de: http://
+Centro de Arbitraje y Conciliación-Cámara de www.wipo.int/publications/es/details.
+Comercio de Bogotá, Laudo del Tribunal jsp?id=3233&plang=EN
+de Arbitramento de AS Colombia LTDA c.
+Informática y Gestión S. A. de 17 de octubre Gualbert, B. (2013). Les enterprises franciliennes
+de 2006. du jeu vidéo, compétentes et dynamiques
+Opinión Jurídica, Vol. 16, N° 31, pp. 155-174- ISSN 1692-2530 • Enero-Junio de 2017 / 220 p. Medellín, Colombia
+
+===== PAGINA 20 =====
+
+174 Susana Fernanda Álvarez Cabrera - Katina Yaneth Reyes Hernández
+mais fragiles sur un marché mondialisé. Estados Unidos. Recuperado de https://www.
+Centre Régional D’Observation du copyright.gov/espanol/
+Commerce, de l’Industrie et de Services (158).
+Recuperado de: https://goo.gl/MKmW96 Procolombia. (2014). Colombia Bring IT on.
+Gobierno de Colombia. Recuperado de:
+Jewel, C. (2012). Los videojuegos: arte del siglo http://www.procolombia.co/noticias/bring-
+XXI. Recuperado de: http://www.wipo.int/ it-la-campana-para-impulsar-industria-de-
+wipo_magazine/es/2012/04/article_0003. tecnologia-colombiana-en-el-mundo
+html
+Rabin, S. (Ed.). (2010). Introduction to Game
+Katz R. (2015). El ecosistema y la economía digital Development. Boston: Course Technology.
+en América Latina. Recuperado de: https://
+goo.gl/CTVlj5 Ramos, A. (2014). Videojuegos: ¿programas
+informáticos u obras creativas? Revista de
+Ley 23 de 1982. [Congreso de la República] Sobre la OMPI, (4): 25-28.
+Derechos de Autor, 28 de enero de 1982
+Ramos, A., López, L., Rodríguez, A., Meng, T., y
+Ministerio de Tecnologías de la Información Abrams, S. (2013). The Legal Status of Video
+y las Telecomunicaciones. (2015). Games: Comparative Analysis in National
+Comportamiento del sector TIC en Colombia. Approaches. Recuperado de: https://goo.
+Recuperado de https://goo.gl/qfBfb0 gl/Slq8wZ
+Newman, J. (2004) Videogames. Routledge Ruiz, W. R. (2009). Propiedad intelectual en la era
+Introductions to Media and Communications. de las tecnologías de la información y las
+Londres y Nueva York: Routledge. comunicaciones. Bogotá: Temis SA.
+Newzoo. (2015). Top 100 Countries by Game Unión Europea. Directiva 2009/24/CE del
+Revenues. Recuperado de: https://newzoo. Parlamento Europeo y el Consejo, de 23 de
+com/insights/rankings/top-100-countries- abril de 2009, sobre la protección jurídica
+by-game-revenues/ de programas de ordenador. Diario Oficial
+de la Unión Europea L 111, 5 de mayo de
+Oficina de Derechos del Autor de los Estados 2009, pp. 16-22.
+Unidos. (2008). Fundamentos del Derecho
+de Autor. Biblioteca del Congreso de los
+Revista Opinión Jurídica Universidad de Medellín

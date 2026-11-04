@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿De quién es tu videojuego? — Portal del creador</title>
+  <meta name="description" content="Portal de aprendizaje interactivo sobre protección jurídica de videojuegos por derecho de autor. Caso, juicio, taller y examen.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar" aria-label="Navegación del curso">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <span></span><span class="on"></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+        <div>
+          <p class="brand-kicker">La Casa · Programa PI</p>
+          <p class="brand-title">¿De quién es tu videojuego?</p>
+        </div>
+      </div>
+
+      <nav class="nav" id="nav">
+        <a href="#inicio" data-nav="inicio"><span class="nav-num">00</span><span>Inicio</span><i class="dot"></i></a>
+        <a href="#capas" data-nav="capas"><span class="nav-num">01</span><span>Las capas</span><i class="dot"></i></a>
+        <a href="#puertas" data-nav="puertas"><span class="nav-num">02</span><span>Las puertas</span><i class="dot"></i></a>
+        <a href="#caso" data-nav="caso"><span class="nav-num">03</span><span>El caso</span><i class="dot"></i></a>
+        <a href="#juicio" data-nav="juicio"><span class="nav-num">04</span><span>El juicio</span><i class="dot"></i></a>
+        <a href="#taller" data-nav="taller"><span class="nav-num">05</span><span>El taller</span><i class="dot"></i></a>
+        <a href="#examen" data-nav="examen"><span class="nav-num">06</span><span>Examen</span><i class="dot"></i></a>
+        <a href="#glosario" data-nav="glosario"><span class="nav-num">07</span><span>Glosario</span><i class="dot"></i></a>
+      </nav>
+
+      <div class="progress-box">
+        <div class="progress-head">
+          <span>Tu avance</span>
+          <strong id="progress-label">0 / 6</strong>
+        </div>
+        <div class="progress-track" id="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0">
+          <span></span>
+        </div>
+        <p class="progress-note" id="progress-note">Empieza por las capas.</p>
+      </div>
+
+      <div class="sidebar-foot">
+        <p>Material educativo. No es asesoría legal personalizada.</p>
+      </div>
+    </aside>
+
+    <div class="scrim" id="scrim" hidden></div>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menu-btn" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="sidebar">☰</button>
+        <p class="crumb" id="crumb">Inicio</p>
+        <div class="top-actions">
+          <span class="chip" id="top-progress">0 / 6</span>
+          <button class="btn btn-ghost btn-sm" id="reset-btn" type="button">Reiniciar</button>
+        </div>
+      </header>
+
+      <div class="content" id="contenido">
+
+        <!-- ============ INICIO ============ -->
+        <section class="module active" id="mod-inicio" data-module="inicio">
+          <div class="hero">
+            <p class="eyebrow">Portal del creador · 6 módulos · 45–60 min</p>
+            <h1>Tu juego es un equipo de obras.<br><span>Aprende a saber quién manda.</span></h1>
+            <p class="lede">Un videojuego puede vender un millón de copias y, al mismo tiempo, su estudio no saber quién es dueño de los personajes, la música o el motor. Eso no es un problema de tecnología: es un problema de derecho de autor. Y se arregla antes de firmar.</p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#capas">Empezar por las capas</a>
+              <a class="btn btn-ghost" href="#caso">Ir directo al caso</a>
+            </div>
+            <div class="hero-stats">
+              <div><strong>9</strong><span>capas creativas</span></div>
+              <div><strong>4</strong><span>rutas de protección</span></div>
+              <div><strong>1</strong><span>pregunta: ¿de quién es?</span></div>
+            </div>
+          </div>
+
+          <div class="section-head">
+            <p class="eyebrow">Lo que vas a entrenar</p>
+            <h2>Cuatro habilidades. Cero discursos.</h2>
+          </div>
+          <div class="grid grid-2">
+            <article class="card">
+              <p class="card-num">01</p>
+              <h3>Leer tu juego como un mapa</h3>
+              <p>Identificar las capas creativas y quién es titular de cada una antes de que sea un pleito.</p>
+            </article>
+            <article class="card">
+              <p class="card-num">02</p>
+              <h3>Elegir qué registrar</h3>
+              <p>Decidir qué obra se registra, en qué nombre y con qué prueba. Sin mitos y sin humo.</p>
+            </article>
+            <article class="card">
+              <p class="card-num">03</p>
+              <h3>Detectar cláusulas peligrosas</h3>
+              <p>Leer un contrato y reconocer lo que te deja expuesto: cesiones amplias, morales, usos futuros.</p>
+            </article>
+            <article class="card">
+              <p class="card-num">04</p>
+              <h3>Argumentar en un pleito</h3>
+              <p>Defender una posición con pruebas y derecho, no con simpatía. Como en la vida real.</p>
+            </article>
+          </div>
+
+          <div class="section-head">
+            <p class="eyebrow">Las cinco reglas</p>
+            <h2>Lo que te llevas puesto</h2>
+          </div>
+          <div class="rules">
+            <article class="rule"><span>01</span><div><h3>Un juego, muchas obras.</h3><p>Inventario antes de firmar.</p></div></article>
+            <article class="rule"><span>02</span><div><h3>La cesión se escribe.</h3><p>Lo que no se escribe, se pelea.</p></div></article>
+            <article class="rule"><span>03</span><div><h3>El código también es obra.</h3><p>Se registra; el registro prueba, no crea.</p></div></article>
+            <article class="rule"><span>04</span><div><h3>Los derechos morales no se venden.</h3><p>Los créditos se negocian.</p></div></article>
+            <article class="rule"><span>05</span><div><h3>La categoría «videojuego» no existe.</h3><p>Diseña tu contrato, no esperes al registro.</p></div></article>
+          </div>
+
+          <div class="section-head">
+            <p class="eyebrow">Cómo funciona</p>
+            <h2>Aprender, decidir, corregir</h2>
+          </div>
+          <div class="grid grid-3">
+            <article class="step"><span class="step-num">01</span><h3>Lee</h3><p>Cada módulo te da una idea y un ejemplo. Nada de artículos interminables.</p></article>
+            <article class="step"><span class="step-num">02</span><h3>Decide</h3><p>Un caso, un juicio y un taller te obligan a elegir. El portal te corrige y te explica.</p></article>
+            <article class="step"><span class="step-num">03</span><h3>Comprueba</h3><p>El examen final mide lo que aprendiste. Si pasas, te llevas un certificado imprimible.</p></article>
+          </div>
+
+          <div class="cta-band">
+            <div>
+              <p class="eyebrow">¿Listo?</p>
+              <h2>Empieza por la primera capa.</h2>
+              <p>No necesitas saber derecho. Necesitas saber qué preguntar.</p>
+            </div>
+            <a class="btn btn-primary" href="#capas">Empezar el módulo 01</a>
+          </div>
+        </section>
+
+        <!-- ============ CAPAS ============ -->
+        <section class="module" id="mod-capas" data-module="capas">
+          <div class="module-head">
+            <p class="eyebrow">Módulo 01 · Las capas</p>
+            <h1>Tu juego no es una obra.<br><span>Es un equipo de obras.</span></h1>
+            <p class="lede">Código, arte, música, historia, diseño, voces, interfaz, assets de terceros y contenido de IA. Cada capa tiene un autor posible y un régimen distinto. Toca una capa para ver qué protege y qué documento la sostiene.</p>
+          </div>
+
+          <div class="layers" id="layers-grid" aria-label="Capas creativas de un videojuego"></div>
+
+          <div class="section-head">
+            <p class="eyebrow">Práctica · 3 minutos</p>
+            <h2>Asigna el dueño</h2>
+            <p class="lede sm">No hay una respuesta universal: hay respuestas típicas. Elige la más probable y comprueba.</p>
+          </div>
+          <div class="card" id="owners-activity">
+            <div class="owners" id="owners-rows"></div>
+            <div class="actions">
+              <button class="btn btn-primary" id="owners-check" type="button">Comprobar</button>
+              <button class="btn btn-ghost" id="owners-reset" type="button">Reiniciar</button>
+            </div>
+            <div class="feedback" id="owners-feedback" aria-live="polite"></div>
+          </div>
+
+          <div class="takeaway">
+            <p class="eyebrow">Para llevar</p>
+            <p>El mercado te vende el juego entero; la ley te lo protege por partes. Ahí nace el problema.</p>
+          </div>
+          <div class="module-actions">
+            <button class="btn btn-primary" data-complete="capas" type="button">Marcar módulo como completado</button>
+            <a class="btn btn-ghost" href="#puertas">Siguiente: las puertas</a>
+          </div>
+        </section>
+
+        <!-- ============ PUERTAS ============ -->
+        <section class="module" id="mod-puertas" data-module="puertas">
+          <div class="module-head">
+            <p class="eyebrow">Módulo 02 · Las puertas</p>
+            <h1>¿En qué cajón metemos<br><span>el videojuego?</span></h1>
+            <p class="lede">Hay tres puertas que existen y una cuarta que todavía no. Ninguna protege todo el juego por sí sola. La estrategia no es elegir una puerta para todo: es elegir una ruta por activo.</p>
+          </div>
+
+          <div class="doors" id="doors-grid"></div>
+
+          <div class="section-head">
+            <p class="eyebrow">Práctica · decide</p>
+            <h2>El registro de «Noche de Pixel»</h2>
+            <p class="lede sm">Tienes un juego con código, arte, música y guion. ¿Qué registras?</p>
+          </div>
+          <div class="card" id="doors-activity">
+            <div class="options" id="doors-options"></div>
+            <div class="feedback" id="doors-feedback" aria-live="polite"></div>
+          </div>
+
+          <div class="takeaway">
+            <p class="eyebrow">Para llevar</p>
+            <p>El videojuego se registra por partes. La categoría «videojuego» como obra única es una tesis, no una oficina donde puedas hacer el trámite hoy.</p>
+          </div>
+          <div class="module-actions">
+            <button class="btn btn-primary" data-complete="puertas" type="button">Marcar módulo como completado</button>
+            <a class="btn btn-ghost" href="#caso">Siguiente: el caso</a>
+          </div>
+        </section>
+
+        <!-- ============ CASO ============ -->
+        <section class="module" id="mod-caso" data-module="caso">
+          <div class="module-head">
+            <p class="eyebrow">Módulo 03 · El caso</p>
+            <h1>Noche de Pixel</h1>
+            <p class="lede">Cinco personas. Un juego. Un millón de copias. Ninguna firmó el contrato que debía. Toma seis decisiones y descubre cuánto expusiste al estudio.</p>
+          </div>
+
+          <div class="case-layout">
+            <div class="case-main" id="caso-root"></div>
+            <aside class="case-aside">
+              <div class="meter-card">
+                <div class="meter-head">
+                  <p class="eyebrow">Exposición legal</p>
+                  <strong id="exposure-value">0</strong>
+                </div>
+                <div class="meter" id="exposure-meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                  <span></span>
+                </div>
+                <p class="meter-label" id="exposure-label">Estudio blindado</p>
+                <p class="meter-note" id="exposure-note">Cada decisión suma o resta riesgo.</p>
+              </div>
+              <div class="card mini">
+                <p class="eyebrow">El elenco</p>
+                <ul class="cast">
+                  <li><b>Valentina</b> · creadora</li>
+                  <li><b>Andrés</b> · programador</li>
+                  <li><b>Camila</b> · compositora</li>
+                  <li><b>Julián</b> · artista 3D</li>
+                  <li><b>Sofía</b> · CEO</li>
+                  <li><b>Nightfall</b> · publisher</li>
+                </ul>
+              </div>
+            </aside>
+          </div>
+
+          <div class="module-actions">
+            <button class="btn btn-ghost" id="caso-reset" type="button">Reiniciar el caso</button>
+            <a class="btn btn-ghost" href="#juicio">Siguiente: el juicio</a>
+          </div>
+        </section>
+
+        <!-- ============ JUICIO ============ -->
+        <section class="module" id="mod-juicio" data-module="juicio">
+          <div class="module-head">
+            <p class="eyebrow">Módulo 04 · El juicio</p>
+            <h1>El estudio que se partió</h1>
+            <p class="lede">Elige un rol, encuentra el argumento más fuerte y luego decide el veredicto. En un pleito de propiedad intelectual, el que gana es el abogado; los creadores pierden tiempo, dinero y relaciones.</p>
+          </div>
+          <div id="juicio-root"></div>
+
+          <div class="module-actions">
+            <button class="btn btn-primary" data-complete="juicio" type="button">Marcar módulo como completado</button>
+            <a class="btn btn-ghost" href="#taller">Siguiente: el taller</a>
+          </div>
+        </section>
+
+        <!-- ============ TALLER ============ -->
+        <section class="module" id="mod-taller" data-module="taller">
+          <div class="module-head">
+            <p class="eyebrow">Módulo 05 · El taller</p>
+            <h1>Tu juego, en un mapa</h1>
+            <p class="lede">Tres herramientas para llevarte algo concreto: el mapa de activos de tu proyecto, una ruta de registro y una clínica de cláusulas. Todo se guarda en tu navegador.</p>
+          </div>
+
+          <div class="tabs" role="tablist" aria-label="Herramientas del taller">
+            <button class="tab active" id="tab-map" role="tab" aria-selected="true" aria-controls="panel-map" data-tab="map" type="button">Mapa de activos</button>
+            <button class="tab" id="tab-reg" role="tab" aria-selected="false" aria-controls="panel-reg" data-tab="reg" type="button">Ruta de registro</button>
+            <button class="tab" id="tab-clinic" role="tab" aria-selected="false" aria-controls="panel-clinic" data-tab="clinic" type="button">Clínica de cláusulas</button>
+          </div>
+
+          <div class="tab-panel active" id="panel-map" role="tabpanel" aria-labelledby="tab-map">
+            <div class="card">
+              <div class="panel-head">
+                <div>
+                  <h2>Mapa de activos</h2>
+                  <p class="sm">Una fila por capa. Si no puedes llenar una fila, esa es tu primera tarea.</p>
+                </div>
+                <div class="actions">
+                  <button class="btn btn-ghost btn-sm" id="asset-add" type="button">Añadir activo</button>
+                  <button class="btn btn-ghost btn-sm" id="asset-save" type="button">Guardar</button>
+                  <button class="btn btn-ghost btn-sm" id="asset-export" type="button">Exportar</button>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table class="asset-table">
+                  <thead>
+                    <tr><th>Activo</th><th>¿Quién lo creó?</th><th>Contrato</th><th>Registro</th><th>Riesgo</th><th></th></tr>
+                  </thead>
+                  <tbody id="asset-body"></tbody>
+                </table>
+              </div>
+              <div class="feedback" id="asset-feedback" aria-live="polite"></div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="panel-reg" role="tabpanel" aria-labelledby="tab-reg">
+            <div class="card">
+              <div class="panel-head">
+                <div>
+                  <h2>Ruta de registro</h2>
+                  <p class="sm">Marca lo que ya tienes. El portal te dice qué falta antes de registrar.</p>
+                </div>
+                <strong class="score-pill" id="reg-score">0 / 10</strong>
+              </div>
+              <div id="reg-checklist" class="checklist"></div>
+              <div class="feedback" id="reg-feedback" aria-live="polite"></div>
+              <div class="hint" id="reg-hint"></div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="panel-clinic" role="tabpanel" aria-labelledby="tab-clinic">
+            <div class="card">
+              <div class="panel-head">
+                <div>
+                  <h2>Clínica de cláusulas</h2>
+                  <p class="sm">Lee cada cláusula y clasifícala. No todo lo que parece legal lo es.</p>
+                </div>
+              </div>
+              <div id="clinic-list" class="clinic-list"></div>
+              <div class="actions">
+                <button class="btn btn-primary" id="clinic-check" type="button">Comprobar cláusulas</button>
+              </div>
+              <div class="feedback" id="clinic-feedback" aria-live="polite"></div>
+            </div>
+          </div>
+
+          <div class="takeaway">
+            <p class="eyebrow">Para llevar</p>
+            <p>El registro no crea derechos: los prueba. Es una fotografía, no un título de propiedad.</p>
+          </div>
+          <div class="module-actions">
+            <button class="btn btn-primary" id="taller-complete" data-complete="taller" type="button">Cerrar el taller</button>
+            <a class="btn btn-ghost" href="#examen">Siguiente: examen</a>
+          </div>
+        </section>
+
+        <!-- ============ EXAMEN ============ -->
+        <section class="module" id="mod-examen" data-module="examen">
+          <div class="module-head">
+            <p class="eyebrow">Módulo 06 · Examen</p>
+            <h1>Doce preguntas.<br><span>Un veredicto.</span></h1>
+            <p class="lede">Sin apuntes. Cada respuesta te explica el porqué. Al final, si apruebas, te llevas un certificado imprimible.</p>
+          </div>
+          <div id="examen-root"></div>
+        </section>
+
+        <!-- ============ GLOSARIO ============ -->
+        <section class="module" id="mod-glosario" data-module="glosario">
+          <div class="module-head">
+            <p class="eyebrow">Recursos · Glosario</p>
+            <h1>Las palabras que importan</h1>
+            <p class="lede">Doce términos para no perderse en una reunión con abogados. Busca, filtra y llévatelos.</p>
+          </div>
+          <div class="search-wrap">
+            <label class="sr-only" for="glossary-search">Buscar en el glosario</label>
+            <input id="glossary-search" type="search" placeholder="Buscar: cesión, moral, obra derivada…" autocomplete="off">
+          </div>
+          <div class="glossary" id="glossary-grid"></div>
+
+          <div class="section-head">
+            <p class="eyebrow">Descargas</p>
+            <h2>Materiales de la conferencia</h2>
+          </div>
+          <div class="grid grid-2">
+            <a class="download" href="../materiales/cuaderno-del-participante.pdf" target="_blank" rel="noopener">
+              <span class="download-kicker">PDF · 3 páginas</span>
+              <strong>Cuaderno del participante</strong>
+              <span>Reglas, mapa de activos, cláusulas y preguntas.</span>
+            </a>
+            <a class="download" href="../materiales/caso-noche-de-pixel.pdf" target="_blank" rel="noopener">
+              <span class="download-kicker">PDF · 3 páginas</span>
+              <strong>Caso Noche de Pixel</strong>
+              <span>Hechos, personajes, documentos y preguntas.</span>
+            </a>
+            <a class="download" href="../materiales/roles-juicio.pdf" target="_blank" rel="noopener">
+              <span class="download-kicker">PDF · 3 páginas</span>
+              <strong>Roles del juicio</strong>
+              <span>Ocho tarjetas para recortar y repartir.</span>
+            </a>
+            <a class="download" href="../materiales/conferencia-videojuegos.pdf" target="_blank" rel="noopener">
+              <span class="download-kicker">PDF · 33 diapositivas</span>
+              <strong>Presentación de la conferencia</strong>
+              <span>El deck completo, para repasar.</span>
+            </a>
+          </div>
+
+          <div class="disclaimer">
+            <p><strong>Aviso.</strong> Este portal es material educativo. No constituye asesoría legal personalizada ni sustituye la revisión de un abogado. Las normas y criterios citados pueden cambiar; verifica la vigencia antes de firmar o registrar.</p>
+            <p class="sm">Basado en el artículo de Susana Fernanda Álvarez Cabrera y Katina Yaneth Reyes Hernández, «Protección jurídica de los videojuegos a través del derecho de autor», <i>Revista Opinión Jurídica</i>, Universidad de Medellín, Vol. 16, N° 31 (2017), con verificación normativa posterior.</p>
+          </div>
+        </section>
+
+      </div>
+
+      <footer class="footer">
+        <p>La Casa · Programa de Propiedad Intelectual</p>
+        <p>¿De quién es tu videojuego? · Portal del creador</p>
+      </footer>
+    </main>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

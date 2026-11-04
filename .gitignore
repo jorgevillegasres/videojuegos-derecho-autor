@@ -1,0 +1,12 @@
+# Archivos de bloqueo de Office
+~$*
+
+# Herramientas de desarrollo y pruebas
+node_modules/
+test-results/
+playwright-report/
+.playwright-mcp/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
