@@ -1,0 +1,93 @@
+[
+  {
+    "nombre": "C01 creado dentro, destino gratis: verde con nota del sello",
+    "base": { "tipo": "fondo", "origen": "creado" },
+    "ficha": {},
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "verde", "razones": [], "notas": ["N_SELLO"] }
+  },
+  {
+    "nombre": "C02 R01 pieza de biblioteca de autor desconocido",
+    "base": { "tipo": "retrato", "origen": "biblioteca", "biblioteca": { "id": "bib_r9", "autor": "Desconocido", "licencia": "DESCONOCIDO", "creditoSugerido": "" } },
+    "ficha": { "licenciaLeida": true },
+    "contexto": { "destino": "personal" },
+    "esperado": { "color": "rojo", "razones": ["R01"] }
+  },
+  {
+    "nombre": "C03 R02 otra persona sin ningún respaldo",
+    "base": { "tipo": "retrato", "origen": "subido" },
+    "ficha": { "autoria": "otra_persona", "autorNombre": "Camila", "titular": "otra_persona" },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "rojo", "razones": ["R02"] }
+  },
+  {
+    "nombre": "C08 biblioteca BY-NC, destino gratis, leída: verde",
+    "base": { "tipo": "musica", "origen": "biblioteca", "biblioteca": { "id": "bib_m1", "autor": "Autora Ejemplo", "licencia": "CC-BY-NC-4.0", "creditoSugerido": "«Tema» de Autora Ejemplo, CC BY-NC 4.0" } },
+    "ficha": { "licenciaLeida": true },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "verde", "razones": [] }
+  },
+  {
+    "nombre": "C09 R03 biblioteca BY-NC con destino venta",
+    "base": { "tipo": "musica", "origen": "biblioteca", "biblioteca": { "id": "bib_m1", "autor": "Autora Ejemplo", "licencia": "CC-BY-NC-4.0", "creditoSugerido": "«Tema» de Autora Ejemplo, CC BY-NC 4.0" } },
+    "ficha": { "licenciaLeida": true },
+    "contexto": { "destino": "venta" },
+    "esperado": { "color": "rojo", "razones": ["R03"] }
+  },
+  {
+    "nombre": "C12 R04 biblioteca BY-ND modificada",
+    "base": { "tipo": "fondo", "origen": "biblioteca", "biblioteca": { "id": "bib_f3", "autor": "Autor Ejemplo", "licencia": "CC-BY-ND-4.0", "creditoSugerido": "«Faro» de Autor Ejemplo, CC BY-ND 4.0" } },
+    "ficha": { "licenciaLeida": true, "modificado": true },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "rojo", "razones": ["R04"] }
+  },
+  {
+    "nombre": "C13 biblioteca BY-ND sin modificar: verde",
+    "base": { "tipo": "fondo", "origen": "biblioteca", "biblioteca": { "id": "bib_f3", "autor": "Autor Ejemplo", "licencia": "CC-BY-ND-4.0", "creditoSugerido": "«Faro» de Autor Ejemplo, CC BY-ND 4.0" } },
+    "ficha": { "licenciaLeida": true },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "verde", "razones": [] }
+  },
+  {
+    "nombre": "C16 biblioteca CURSO con destino personal: verde",
+    "base": { "tipo": "efecto", "origen": "biblioteca", "biblioteca": { "id": "bib_e2", "autor": "La Casa", "licencia": "CURSO", "creditoSugerido": "«Campana» de La Casa, solo para el curso" } },
+    "ficha": { "licenciaLeida": true },
+    "contexto": { "destino": "personal" },
+    "esperado": { "color": "verde", "razones": [] }
+  },
+  {
+    "nombre": "C17 R05 biblioteca CURSO con destino gratis",
+    "base": { "tipo": "efecto", "origen": "biblioteca", "biblioteca": { "id": "bib_e2", "autor": "La Casa", "licencia": "CURSO", "creditoSugerido": "«Campana» de La Casa, solo para el curso" } },
+    "ficha": { "licenciaLeida": true },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "rojo", "razones": ["R05"] }
+  },
+  {
+    "nombre": "C25 R06 historia basada en obra ajena sin autorización",
+    "base": { "tipo": "historia" },
+    "ficha": { "basadoEnObraAjena": true },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "rojo", "razones": ["R06"] }
+  },
+  {
+    "nombre": "C26 historia basada en obra ajena con autorización: verde",
+    "base": { "tipo": "historia" },
+    "ficha": { "basadoEnObraAjena": true, "autorizacionDerivada": true },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "verde", "razones": [] }
+  },
+  {
+    "nombre": "C27 personaje propio: verde",
+    "base": { "tipo": "personaje" },
+    "ficha": {},
+    "contexto": { "destino": "venta" },
+    "esperado": { "color": "verde", "razones": [] }
+  },
+  {
+    "nombre": "C30 el título siempre es verde con nota de marca",
+    "base": { "tipo": "titulo" },
+    "ficha": { "autoria": "otra_persona", "respaldo": "ninguno" },
+    "contexto": { "destino": "venta" },
+    "esperado": { "color": "verde", "razones": [], "notas": ["N_TITULO"] }
+  }
+]
