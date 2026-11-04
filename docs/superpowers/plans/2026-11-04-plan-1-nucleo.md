@@ -2317,6 +2317,8 @@ Expected: `# fail 0`. Total: 10 (ficha) + 12 (modelo) + 22 (validación) + 46 (s
 
 En `plataforma/js/juridico/ficha.js`, cambiar `if (!(biblioteca.licencia in LICENCIAS))` por `if (!Object.hasOwn(LICENCIAS, biblioteca.licencia))`, para que un código como `constructor` no pase por la cadena de prototipos. Correr `node --test tests/ficha.test.js` y confirmar `# pass 10`.
 
+En `plataforma/js/estado/archivos.js`: agregar `'image/jpg': 'jpg'` a `EXTENSION_POR_MIME` (algunos navegadores lo emiten) y `.trim()` a la extensión en `mimePorExtension` (`String(nombre).trim().split('.').pop().toLowerCase()`); en `huellaSha256`, lanzar `new Error('Este navegador no permite calcular huellas (se necesita HTTPS o localhost).')` si `globalThis.crypto?.subtle` no existe. Agregar a `tests/archivos.test.js` una prueba con `extensionPorMime('image/jpg')` → `'jpg'` y `mimePorExtension('a.PNG ')` → `'image/png'`; conteo de archivos pasa a 6.
+
 En `tests/validacion.test.js` (y en cualquier otro archivo de pruebas donde haya quedado), borrar los comentarios marcadores del plan (`// tests/validacion.test.js (agregar al final)` y similares) y subir las sentencias `import` que quedaron a mitad del archivo hasta el bloque de importaciones del inicio, sin cambiar las pruebas. Correr `npm test` y confirmar que el total no cambia.
 
 - [ ] **Step 2: Borrar los `.gitkeep` y copiar la licencia de JSZip**
