@@ -1008,7 +1008,7 @@ function juegoMinimoCompleto() {
   ana.retrato = agregarElemento(p, { tipo: 'retrato', nombre: 'Ana', archivo: 'a.png', origen: 'creado' }).id;
   far.retrato = agregarElemento(p, { tipo: 'retrato', nombre: 'Farero', archivo: 'f.png', origen: 'creado' }).id;
   muelle.fondo = agregarElemento(p, { tipo: 'fondo', nombre: 'Muelle', archivo: 'm.png', origen: 'creado' }).id;
-  const bib = { id: 'bib_m1', autor: 'Autora Ejemplo', licencia: 'CC-BY-4.0', creditoSugerido: 'crédito' };
+  const bib = { id: 'bib_m1', autor: 'Autora Ejemplo', licencia: 'CC-BY-NC-4.0', creditoSugerido: 'crédito' };
   muelle.musica = agregarElemento(p, { tipo: 'musica', nombre: 'Tema', archivo: 't.ogg', origen: 'biblioteca', biblioteca: bib }).id;
   agregarElemento(p, { tipo: 'efecto', nombre: 'Olas', archivo: 'o.wav', origen: 'creado' });
   return { p, muelle, torre, amanecer };
@@ -1323,21 +1323,44 @@ test('nombreDe da un nombre legible para cualquier ficha', () => {
 
 test('puedePublicar exige semáforos en verde, mínimo cumplido y sin bloqueantes', () => {
   const { p, muelle } = juegoMinimoCompleto();
-  let decision = puedePublicar(p, evaluarTodo(p), validar(p.juego));
+  let decision = puedePublicar(p);
   assert.equal(decision.ok, false);
   assert.ok(decision.motivos.some((m) => m.codigo === 'P_SEMAFORO' && /Tema/.test(m.mensaje)));
 
   dejarTodoEnVerde(p);
-  decision = puedePublicar(p, evaluarTodo(p), validar(p.juego));
-  assert.deepEqual(decision, { ok: true, motivos: [] });
+  decision = puedePublicar(p);
+  assert.deepEqual(decision, { ok: true, motivos: [], resumen: { semaforo: 0, minimo: 0, bloqueantes: 0 } });
 
   muelle.lineas[1].opciones[0].escena = null;
-  decision = puedePublicar(p, evaluarTodo(p), validar(p.juego));
+  decision = puedePublicar(p);
   assert.ok(decision.motivos.some((m) => m.codigo === 'P_BLOQUEANTE'));
 
   p.juego.titulo = '';
-  decision = puedePublicar(p, evaluarTodo(p), validar(p.juego));
+  decision = puedePublicar(p);
   assert.ok(decision.motivos.some((m) => m.codigo === 'P_MINIMO' && m.faltante === 'M_TITULO'));
+});
+
+test('cambiar el destino a venta pone en rojo la pieza no comercial y bloquea la publicación', () => {
+  const { p } = juegoMinimoCompleto();
+  dejarTodoEnVerde(p);
+  assert.equal(puedePublicar(p).ok, true);
+  p.juego.destino = 'venta';
+  const tema = p.juego.elementos.find((e) => e.tipo === 'musica');
+  const semaforos = evaluarTodo(p);
+  assert.equal(semaforos.get(tema.id).color, 'rojo');
+  assert.deepEqual(semaforos.get(tema.id).razones, ['R03']);
+  const decision = puedePublicar(p);
+  assert.equal(decision.ok, false);
+  assert.ok(decision.motivos.some((m) => m.codigo === 'P_SEMAFORO' && m.id === tema.id && m.color === 'rojo'));
+  assert.deepEqual(decision.resumen, { semaforo: 1, minimo: 0, bloqueantes: 0 });
+});
+
+test('nombreDe no devuelve nombres vacíos', () => {
+  const { p } = juegoMinimoCompleto();
+  const luis = agregarPersonaje(p);
+  const fondo = agregarElemento(p, { tipo: 'fondo', nombre: '  ', archivo: 'x.png', origen: 'creado' });
+  assert.equal(nombreDe(p, luis.id), 'Personaje sin nombre');
+  assert.equal(nombreDe(p, fondo.id), 'Elemento sin nombre');
 });
 ```
 
@@ -1365,23 +1388,27 @@ export function evaluarTodo(proyecto) {
 
 // ---- Publicación ----
 
+const nombreOAlternativa = (nombre, alternativa) => (nombre?.trim() ? nombre : alternativa);
+
 export function nombreDe(proyecto, idFicha) {
   if (idFicha === 'titulo') return 'Título del juego';
   if (idFicha === 'historia') return 'Historia';
   const personaje = proyecto.juego.personajes.find((p) => p.id === idFicha);
-  if (personaje) return personaje.nombre;
+  if (personaje) return nombreOAlternativa(personaje.nombre, 'Personaje sin nombre');
   const elemento = proyecto.juego.elementos.find((e) => e.id === idFicha);
-  if (elemento) return elemento.nombre;
+  if (elemento) return nombreOAlternativa(elemento.nombre, 'Elemento sin nombre');
   return idFicha;
 }
 
 /**
- * Decide si se puede publicar. semaforos: Map de evaluarTodo; avisos: lista de validar.
- * Devuelve { ok, motivos: [{ codigo, mensaje, ... }] }.
+ * Decide si se puede publicar: todas las fichas en verde, mínimo cumplido y sin
+ * avisos bloqueantes. Calcula los tres a partir del proyecto, para que ninguna
+ * llamada pueda usar datos viejos.
+ * Devuelve { ok, motivos: [{ codigo, mensaje, ... }], resumen: { semaforo, minimo, bloqueantes } }.
  */
-export function puedePublicar(proyecto, semaforos, avisos) {
+export function puedePublicar(proyecto) {
   const motivos = [];
-  for (const [id, resultado] of semaforos) {
+  for (const [id, resultado] of evaluarTodo(proyecto)) {
     if (resultado.color !== 'verde') {
       motivos.push({ codigo: 'P_SEMAFORO', id, color: resultado.color, mensaje: `«${nombreDe(proyecto, id)}» está en ${resultado.color}.` });
     }
@@ -1389,17 +1416,24 @@ export function puedePublicar(proyecto, semaforos, avisos) {
   for (const faltante of cumpleMinimo(proyecto).faltantes) {
     motivos.push({ codigo: 'P_MINIMO', faltante: faltante.codigo, mensaje: `${faltante.mensaje}: ${faltante.actual} de ${faltante.requerido}.` });
   }
-  for (const aviso of avisos) {
+  for (const aviso of validar(proyecto.juego)) {
     if (aviso.nivel === 'bloqueante') motivos.push({ codigo: 'P_BLOQUEANTE', aviso: aviso.codigo, mensaje: aviso.mensaje });
   }
-  return { ok: motivos.length === 0, motivos };
+  const cuenta = (codigo) => motivos.filter((m) => m.codigo === codigo).length;
+  return {
+    ok: motivos.length === 0,
+    motivos,
+    resumen: { semaforo: cuenta('P_SEMAFORO'), minimo: cuenta('P_MINIMO'), bloqueantes: cuenta('P_BLOQUEANTE') },
+  };
 }
 ```
+
+`validacion.js` importa `evaluarTodo` de `../juridico/semaforo.js` (agregar la línea de importación junto a la de `indiceCorte`). La dependencia va de `estado` hacia `juridico`, que es hoja; no hay ciclo.
 
 - [ ] **Step 5: Correr todas las pruebas**
 
 Run: `npm test`
-Expected: `# fail 0`. Total de pruebas: 10 (ficha) + 12 (modelo) + 20 (validación) + 46 (semáforo) = 88.
+Expected: `# fail 0`. Total de pruebas: 10 (ficha) + 12 (modelo) + 22 (validación) + 46 (semáforo) = 90.
 
 - [ ] **Step 6: Commit**
 
@@ -2277,7 +2311,7 @@ git commit -m "Contenido jurídico con fuentes del memo y textos del semáforo" 
 - [ ] **Step 1: Correr toda la suite**
 
 Run: `npm test`
-Expected: `# fail 0`. Total: 10 (ficha) + 12 (modelo) + 20 (validación) + 46 (semáforo) + 5 (archivos) + 5 (almacén) + 7 (copias) + 7 (contenido) = 112 pruebas.
+Expected: `# fail 0`. Total: 10 (ficha) + 12 (modelo) + 22 (validación) + 46 (semáforo) + 5 (archivos) + 5 (almacén) + 7 (copias) + 7 (contenido) = 114 pruebas.
 
 - [ ] **Step 1b: Ajustes menores acumulados de las revisiones**
 
@@ -2343,4 +2377,4 @@ git commit -m "Cierre del plan 1: README de la plataforma y limpieza" -m "Co-Aut
 
 **Decisión de diseño que este plan fija y el spec no decía:** el avance natural entre escenas (una escena sin decisión ni fin sigue con la siguiente de la lista) y el aviso I05. Conviene añadirlo a la sección 8 del spec cuando se escriba el plan 2.
 
-**Consistencia de nombres.** `crearFicha(tipo, { origen, biblioteca })`, `evaluar(ficha, contexto)`, `evaluarTodo(proyecto)`, `describir(resultado, ficha, contenido)`, `validar(juego)`, `cumpleMinimo(proyecto)`, `puedePublicar(proyecto, semaforos, avisos)`, `abrirAlmacen({ nombre, indexedDB })`, `exportarCopia(proyecto, archivos, { JSZip })`, `importarCopia(entrada, { JSZip })`. Los archivos binarios son siempre `{ tipo, datos }`.
+**Consistencia de nombres.** `crearFicha(tipo, { origen, biblioteca })`, `evaluar(ficha, contexto)`, `evaluarTodo(proyecto)`, `describir(resultado, ficha, contenido)`, `validar(juego)`, `cumpleMinimo(proyecto)`, `puedePublicar(proyecto)`, `abrirAlmacen({ nombre, indexedDB })`, `exportarCopia(proyecto, archivos, { JSZip })`, `importarCopia(entrada, { JSZip })`. Los archivos binarios son siempre `{ tipo, datos }`.

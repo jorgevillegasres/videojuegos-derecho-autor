@@ -361,7 +361,7 @@ Cada módulo tiene una sola responsabilidad y una interfaz pequeña, para que se
 
 - `juridico/semaforo.js`: `evaluar(ficha, contexto) → { color, razones[], acciones[] }` y `evaluarTodo(proyecto) → Map<id, resultado>`. Sin acceso al DOM ni al almacén.
 - `estado/modelo.js`: `crearProyecto(datosIniciales)` y los mutadores de escenas, personajes, elementos y líneas (mutan el proyecto y devuelven lo creado), más `indiceCorte(escena)`.
-- `estado/validacion.js` (lectura pura): `escenasAlcanzables(juego) → Set`, `validar(juego) → avisos[]` (con nivel bloqueante o informativo), `cumpleMinimo(proyecto) → { ok, faltantes[] }`, `puedePublicar(proyecto, semaforos, avisos) → { ok, motivos[] }`.
+- `estado/validacion.js` (lectura pura): `escenasAlcanzables(juego) → Set`, `validar(juego) → avisos[]` (con nivel bloqueante o informativo), `cumpleMinimo(proyecto) → { ok, faltantes[] }`, `puedePublicar(proyecto) → { ok, motivos[], resumen }` (calcula semáforos, mínimo y avisos por sí misma).
 - `estado/almacen.js`: `cargar()`, `guardar(proyecto)`, `guardarArchivo(id, blob)`, `leerArchivo(id)`, `borrarArchivo(id)`.
 - `estado/copias.js`: `exportarCopia(proyecto, archivos) → Blob`, `importarCopia(archivo) → { proyecto, archivos }` o error descriptivo.
 - `motor/reproductor.js`: `jugar(contenedor, juego, resolverRecurso, opciones)`; `resolverRecurso(id) → URL`. En el editor devuelve URLs de objetos; en el exportado, datos incrustados.
