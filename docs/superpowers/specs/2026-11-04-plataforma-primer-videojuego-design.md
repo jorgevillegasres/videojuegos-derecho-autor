@@ -109,10 +109,12 @@ Esquema orientativo:
 }
 ```
 
+**Regla de corte.** Una escena termina en su primera línea de decisión o de fin. Si se acaban las líneas sin ninguna de las dos, el juego sigue con la siguiente escena de la lista; si no hay siguiente, termina y muestra los créditos. Las líneas que quedan después de una decisión o un fin nunca se ven. El reproductor y la validación comparten esta regla.
+
 **Validación del juego** (no jurídica). Dos niveles:
 
-- **Bloqueante** para publicar: decisión con una opción sin escena destino, escena inicial inexistente, diálogo con personaje inexistente.
-- **Informativo**: escena a la que no se llega desde la inicial, personaje sin retrato, escena sin líneas, juego sin ninguna línea `fin` alcanzable.
+- **Bloqueante** para publicar: escena inicial inexistente (B01), decisión con una opción sin escena destino (B02), diálogo con personaje inexistente (B03), decisión con menos de dos o más de cuatro opciones (B04).
+- **Informativo**: escena a la que no se llega desde la inicial (I01), personaje sin retrato (I02), escena sin líneas (I03), juego sin ninguna línea `fin` alcanzable (I04), líneas después del corte (I05). Sin escena inicial válida no se calculan I01 ni I04, que serían ruido de rebote.
 
 Los avisos se muestran en gris, nunca en los colores del semáforo jurídico.
 
@@ -312,7 +314,8 @@ plataforma/
   js/
     app.js                   arranque y navegación entre inicio, editor, mapa y publicar
     estado/
-      modelo.js              crear, validar, mínimo, puede publicar
+      modelo.js              crear proyecto, escenas, personajes, elementos, líneas; regla de corte
+      validacion.js          escenas alcanzables, validar, mínimo, puede publicar (lectura pura)
       almacen.js             IndexedDB: proyecto y archivos
       copias.js              exportar e importar copia
     editor/                  inventario, guion, vista previa, panel derecho
@@ -353,7 +356,8 @@ tests/
 Cada módulo tiene una sola responsabilidad y una interfaz pequeña, para que se pueda entender y probar sin leer los demás:
 
 - `juridico/semaforo.js`: `evaluar(ficha, contexto) → { color, razones[], acciones[] }` y `evaluarTodo(proyecto) → Map<id, resultado>`. Sin acceso al DOM ni al almacén.
-- `estado/modelo.js`: `crearProyecto(datosIniciales)`, `validar(juego) → avisos[]` (con nivel bloqueante o informativo), `cumpleMinimo(proyecto) → { ok, faltantes[] }`, `puedePublicar(proyecto, semaforos, avisos) → { ok, motivos[] }`.
+- `estado/modelo.js`: `crearProyecto(datosIniciales)` y los mutadores de escenas, personajes, elementos y líneas (mutan el proyecto y devuelven lo creado), más `indiceCorte(escena)`.
+- `estado/validacion.js` (lectura pura): `escenasAlcanzables(juego) → Set`, `validar(juego) → avisos[]` (con nivel bloqueante o informativo), `cumpleMinimo(proyecto) → { ok, faltantes[] }`, `puedePublicar(proyecto, semaforos, avisos) → { ok, motivos[] }`.
 - `estado/almacen.js`: `cargar()`, `guardar(proyecto)`, `guardarArchivo(id, blob)`, `leerArchivo(id)`, `borrarArchivo(id)`.
 - `estado/copias.js`: `exportarCopia(proyecto, archivos) → Blob`, `importarCopia(archivo) → { proyecto, archivos }` o error descriptivo.
 - `motor/reproductor.js`: `jugar(contenedor, juego, resolverRecurso, opciones)`; `resolverRecurso(id) → URL`. En el editor devuelve URLs de objetos; en el exportado, datos incrustados.

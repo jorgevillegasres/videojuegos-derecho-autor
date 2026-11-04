@@ -39,7 +39,8 @@ package-lock.json
 plataforma/
   js/
     estado/
-      modelo.js                    crear proyecto, escenas, personajes, elementos, líneas; validar; mínimo; puede publicar
+      modelo.js                    crear proyecto, escenas, personajes, elementos, líneas; regla de corte (indiceCorte)
+      validacion.js                escenas alcanzables, validar, mínimo publicable, puede publicar (lectura pura)
       archivos.js                  MIME por extensión, huella SHA-256, sello de creación
       almacen.js                   IndexedDB: proyecto y archivos
       copias.js                    exportar e importar copia comprimida
@@ -55,6 +56,7 @@ plataforma/
 tests/
   ficha.test.js
   modelo.test.js
+  validacion.test.js
   semaforo.test.js
   semaforo.casos.json              tabla de casos legible
   archivos.test.js
@@ -694,16 +696,29 @@ git commit -m "Modelo del juego: crear proyecto, escenas, personajes, elementos 
 ### Task 4: Validación del juego y escenas alcanzables
 
 **Files:**
-- Modify: `plataforma/js/estado/modelo.js` (agregar al final)
-- Test: `tests/modelo.test.js` (agregar al final)
+- Create: `plataforma/js/estado/validacion.js`
+- Modify: `plataforma/js/estado/modelo.js` (agregar `indiceCorte` al final)
+- Create: `tests/validacion.test.js`
+- Modify: `tests/modelo.test.js` (agregar una prueba al final)
 
-Regla del motor que fija este diseño: **una escena termina en su primera línea de decisión o de fin**. Si se acaban las líneas sin ninguna de las dos, el juego sigue con la siguiente escena de la lista; si no hay siguiente, termina y muestra los créditos. Las líneas que quedan después de una decisión o un fin nunca se ven.
+Regla del motor que fija este diseño: **una escena termina en su primera línea de decisión o de fin** (`indiceCorte`). Si se acaban las líneas sin ninguna de las dos, el juego sigue con la siguiente escena de la lista; si no hay siguiente, termina y muestra los créditos. Las líneas que quedan después de una decisión o un fin nunca se ven. La regla vive en `modelo.js` para que el reproductor (plan 2) y la validación la compartan.
 
-- [ ] **Step 1: Agregar las pruebas que fallan**
+La validación va en un módulo aparte porque es lectura pura y `modelo.js` es mutación; así cada archivo tiene un solo contrato. Las tareas 5 y 8 agregan a `validacion.js`.
+
+- [ ] **Step 1: Escribir las pruebas que fallan**
+
+Crear `tests/validacion.test.js`:
 
 ```js
-// tests/modelo.test.js (agregar al final)
-import { validar, escenasAlcanzables } from '../plataforma/js/estado/modelo.js';
+// tests/validacion.test.js
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { crearProyecto, agregarEscena, agregarPersonaje, agregarLinea } from '../plataforma/js/estado/modelo.js';
+import { validar, escenasAlcanzables } from '../plataforma/js/estado/validacion.js';
+
+function proyectoBase() {
+  return crearProyecto({ estudiante: 'Camila R.', titulo: 'La llave del faro', destino: 'gratis' }, new Date('2026-11-04T20:00:00Z'));
+}
 
 function juegoConTresEscenas() {
   const p = proyectoBase();
@@ -777,23 +792,101 @@ test('I02: personaje sin retrato; I03: escena sin líneas; I04: sin fin alcanzab
   assert.ok(codigos.includes('I05'), 'hay una línea después de la decisión del muelle');
   assert.ok(!codigos.includes('B03'), `${ana.nombre} sigue existiendo`);
 });
+
+test('B04: una decisión necesita entre dos y cuatro opciones', () => {
+  const { p, muelle, torre } = juegoConTresEscenas();
+  muelle.lineas[1].opciones = [{ texto: 'Única', escena: torre.id }];
+  let aviso = validar(p.juego).find((a) => a.codigo === 'B04');
+  assert.equal(aviso.nivel, 'bloqueante');
+  assert.equal(aviso.escena, muelle.id);
+  assert.equal(aviso.linea, 1);
+  muelle.lineas[1].opciones = Array.from({ length: 5 }, (_, i) => ({ texto: `Opción ${i + 1}`, escena: torre.id }));
+  aviso = validar(p.juego).find((a) => a.codigo === 'B04');
+  assert.ok(aviso, 'cinco opciones también se bloquean');
+  muelle.lineas[1].opciones = Array.from({ length: 4 }, (_, i) => ({ texto: `Opción ${i + 1}`, escena: torre.id }));
+  assert.ok(!validar(p.juego).some((a) => a.codigo === 'B04'), 'cuatro opciones están bien');
+});
+
+test('con B01 no se agregan I01 ni I04 de rebote', () => {
+  const { p } = juegoConTresEscenas();
+  p.juego.escenaInicial = null;
+  const codigos = validar(p.juego).map((a) => a.codigo);
+  assert.ok(codigos.includes('B01'));
+  assert.ok(!codigos.includes('I01'));
+  assert.ok(!codigos.includes('I04'));
+  assert.equal(escenasAlcanzables(p.juego).size, 0);
+});
+
+test('escenasAlcanzables termina con ciclos y validar no muta el juego', () => {
+  const { p, muelle, torre } = juegoConTresEscenas();
+  torre.lineas = [];
+  agregarLinea(torre, 'decision', { texto: '¿Volver?', opciones: [{ texto: 'Sí', escena: muelle.id }, { texto: 'No', escena: muelle.id }] });
+  const antes = structuredClone(p.juego);
+  const alcanzables = escenasAlcanzables(p.juego);
+  assert.ok(alcanzables.has(muelle.id) && alcanzables.has(torre.id));
+  validar(p.juego);
+  assert.deepEqual(p.juego, antes);
+});
+
+test('I05 señala la primera línea que no se verá y las escenas sin nombre se describen por posición', () => {
+  const { p, muelle } = juegoConTresEscenas();
+  agregarLinea(muelle, 'narracion', { texto: 'después' });
+  const i05 = validar(p.juego).find((a) => a.codigo === 'I05');
+  assert.equal(i05.linea, 2);
+  const sinNombre = agregarEscena(p);
+  const i03 = validar(p.juego).find((a) => a.codigo === 'I03' && a.escena === sinNombre.id);
+  assert.match(i03.mensaje, /sin nombre \(n\.º 4\)/);
+});
+```
+
+Y en `tests/modelo.test.js`, agregar `indiceCorte` a la lista de importación de `modelo.js` y esta prueba al final:
+
+```js
+test('indiceCorte encuentra la primera decisión o fin', () => {
+  const p = proyectoBase();
+  const escena = p.juego.escenas[0];
+  assert.equal(indiceCorte(escena), -1);
+  agregarLinea(escena, 'narracion', { texto: 'a' });
+  agregarLinea(escena, 'fin', { texto: 'b' });
+  agregarLinea(escena, 'decision');
+  assert.equal(indiceCorte(escena), 1);
+});
 ```
 
 - [ ] **Step 2: Correr las pruebas para ver que fallan**
 
-Run: `node --test tests/modelo.test.js`
-Expected: FAIL con `validar is not a function` o `does not provide an export named 'validar'`.
+Run: `node --test tests/validacion.test.js`
+Expected: FAIL con `Cannot find module` para `validacion.js`. Y `node --test tests/modelo.test.js` falla con `does not provide an export named 'indiceCorte'`.
 
-- [ ] **Step 3: Agregar `validar` y `escenasAlcanzables` al final de `modelo.js`**
+- [ ] **Step 3: Agregar `indiceCorte` al final de `modelo.js`**
 
 ```js
-// plataforma/js/estado/modelo.js (agregar al final)
 
-// ---- Validación (no jurídica) ----
+/** Índice de la primera línea de decisión o fin de la escena, o -1 si no hay. El reproductor y la validación comparten esta regla. */
+export function indiceCorte(escena) {
+  return escena.lineas.findIndex((l) => l.tipo === 'decision' || l.tipo === 'fin');
+}
+```
+
+- [ ] **Step 4: Escribir `validacion.js`**
+
+```js
+// plataforma/js/estado/validacion.js
+// Lectura pura del documento del juego: qué escenas se alcanzan y qué avisos
+// (no jurídicos) tiene el editor. No muta nada. Los avisos 'bloqueante' impiden
+// publicar; los 'informativo' solo se muestran.
+import { indiceCorte } from './modelo.js';
+
+export const OPCIONES_MIN = 2;
+export const OPCIONES_MAX = 4;
+
+const etiqueta = (nombre, alternativa) => (nombre?.trim() ? `«${nombre}»` : alternativa);
+const etiquetaEscena = (escena, indice) => etiqueta(escena.nombre, `sin nombre (n.º ${indice + 1})`);
 
 /**
  * Escenas a las que se llega desde la inicial. Una escena termina en su primera
- * decisión o fin; sin ninguna de las dos, sigue la siguiente escena de la lista.
+ * decisión o fin (indiceCorte); sin ninguna de las dos, sigue la siguiente escena
+ * de la lista. Ids inexistentes se ignoran.
  */
 export function escenasAlcanzables(juego) {
   const porId = new Map(juego.escenas.map((e) => [e.id, e]));
@@ -804,81 +897,93 @@ export function escenasAlcanzables(juego) {
     const id = pendientes.pop();
     if (!porId.has(id) || visitadas.has(id)) continue;
     visitadas.add(id);
-    const corte = porId.get(id).lineas.find((l) => l.tipo === 'decision' || l.tipo === 'fin');
-    if (!corte) {
+    const escena = porId.get(id);
+    const corte = indiceCorte(escena);
+    if (corte === -1) {
       const siguiente = orden[orden.indexOf(id) + 1];
       if (siguiente) pendientes.push(siguiente);
-    } else if (corte.tipo === 'decision') {
-      for (const opcion of corte.opciones) pendientes.push(opcion.escena);
+    } else if (escena.lineas[corte].tipo === 'decision') {
+      for (const opcion of escena.lineas[corte].opciones) pendientes.push(opcion.escena);
     }
   }
   return visitadas;
 }
 
 /**
- * Avisos del editor. nivel: 'bloqueante' impide publicar; 'informativo' solo se muestra.
- * Devuelve [{ nivel, codigo, mensaje, escena?, linea?, personaje? }].
+ * Avisos del editor. Devuelve [{ nivel, codigo, mensaje, escena?, linea?, personaje? }].
+ * Bloqueantes: B01 sin escena inicial, B02 opción sin destino, B03 diálogo sin
+ * personaje, B04 decisión con menos de dos o más de cuatro opciones.
+ * Informativos: I01 escena inalcanzable, I02 personaje sin retrato, I03 escena sin
+ * líneas, I04 sin fin alcanzable, I05 líneas después del corte.
+ * Con B01 no se calculan I01 ni I04, porque serían ruido de rebote.
  */
 export function validar(juego) {
   const avisos = [];
   const idsEscenas = new Set(juego.escenas.map((e) => e.id));
   const idsPersonajes = new Set(juego.personajes.map((p) => p.id));
+  const hayInicial = idsEscenas.has(juego.escenaInicial);
 
-  if (!idsEscenas.has(juego.escenaInicial)) {
+  if (!hayInicial) {
     avisos.push({ nivel: 'bloqueante', codigo: 'B01', mensaje: 'El juego no tiene escena inicial.' });
   }
 
-  for (const escena of juego.escenas) {
+  juego.escenas.forEach((escena, indiceEscena) => {
+    const nombre = etiquetaEscena(escena, indiceEscena);
     if (escena.lineas.length === 0) {
-      avisos.push({ nivel: 'informativo', codigo: 'I03', mensaje: `La escena «${escena.nombre}» no tiene líneas.`, escena: escena.id });
+      avisos.push({ nivel: 'informativo', codigo: 'I03', mensaje: `La escena ${nombre} no tiene líneas.`, escena: escena.id });
     }
-    const indiceCorte = escena.lineas.findIndex((l) => l.tipo === 'decision' || l.tipo === 'fin');
-    if (indiceCorte !== -1 && indiceCorte < escena.lineas.length - 1) {
-      avisos.push({ nivel: 'informativo', codigo: 'I05', mensaje: `En «${escena.nombre}» hay líneas después de la decisión o el fin que nunca se verán.`, escena: escena.id, linea: indiceCorte + 1 });
+    const corte = indiceCorte(escena);
+    if (corte !== -1 && corte < escena.lineas.length - 1) {
+      avisos.push({ nivel: 'informativo', codigo: 'I05', mensaje: `En ${nombre} hay líneas después de la decisión o el fin que nunca se verán.`, escena: escena.id, linea: corte + 1 });
     }
     escena.lineas.forEach((linea, i) => {
       if (linea.tipo === 'decision') {
+        if (linea.opciones.length < OPCIONES_MIN || linea.opciones.length > OPCIONES_MAX) {
+          avisos.push({ nivel: 'bloqueante', codigo: 'B04', mensaje: `La decisión en ${nombre} debe tener entre ${OPCIONES_MIN} y ${OPCIONES_MAX} opciones.`, escena: escena.id, linea: i });
+        }
         linea.opciones.forEach((opcion, j) => {
           if (!idsEscenas.has(opcion.escena)) {
-            avisos.push({ nivel: 'bloqueante', codigo: 'B02', mensaje: `La opción ${j + 1} de la decisión en «${escena.nombre}» no lleva a ninguna escena.`, escena: escena.id, linea: i });
+            avisos.push({ nivel: 'bloqueante', codigo: 'B02', mensaje: `La opción ${j + 1} de la decisión en ${nombre} no lleva a ninguna escena.`, escena: escena.id, linea: i });
           }
         });
       }
       if (linea.tipo === 'dialogo' && !idsPersonajes.has(linea.personaje)) {
-        avisos.push({ nivel: 'bloqueante', codigo: 'B03', mensaje: `Un diálogo en «${escena.nombre}» no tiene personaje.`, escena: escena.id, linea: i });
+        avisos.push({ nivel: 'bloqueante', codigo: 'B03', mensaje: `Un diálogo en ${nombre} no tiene personaje.`, escena: escena.id, linea: i });
       }
     });
-  }
+  });
 
-  const alcanzables = escenasAlcanzables(juego);
-  for (const escena of juego.escenas) {
-    if (!alcanzables.has(escena.id)) {
-      avisos.push({ nivel: 'informativo', codigo: 'I01', mensaje: `A la escena «${escena.nombre}» no se llega desde el inicio.`, escena: escena.id });
-    }
-  }
   for (const personaje of juego.personajes) {
     if (!personaje.retrato) {
-      avisos.push({ nivel: 'informativo', codigo: 'I02', mensaje: `El personaje «${personaje.nombre}» no tiene retrato.`, personaje: personaje.id });
+      avisos.push({ nivel: 'informativo', codigo: 'I02', mensaje: `El personaje ${etiqueta(personaje.nombre, 'sin nombre')} no tiene retrato.`, personaje: personaje.id });
     }
   }
-  const hayFin = juego.escenas.some((e) => alcanzables.has(e.id) && e.lineas.some((l) => l.tipo === 'fin'));
-  if (!hayFin) {
-    avisos.push({ nivel: 'informativo', codigo: 'I04', mensaje: 'Ninguna escena alcanzable termina con una línea de fin.' });
+
+  if (hayInicial) {
+    const alcanzables = escenasAlcanzables(juego);
+    juego.escenas.forEach((escena, indiceEscena) => {
+      if (!alcanzables.has(escena.id)) {
+        avisos.push({ nivel: 'informativo', codigo: 'I01', mensaje: `A la escena ${etiquetaEscena(escena, indiceEscena)} no se llega desde el inicio.`, escena: escena.id });
+      }
+    });
+    const hayFin = juego.escenas.some((e) => alcanzables.has(e.id) && e.lineas.some((l) => l.tipo === 'fin'));
+    if (!hayFin) {
+      avisos.push({ nivel: 'informativo', codigo: 'I04', mensaje: 'Ninguna escena alcanzable termina con una línea de fin; el juego terminará al acabar la última escena.' });
+    }
   }
   return avisos;
 }
 ```
 
-- [ ] **Step 4: Correr las pruebas para ver que pasan**
+- [ ] **Step 5: Correr las pruebas para ver que pasan**
 
-Run: `node --test tests/modelo.test.js`
-Expected: `# pass 18`, `# fail 0`.
+Run: `node --test tests/modelo.test.js` → `# pass 12`; `node --test tests/validacion.test.js` → `# pass 11`; `npm test` → 33 pruebas, `# fail 0`.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add plataforma/js/estado/modelo.js tests/modelo.test.js
-git commit -m "Validación del juego: avisos bloqueantes e informativos y escenas alcanzables" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git add plataforma/js/estado/modelo.js plataforma/js/estado/validacion.js tests/modelo.test.js tests/validacion.test.js
+git commit -m "Validación del juego en módulo propio: avisos bloqueantes e informativos y escenas alcanzables" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -886,14 +991,15 @@ git commit -m "Validación del juego: avisos bloqueantes e informativos y escena
 ### Task 5: Juego mínimo publicable
 
 **Files:**
-- Modify: `plataforma/js/estado/modelo.js` (agregar al final)
-- Test: `tests/modelo.test.js` (agregar al final)
+- Modify: `plataforma/js/estado/validacion.js` (agregar al final)
+- Test: `tests/validacion.test.js` (agregar al final)
 
 - [ ] **Step 1: Agregar las pruebas que fallan**
 
 ```js
-// tests/modelo.test.js (agregar al final)
-import { cumpleMinimo, MINIMO } from '../plataforma/js/estado/modelo.js';
+// tests/validacion.test.js (agregar al final)
+import { agregarElemento } from '../plataforma/js/estado/modelo.js';
+import { cumpleMinimo, MINIMO } from '../plataforma/js/estado/validacion.js';
 
 function juegoMinimoCompleto() {
   const { p, muelle, torre, amanecer } = juegoConTresEscenas();
@@ -948,13 +1054,13 @@ test('un personaje sin retrato no cuenta', () => {
 
 - [ ] **Step 2: Correr las pruebas para ver que fallan**
 
-Run: `node --test tests/modelo.test.js`
+Run: `node --test tests/validacion.test.js`
 Expected: FAIL con `does not provide an export named 'cumpleMinimo'`.
 
-- [ ] **Step 3: Agregar `MINIMO` y `cumpleMinimo` al final de `modelo.js`**
+- [ ] **Step 3: Agregar `MINIMO` y `cumpleMinimo` al final de `validacion.js`**
 
 ```js
-// plataforma/js/estado/modelo.js (agregar al final)
+// plataforma/js/estado/validacion.js (agregar al final)
 
 // ---- Mínimo publicable (spec, sección 4) ----
 
@@ -985,13 +1091,13 @@ export function cumpleMinimo(proyecto) {
 
 - [ ] **Step 4: Correr las pruebas para ver que pasan**
 
-Run: `node --test tests/modelo.test.js`
-Expected: `# pass 23`, `# fail 0`.
+Run: `node --test tests/validacion.test.js`
+Expected: `# pass 16`, `# fail 0`. `npm test` → 38.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add plataforma/js/estado/modelo.js tests/modelo.test.js
+git add plataforma/js/estado/validacion.js tests/validacion.test.js
 git commit -m "Juego mínimo publicable" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
@@ -1406,14 +1512,14 @@ git commit -m "Semáforo: reglas amarillas y notas informativas" -m "Co-Authored
 
 **Files:**
 - Modify: `plataforma/js/juridico/semaforo.js` (agregar `evaluarTodo`)
-- Modify: `plataforma/js/estado/modelo.js` (agregar `nombreDe` y `puedePublicar`)
-- Test: `tests/modelo.test.js` (agregar al final)
+- Modify: `plataforma/js/estado/validacion.js` (agregar `nombreDe` y `puedePublicar`)
+- Test: `tests/validacion.test.js` (agregar al final)
 
 - [ ] **Step 1: Agregar las pruebas que fallan**
 
 ```js
-// tests/modelo.test.js (agregar al final)
-import { puedePublicar, nombreDe } from '../plataforma/js/estado/modelo.js';
+// tests/validacion.test.js (agregar al final)
+import { puedePublicar, nombreDe } from '../plataforma/js/estado/validacion.js';
 import { evaluarTodo } from '../plataforma/js/juridico/semaforo.js';
 
 function dejarTodoEnVerde(p) {
@@ -1464,7 +1570,7 @@ test('puedePublicar exige semáforos en verde, mínimo cumplido y sin bloqueante
 
 - [ ] **Step 2: Correr las pruebas para ver que fallan**
 
-Run: `node --test tests/modelo.test.js`
+Run: `node --test tests/validacion.test.js`
 Expected: FAIL con `does not provide an export named 'puedePublicar'`.
 
 - [ ] **Step 3: Agregar `evaluarTodo` al final de `semaforo.js`**
@@ -1479,10 +1585,10 @@ export function evaluarTodo(proyecto) {
 }
 ```
 
-- [ ] **Step 4: Agregar `nombreDe` y `puedePublicar` al final de `modelo.js`**
+- [ ] **Step 4: Agregar `nombreDe` y `puedePublicar` al final de `validacion.js`**
 
 ```js
-// plataforma/js/estado/modelo.js (agregar al final)
+// plataforma/js/estado/validacion.js (agregar al final)
 
 // ---- Publicación ----
 
@@ -1520,12 +1626,12 @@ export function puedePublicar(proyecto, semaforos, avisos) {
 - [ ] **Step 5: Correr todas las pruebas**
 
 Run: `npm test`
-Expected: `# fail 0`. Total de pruebas: 10 (ficha) + 26 (modelo) + 34 (semáforo) = 70.
+Expected: `# fail 0`. Total de pruebas: 10 (ficha) + 12 (modelo) + 19 (validación) + 34 (semáforo) = 75.
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add plataforma/js/juridico/semaforo.js plataforma/js/estado/modelo.js tests/modelo.test.js
+git add plataforma/js/juridico/semaforo.js plataforma/js/estado/validacion.js tests/validacion.test.js
 git commit -m "Evaluar todas las fichas y decidir si el juego se puede publicar" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
@@ -2384,7 +2490,7 @@ git commit -m "Contenido jurídico con fuentes del memo y textos del semáforo" 
 - [ ] **Step 1: Correr toda la suite**
 
 Run: `npm test`
-Expected: `# fail 0`. Total: 10 (ficha) + 26 (modelo) + 34 (semáforo) + 5 (archivos) + 5 (almacén) + 7 (copias) + 7 (contenido) = 94 pruebas.
+Expected: `# fail 0`. Total: 10 (ficha) + 12 (modelo) + 19 (validación) + 34 (semáforo) + 5 (archivos) + 5 (almacén) + 7 (copias) + 7 (contenido) = 99 pruebas.
 
 - [ ] **Step 1b: Ajuste menor de la revisión de la tarea 2**
 
@@ -2444,7 +2550,7 @@ git commit -m "Cierre del plan 1: README de la plataforma y limpieza" -m "Co-Aut
 
 ## Autorrevisión del plan contra el spec
 
-**Cobertura.** Sección 6 (modelo): tareas 3 a 5 y 8. Sección 12.2 (campos de la ficha): tarea 2. Sección 12.3 (tipo de obra): tarea 2 y textos en la 12. Sección 12.4 (reglas): tareas 6 y 7; `evaluarTodo` en la 8. Sección 12.5 (destino recalcula): `evaluarTodo` toma el destino del proyecto; la interfaz que lo dispara llega en el plan 3. Sección 12.9 (contenido aparte del código): tarea 12. Sección 13 (persistencia y copias): tareas 10 y 11. Sección 15.3 (interfaces): los nombres de este plan son los del spec salvo dos ajustes deliberados: `evaluar` devuelve códigos y los textos los agrega `describir` (así la tabla de casos es estable), y `ficha.js` queda puro (el formulario irá en `editor/panel-ficha.js`, plan 3). Secciones 7, 8, 9, 10, 11, 14, 16, 17, 18 (e2e): planes 2 a 6.
+**Cobertura.** Sección 6 (modelo): tareas 3 a 5 y 8. Sección 12.2 (campos de la ficha): tarea 2. Sección 12.3 (tipo de obra): tarea 2 y textos en la 12. Sección 12.4 (reglas): tareas 6 y 7; `evaluarTodo` en la 8. Sección 12.5 (destino recalcula): `evaluarTodo` toma el destino del proyecto; la interfaz que lo dispara llega en el plan 3. Sección 12.9 (contenido aparte del código): tarea 12. Sección 13 (persistencia y copias): tareas 10 y 11. Sección 15.3 (interfaces): los nombres de este plan son los del spec salvo tres ajustes deliberados: `evaluar` devuelve códigos y los textos los agrega `describir` (así la tabla de casos es estable); `ficha.js` queda puro (el formulario irá en `editor/panel-ficha.js`, plan 3); y la lectura pura del juego (`validar`, `escenasAlcanzables`, `cumpleMinimo`, `puedePublicar`) vive en `estado/validacion.js`, separada de los mutadores de `modelo.js`, con la regla de corte `indiceCorte` en `modelo.js` para que el reproductor la comparta. Secciones 7, 8, 9, 10, 11, 14, 16, 17, 18 (e2e): planes 2 a 6.
 
 **Decisión de diseño que este plan fija y el spec no decía:** el avance natural entre escenas (una escena sin decisión ni fin sigue con la siguiente de la lista) y el aviso I05. Conviene añadirlo a la sección 8 del spec cuando se escriba el plan 2.
 
