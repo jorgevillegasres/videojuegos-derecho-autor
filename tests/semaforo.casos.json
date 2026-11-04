@@ -89,5 +89,145 @@
     "ficha": { "autoria": "otra_persona", "respaldo": "ninguno" },
     "contexto": { "destino": "venta" },
     "esperado": { "color": "verde", "razones": [], "notas": ["N_TITULO"] }
+  },
+  {
+    "nombre": "C04 otra persona con cesión y crédito: verde",
+    "base": { "tipo": "retrato", "origen": "subido" },
+    "ficha": { "autoria": "otra_persona", "autorNombre": "Camila", "titular": "yo", "respaldo": "cesion", "credito": "Retrato de Ana: Camila" },
+    "contexto": { "destino": "venta" },
+    "esperado": { "color": "verde", "razones": [] }
+  },
+  {
+    "nombre": "C05 A02 otra persona con cesión y sin crédito",
+    "base": { "tipo": "retrato", "origen": "subido" },
+    "ficha": { "autoria": "otra_persona", "autorNombre": "Camila", "titular": "yo", "respaldo": "cesion" },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "amarillo", "razones": ["A02"] }
+  },
+  {
+    "nombre": "C06 A09 cesión pero el titular sigue siendo la otra persona",
+    "base": { "tipo": "retrato", "origen": "subido" },
+    "ficha": { "autoria": "otra_persona", "autorNombre": "Camila", "titular": "otra_persona", "respaldo": "cesion", "credito": "Retrato: Camila" },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "amarillo", "razones": ["A09"] }
+  },
+  {
+    "nombre": "C07 A08 otra persona sin nombre",
+    "base": { "tipo": "retrato", "origen": "subido" },
+    "ficha": { "autoria": "otra_persona", "autorNombre": "", "titular": "yo", "respaldo": "cesion", "credito": "Retrato: una amiga" },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "amarillo", "razones": ["A08"] }
+  },
+  {
+    "nombre": "C10 A07 biblioteca sin leer la licencia",
+    "base": { "tipo": "musica", "origen": "biblioteca", "biblioteca": { "id": "bib_m1", "autor": "Autora Ejemplo", "licencia": "CC-BY-NC-4.0", "creditoSugerido": "«Tema» de Autora Ejemplo, CC BY-NC 4.0" } },
+    "ficha": {},
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "amarillo", "razones": ["A07"] }
+  },
+  {
+    "nombre": "C11 A01 y A02 biblioteca BY con el crédito borrado",
+    "base": { "tipo": "fondo", "origen": "biblioteca", "biblioteca": { "id": "bib_f1", "autor": "Autora Ejemplo", "licencia": "CC-BY-4.0", "creditoSugerido": "«Muelle» de Autora Ejemplo, CC BY 4.0" } },
+    "ficha": { "licenciaLeida": true, "credito": "" },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "amarillo", "razones": ["A01", "A02"] }
+  },
+  {
+    "nombre": "C14 A03 biblioteca BY-SA sin aceptar compartir igual",
+    "base": { "tipo": "fondo", "origen": "biblioteca", "biblioteca": { "id": "bib_f2", "autor": "Autor Ejemplo", "licencia": "CC-BY-SA-4.0", "creditoSugerido": "«Torre» de Autor Ejemplo, CC BY-SA 4.0" } },
+    "ficha": { "licenciaLeida": true },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "amarillo", "razones": ["A03"] }
+  },
+  {
+    "nombre": "C15 biblioteca BY-SA aceptando compartir igual: verde",
+    "base": { "tipo": "fondo", "origen": "biblioteca", "biblioteca": { "id": "bib_f2", "autor": "Autor Ejemplo", "licencia": "CC-BY-SA-4.0", "creditoSugerido": "«Torre» de Autor Ejemplo, CC BY-SA 4.0" } },
+    "ficha": { "licenciaLeida": true, "aceptaCompartirIgual": true },
+    "contexto": { "destino": "venta" },
+    "esperado": { "color": "verde", "razones": [] }
+  },
+  {
+    "nombre": "C18 biblioteca CC0 leída: verde (el crédito sugerido viene precargado)",
+    "base": { "tipo": "efecto", "origen": "biblioteca", "biblioteca": { "id": "bib_e1", "autor": "Autor Ejemplo", "licencia": "CC0", "creditoSugerido": "«Olas» de Autor Ejemplo, CC0" } },
+    "ficha": { "licenciaLeida": true },
+    "contexto": { "destino": "venta" },
+    "esperado": { "color": "verde", "razones": [] }
+  },
+  {
+    "nombre": "C19 A04 generado con IA sin reconocer",
+    "base": { "tipo": "fondo", "origen": "subido" },
+    "ficha": { "autoria": "ia", "herramientaIA": "Generador X" },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "amarillo", "razones": ["A04"] }
+  },
+  {
+    "nombre": "C20 generado con IA reconocido y declarado: verde con nota",
+    "base": { "tipo": "fondo", "origen": "subido" },
+    "ficha": { "autoria": "ia", "herramientaIA": "Generador X", "reconoceSinDerechos": true, "credito": "Generado con IA (Generador X)" },
+    "contexto": { "destino": "venta" },
+    "esperado": { "color": "verde", "razones": [], "notas": ["N_IA"] }
+  },
+  {
+    "nombre": "C21 A05 IA con aporte sin describir",
+    "base": { "tipo": "retrato", "origen": "subido" },
+    "ficha": { "autoria": "ia_con_aporte", "herramientaIA": "Generador X" },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "amarillo", "razones": ["A05"] }
+  },
+  {
+    "nombre": "C22 IA con aporte descrito: verde con nota",
+    "base": { "tipo": "retrato", "origen": "subido" },
+    "ficha": { "autoria": "ia_con_aporte", "herramientaIA": "Generador X", "aporteHumano": "Redibujé la cara y cambié la paleta" },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "verde", "razones": [], "notas": ["N_IA_APORTE"] }
+  },
+  {
+    "nombre": "C23 A06 subido por mí sin prueba",
+    "base": { "tipo": "musica", "origen": "subido" },
+    "ficha": {},
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "amarillo", "razones": ["A06"] }
+  },
+  {
+    "nombre": "C24 subido por mí con el archivo original: verde",
+    "base": { "tipo": "musica", "origen": "subido" },
+    "ficha": { "prueba": "original" },
+    "contexto": { "destino": "venta" },
+    "esperado": { "color": "verde", "razones": [] }
+  },
+  {
+    "nombre": "C28 A10 autorización informal con destino venta",
+    "base": { "tipo": "voz", "origen": "subido" },
+    "ficha": { "autoria": "otra_persona", "autorNombre": "Luis", "titular": "otra_persona", "respaldo": "autorizacion", "credito": "Voz del farero: Luis" },
+    "contexto": { "destino": "venta" },
+    "esperado": { "color": "amarillo", "razones": ["A10"] }
+  },
+  {
+    "nombre": "C29 autorización informal con destino gratis: verde",
+    "base": { "tipo": "voz", "origen": "subido" },
+    "ficha": { "autoria": "otra_persona", "autorNombre": "Luis", "titular": "otra_persona", "respaldo": "autorizacion", "credito": "Voz del farero: Luis" },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "verde", "razones": [] }
+  },
+  {
+    "nombre": "C31 subido con otra licencia que exige atribución y sin crédito",
+    "base": { "tipo": "fondo", "origen": "subido" },
+    "ficha": { "autoria": "otra_persona", "autorNombre": "Ana", "titular": "otra_persona", "respaldo": "licencia", "licencia": "OTRA", "licenciaTexto": "Uso libre con crédito", "condicionesOtra": ["BY"], "licenciaLeida": true },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "amarillo", "razones": ["A01", "A02"] }
+  },
+  {
+    "nombre": "C32 A11 otra licencia sin describir",
+    "base": { "tipo": "efecto", "origen": "subido" },
+    "ficha": { "autoria": "otra_persona", "autorNombre": "Ana", "titular": "otra_persona", "respaldo": "licencia", "licencia": "OTRA", "licenciaLeida": true, "credito": "«Viento» de Ana" },
+    "contexto": { "destino": "gratis" },
+    "esperado": { "color": "amarillo", "razones": ["A11"] }
+  },
+  {
+    "nombre": "C33 otra licencia descrita sin condiciones marcadas: verde",
+    "base": { "tipo": "efecto", "origen": "subido" },
+    "ficha": { "autoria": "otra_persona", "autorNombre": "Ana", "titular": "otra_persona", "respaldo": "licencia", "licencia": "OTRA", "licenciaTexto": "Ana me autorizó por correo a usarlo en cualquier juego mío, sin condiciones", "licenciaLeida": true, "credito": "«Viento» de Ana" },
+    "contexto": { "destino": "venta" },
+    "esperado": { "color": "verde", "razones": [] }
   }
 ]

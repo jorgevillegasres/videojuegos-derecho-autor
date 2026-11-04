@@ -34,10 +34,23 @@ export function evaluar(ficha, contexto) {
   if (ficha.licencia === 'CURSO' && destino !== 'personal') razones.push('R05');
   if (esDerivable && ficha.basadoEnObraAjena && !ficha.autorizacionDerivada) razones.push('R06');
 
-  // ---- Amarillo ---- (Task 7)
+  // ---- Amarillo ----
+  if (tieneLicencia && condiciones.includes('BY') && vacio(ficha.credito)) razones.push('A01');
+  if (ficha.autoria === 'otra_persona' && ficha.respaldo !== 'ninguno' && vacio(ficha.credito)) razones.push('A02');
+  if (tieneLicencia && condiciones.includes('SA') && !ficha.aceptaCompartirIgual) razones.push('A03');
+  if (ficha.autoria === 'ia' && !ficha.reconoceSinDerechos) razones.push('A04');
+  if (ficha.autoria === 'ia_con_aporte' && vacio(ficha.aporteHumano)) razones.push('A05');
+  if (ficha.origen === 'subido' && ficha.autoria === 'yo' && ficha.prueba === 'ninguna') razones.push('A06');
+  if (tieneLicencia && !ficha.licenciaLeida) razones.push('A07');
+  if (ficha.autoria === 'otra_persona' && vacio(ficha.autorNombre)) razones.push('A08');
+  if (ficha.respaldo === 'cesion' && ficha.titular === 'otra_persona') razones.push('A09');
+  if (ficha.respaldo === 'autorizacion' && destino === 'venta') razones.push('A10');
+  if (tieneLicencia && ficha.licencia === 'OTRA' && vacio(ficha.licenciaTexto)) razones.push('A11');
 
-  // ---- Notas ----
+  // ---- Notas (solo informan; no cambian el color) ----
   if (ficha.origen === 'creado' && ficha.prueba === 'sello') notas.push('N_SELLO');
+  if (ficha.autoria === 'ia' && ficha.reconoceSinDerechos) notas.push('N_IA');
+  if (ficha.autoria === 'ia_con_aporte' && !vacio(ficha.aporteHumano)) notas.push('N_IA_APORTE');
 
   const color = razones.some((c) => CODIGOS_ROJO.includes(c)) ? 'rojo'
     : razones.length ? 'amarillo'
