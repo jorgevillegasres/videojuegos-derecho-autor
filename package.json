@@ -1,0 +1,17 @@
+{
+  "name": "plataforma-primer-videojuego",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Plataforma de práctica: primer videojuego y derecho de autor",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "^6.0.0",
+    "jszip": "^3.10.1"
+  }
+}
