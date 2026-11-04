@@ -1,8 +1,10 @@
 // tests/ficha.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { LICENCIAS, condicionesDe } from '../plataforma/js/juridico/licencias.js';
-import { TIPOS_FICHA, TIPOS_OBRA, tipoObraPara, crearFicha } from '../plataforma/js/juridico/ficha.js';
+import { LICENCIAS, CONDICIONES, condicionesDe } from '../plataforma/js/juridico/licencias.js';
+import {
+  TIPOS_FICHA, TIPOS_OBRA, ORIGENES_FICHA, AUTORIAS, TITULARES, RESPALDOS, PRUEBAS, tipoObraPara, crearFicha,
+} from '../plataforma/js/juridico/ficha.js';
 
 test('el catálogo de licencias tiene los ocho códigos del spec más OTRA', () => {
   assert.deepEqual(Object.keys(LICENCIAS).sort(), [
@@ -73,4 +75,30 @@ test('las fichas escritas (título, historia, personaje) tienen origen escrito',
   assert.equal(crearFicha('historia').origen, 'escrito');
   assert.equal(crearFicha('personaje').basadoEnObraAjena, false);
   assert.throws(() => crearFicha('fondo', { origen: 'robado' }), /Origen inválido/);
+});
+
+test('crearFicha exige la entrada de biblioteca y una licencia conocida', () => {
+  assert.throws(() => crearFicha('fondo', { origen: 'biblioteca' }), /requiere la entrada de biblioteca/);
+  assert.throws(() => crearFicha('fondo', { origen: 'biblioteca', biblioteca: { autor: 'X', licencia: 'INVENTADA' } }), /Licencia desconocida/);
+});
+
+test('condicionesDe devuelve copias: mutarlas no toca el catálogo ni la ficha', () => {
+  const copia = condicionesDe({ licencia: 'CC-BY-4.0' });
+  copia.push('NC');
+  assert.deepEqual(LICENCIAS['CC-BY-4.0'].condiciones, ['BY']);
+  const otra = { licencia: 'OTRA', condicionesOtra: ['BY'] };
+  condicionesDe(otra).push('SA');
+  assert.deepEqual(otra.condicionesOtra, ['BY']);
+});
+
+test('los valores por defecto de la ficha pertenecen a sus enumeraciones', () => {
+  const f = crearFicha('voz', { origen: 'subido' });
+  assert.ok(ORIGENES_FICHA.includes(f.origen));
+  assert.ok(AUTORIAS.includes(f.autoria));
+  assert.ok(TITULARES.includes(f.titular));
+  assert.ok(RESPALDOS.includes(f.respaldo));
+  assert.ok(PRUEBAS.includes(f.prueba));
+  for (const entrada of Object.values(LICENCIAS)) {
+    for (const condicion of entrada.condiciones ?? []) assert.ok(CONDICIONES.includes(condicion), `${condicion} no está en CONDICIONES`);
+  }
 });

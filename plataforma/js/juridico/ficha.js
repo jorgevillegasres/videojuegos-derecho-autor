@@ -1,6 +1,8 @@
 // plataforma/js/juridico/ficha.js
 // Qué es una ficha jurídica y cómo nace, con sus precargas según el origen.
 
+import { LICENCIAS } from './licencias.js';
+
 export const TIPOS_FICHA = ['titulo', 'historia', 'personaje', 'fondo', 'retrato', 'musica', 'efecto', 'voz'];
 export const ORIGENES_FICHA = ['escrito', 'creado', 'subido', 'biblioteca'];
 export const AUTORIAS = ['yo', 'otra_persona', 'ia', 'ia_con_aporte'];
@@ -42,6 +44,10 @@ export function tipoObraPara(tipoFicha) {
 export function crearFicha(tipoFicha, { origen = 'escrito', biblioteca = null } = {}) {
   const tipoObra = tipoObraPara(tipoFicha);
   if (!ORIGENES_FICHA.includes(origen)) throw new Error(`Origen inválido: ${origen}`);
+  if (origen === 'biblioteca') {
+    if (!biblioteca) throw new Error('El origen biblioteca requiere la entrada de biblioteca.');
+    if (!(biblioteca.licencia in LICENCIAS)) throw new Error(`Licencia desconocida en la biblioteca: ${biblioteca.licencia}`);
+  }
   const ficha = {
     tipo: tipoFicha,
     tipoObra,
@@ -65,12 +71,12 @@ export function crearFicha(tipoFicha, { origen = 'escrito', biblioteca = null } 
     prueba: 'ninguna',
   };
   if (origen === 'creado') ficha.prueba = 'sello';
-  if (origen === 'biblioteca' && biblioteca) {
+  if (origen === 'biblioteca') {
     ficha.autoria = 'otra_persona';
     ficha.autorNombre = biblioteca.autor ?? '';
     ficha.titular = 'otra_persona';
     ficha.respaldo = 'licencia';
-    ficha.licencia = biblioteca.licencia ?? null;
+    ficha.licencia = biblioteca.licencia;
     ficha.credito = biblioteca.creditoSugerido ?? '';
   }
   return ficha;

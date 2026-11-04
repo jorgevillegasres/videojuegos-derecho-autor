@@ -18,9 +18,9 @@ export const LICENCIAS = {
 
 export const CONDICIONES = ['BY', 'NC', 'SA', 'ND'];
 
-/** Condiciones que impone la licencia de una ficha. Con OTRA, las que marcó el estudiante. */
+/** Condiciones que impone la licencia de una ficha. Con OTRA, las que marcó el estudiante. Devuelve una copia. */
 export function condicionesDe(ficha) {
   if (!ficha.licencia) return [];
-  if (ficha.licencia === 'OTRA') return Array.isArray(ficha.condicionesOtra) ? ficha.condicionesOtra : [];
-  return LICENCIAS[ficha.licencia]?.condiciones ?? [];
+  if (ficha.licencia === 'OTRA') return Array.isArray(ficha.condicionesOtra) ? [...ficha.condicionesOtra] : [];
+  return [...(LICENCIAS[ficha.licencia]?.condiciones ?? [])];
 }
