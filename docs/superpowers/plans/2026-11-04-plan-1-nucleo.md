@@ -502,6 +502,37 @@ test('moverLinea reordena dentro de los límites', () => {
   moverLinea(escena, 0, -1);
   assert.deepEqual(escena.lineas.map((l) => l.texto), ['b', 'a', 'c'], 'no se sale del inicio');
 });
+
+test('agregarElemento no deja un elemento huérfano si la ficha falla', () => {
+  const p = proyectoBase();
+  assert.throws(() => agregarElemento(p, { tipo: 'fondo', nombre: 'x', archivo: 'x.png', origen: 'biblioteca' }), /requiere la entrada de biblioteca/);
+  assert.equal(p.juego.elementos.length, 0);
+  assert.deepEqual(Object.keys(p.fichas), ['titulo', 'historia']);
+});
+
+test('eliminar un id inexistente no hace nada ni falla', () => {
+  const p = proyectoBase();
+  const ana = agregarPersonaje(p, { nombre: 'Ana' });
+  const fondo = agregarElemento(p, { tipo: 'fondo', nombre: 'Muelle', archivo: 'f.png', origen: 'creado' });
+  eliminarElemento(p, 'el_noexiste');
+  eliminarPersonaje(p, 'per_noexiste');
+  eliminarEscena(p, 'esc_noexiste');
+  assert.equal(p.juego.elementos.length, 1);
+  assert.equal(p.juego.personajes.length, 1);
+  assert.equal(p.juego.escenas.length, 1);
+  assert.ok(p.fichas[ana.id] && p.fichas[fondo.id]);
+});
+
+test('eliminar un personaje deja intactas las demás fichas; nombres vacíos por defecto', () => {
+  const p = proyectoBase();
+  const ana = agregarPersonaje(p, { nombre: 'Ana' });
+  const luis = agregarPersonaje(p);
+  assert.equal(luis.nombre, '');
+  assert.equal(agregarEscena(p).nombre, '');
+  eliminarPersonaje(p, ana.id);
+  assert.equal(p.fichas[luis.id].tipo, 'personaje');
+  assert.equal(p.fichas.titulo.tipo, 'titulo');
+});
 ```
 
 - [ ] **Step 2: Correr las pruebas para ver que fallan**
@@ -515,6 +546,9 @@ Expected: FAIL con `Cannot find module` para `modelo.js`.
 // plataforma/js/estado/modelo.js
 // El documento del juego: cómo se crea y cómo cambia. Las funciones mutan el
 // proyecto que reciben y devuelven lo que crean. No tocan el DOM ni el almacén.
+// Convenciones: se valida antes de mutar; un id o índice inexistente se ignora
+// sin error; la validez estructural (nombres vacíos, opciones de más o de menos,
+// referencias rotas) la informa validar(), no los mutadores.
 import { crearFicha } from '../juridico/ficha.js';
 
 export const VERSION_PROYECTO = 1;
@@ -543,11 +577,11 @@ export function crearProyecto({ estudiante = '', titulo = '', destino = 'gratis'
 
 // ---- Escenas ----
 
-export function crearEscena(nombre) {
+export function crearEscena(nombre = '') {
   return { id: nuevoId('esc'), nombre, fondo: null, musica: null, lineas: [] };
 }
 
-export function agregarEscena(proyecto, nombre) {
+export function agregarEscena(proyecto, nombre = '') {
   const escena = crearEscena(nombre);
   proyecto.juego.escenas.push(escena);
   return escena;
@@ -567,7 +601,7 @@ export function eliminarEscena(proyecto, id) {
 
 // ---- Personajes ----
 
-export function agregarPersonaje(proyecto, { nombre, descripcion = '' }) {
+export function agregarPersonaje(proyecto, { nombre = '', descripcion = '' } = {}) {
   const personaje = { id: nuevoId('per'), nombre, descripcion, retrato: null };
   proyecto.juego.personajes.push(personaje);
   proyecto.fichas[personaje.id] = crearFicha('personaje');
@@ -588,9 +622,10 @@ export function eliminarPersonaje(proyecto, id) {
 export function agregarElemento(proyecto, { tipo, nombre, archivo, origen, sello = null, biblioteca = null }) {
   if (!TIPOS_ELEMENTO.includes(tipo)) throw new Error(`Tipo de elemento inválido: ${tipo}`);
   if (!ORIGENES.includes(origen)) throw new Error(`Origen inválido: ${origen}`);
+  const ficha = crearFicha(tipo, { origen, biblioteca });
   const elemento = { id: nuevoId('el'), tipo, nombre, archivo, origen, sello, biblioteca };
   proyecto.juego.elementos.push(elemento);
-  proyecto.fichas[elemento.id] = crearFicha(tipo, { origen, biblioteca });
+  proyecto.fichas[elemento.id] = ficha;
   return elemento;
 }
 
@@ -645,7 +680,7 @@ export function moverLinea(escena, indice, desplazamiento) {
 - [ ] **Step 4: Correr las pruebas para ver que pasan**
 
 Run: `node --test tests/modelo.test.js`
-Expected: `# pass 8`, `# fail 0`.
+Expected: `# pass 11`, `# fail 0`.
 
 - [ ] **Step 5: Commit**
 
@@ -837,7 +872,7 @@ export function validar(juego) {
 - [ ] **Step 4: Correr las pruebas para ver que pasan**
 
 Run: `node --test tests/modelo.test.js`
-Expected: `# pass 15`, `# fail 0`.
+Expected: `# pass 18`, `# fail 0`.
 
 - [ ] **Step 5: Commit**
 
@@ -951,7 +986,7 @@ export function cumpleMinimo(proyecto) {
 - [ ] **Step 4: Correr las pruebas para ver que pasan**
 
 Run: `node --test tests/modelo.test.js`
-Expected: `# pass 20`, `# fail 0`.
+Expected: `# pass 23`, `# fail 0`.
 
 - [ ] **Step 5: Commit**
 
@@ -1485,7 +1520,7 @@ export function puedePublicar(proyecto, semaforos, avisos) {
 - [ ] **Step 5: Correr todas las pruebas**
 
 Run: `npm test`
-Expected: `# fail 0`. Total de pruebas: 10 (ficha) + 23 (modelo) + 34 (semáforo) = 67.
+Expected: `# fail 0`. Total de pruebas: 10 (ficha) + 26 (modelo) + 34 (semáforo) = 70.
 
 - [ ] **Step 6: Commit**
 
@@ -2349,7 +2384,7 @@ git commit -m "Contenido jurídico con fuentes del memo y textos del semáforo" 
 - [ ] **Step 1: Correr toda la suite**
 
 Run: `npm test`
-Expected: `# fail 0`. Total: 10 (ficha) + 23 (modelo) + 34 (semáforo) + 5 (archivos) + 5 (almacén) + 7 (copias) + 7 (contenido) = 91 pruebas.
+Expected: `# fail 0`. Total: 10 (ficha) + 26 (modelo) + 34 (semáforo) + 5 (archivos) + 5 (almacén) + 7 (copias) + 7 (contenido) = 94 pruebas.
 
 - [ ] **Step 1b: Ajuste menor de la revisión de la tarea 2**
 
