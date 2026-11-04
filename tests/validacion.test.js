@@ -137,7 +137,7 @@ function juegoMinimoCompleto() {
   ana.retrato = agregarElemento(p, { tipo: 'retrato', nombre: 'Ana', archivo: 'a.png', origen: 'creado' }).id;
   far.retrato = agregarElemento(p, { tipo: 'retrato', nombre: 'Farero', archivo: 'f.png', origen: 'creado' }).id;
   muelle.fondo = agregarElemento(p, { tipo: 'fondo', nombre: 'Muelle', archivo: 'm.png', origen: 'creado' }).id;
-  const bib = { id: 'bib_m1', autor: 'Autora Ejemplo', licencia: 'CC-BY-4.0', creditoSugerido: 'crédito' };
+  const bib = { id: 'bib_m1', autor: 'Autora Ejemplo', licencia: 'CC-BY-NC-4.0', creditoSugerido: 'crédito' };
   muelle.musica = agregarElemento(p, { tipo: 'musica', nombre: 'Tema', archivo: 't.ogg', origen: 'biblioteca', biblioteca: bib }).id;
   agregarElemento(p, { tipo: 'efecto', nombre: 'Olas', archivo: 'o.wav', origen: 'creado' });
   return { p, muelle, torre, amanecer };
@@ -220,19 +220,42 @@ test('nombreDe da un nombre legible para cualquier ficha', () => {
 
 test('puedePublicar exige semáforos en verde, mínimo cumplido y sin bloqueantes', () => {
   const { p, muelle } = juegoMinimoCompleto();
-  let decision = puedePublicar(p, evaluarTodo(p), validar(p.juego));
+  let decision = puedePublicar(p);
   assert.equal(decision.ok, false);
   assert.ok(decision.motivos.some((m) => m.codigo === 'P_SEMAFORO' && /Tema/.test(m.mensaje)));
 
   dejarTodoEnVerde(p);
-  decision = puedePublicar(p, evaluarTodo(p), validar(p.juego));
-  assert.deepEqual(decision, { ok: true, motivos: [] });
+  decision = puedePublicar(p);
+  assert.deepEqual(decision, { ok: true, motivos: [], resumen: { semaforo: 0, minimo: 0, bloqueantes: 0 } });
 
   muelle.lineas[1].opciones[0].escena = null;
-  decision = puedePublicar(p, evaluarTodo(p), validar(p.juego));
+  decision = puedePublicar(p);
   assert.ok(decision.motivos.some((m) => m.codigo === 'P_BLOQUEANTE'));
 
   p.juego.titulo = '';
-  decision = puedePublicar(p, evaluarTodo(p), validar(p.juego));
+  decision = puedePublicar(p);
   assert.ok(decision.motivos.some((m) => m.codigo === 'P_MINIMO' && m.faltante === 'M_TITULO'));
+});
+
+test('cambiar el destino a venta pone en rojo la pieza no comercial y bloquea la publicación', () => {
+  const { p } = juegoMinimoCompleto();
+  dejarTodoEnVerde(p);
+  assert.equal(puedePublicar(p).ok, true);
+  p.juego.destino = 'venta';
+  const tema = p.juego.elementos.find((e) => e.tipo === 'musica');
+  const semaforos = evaluarTodo(p);
+  assert.equal(semaforos.get(tema.id).color, 'rojo');
+  assert.deepEqual(semaforos.get(tema.id).razones, ['R03']);
+  const decision = puedePublicar(p);
+  assert.equal(decision.ok, false);
+  assert.ok(decision.motivos.some((m) => m.codigo === 'P_SEMAFORO' && m.id === tema.id && m.color === 'rojo'));
+  assert.deepEqual(decision.resumen, { semaforo: 1, minimo: 0, bloqueantes: 0 });
+});
+
+test('nombreDe no devuelve nombres vacíos', () => {
+  const { p } = juegoMinimoCompleto();
+  const luis = agregarPersonaje(p);
+  const fondo = agregarElemento(p, { tipo: 'fondo', nombre: '  ', archivo: 'x.png', origen: 'creado' });
+  assert.equal(nombreDe(p, luis.id), 'Personaje sin nombre');
+  assert.equal(nombreDe(p, fondo.id), 'Elemento sin nombre');
 });

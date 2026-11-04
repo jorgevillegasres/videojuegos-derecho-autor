@@ -3,6 +3,7 @@
 // (no jurídicos) tiene el editor. No muta nada. Los avisos 'bloqueante' impiden
 // publicar; los 'informativo' solo se muestran.
 import { indiceCorte } from './modelo.js';
+import { evaluarTodo } from '../juridico/semaforo.js';
 
 export const OPCIONES_MIN = 2;
 export const OPCIONES_MAX = 4;
@@ -130,23 +131,27 @@ export function cumpleMinimo(proyecto) {
 
 // ---- Publicación ----
 
+const nombreOAlternativa = (nombre, alternativa) => (nombre?.trim() ? nombre : alternativa);
+
 export function nombreDe(proyecto, idFicha) {
   if (idFicha === 'titulo') return 'Título del juego';
   if (idFicha === 'historia') return 'Historia';
   const personaje = proyecto.juego.personajes.find((p) => p.id === idFicha);
-  if (personaje) return personaje.nombre;
+  if (personaje) return nombreOAlternativa(personaje.nombre, 'Personaje sin nombre');
   const elemento = proyecto.juego.elementos.find((e) => e.id === idFicha);
-  if (elemento) return elemento.nombre;
+  if (elemento) return nombreOAlternativa(elemento.nombre, 'Elemento sin nombre');
   return idFicha;
 }
 
 /**
- * Decide si se puede publicar. semaforos: Map de evaluarTodo; avisos: lista de validar.
- * Devuelve { ok, motivos: [{ codigo, mensaje, ... }] }.
+ * Decide si se puede publicar: todas las fichas en verde, mínimo cumplido y sin
+ * avisos bloqueantes. Calcula los tres a partir del proyecto, para que ninguna
+ * llamada pueda usar datos viejos.
+ * Devuelve { ok, motivos: [{ codigo, mensaje, ... }], resumen: { semaforo, minimo, bloqueantes } }.
  */
-export function puedePublicar(proyecto, semaforos, avisos) {
+export function puedePublicar(proyecto) {
   const motivos = [];
-  for (const [id, resultado] of semaforos) {
+  for (const [id, resultado] of evaluarTodo(proyecto)) {
     if (resultado.color !== 'verde') {
       motivos.push({ codigo: 'P_SEMAFORO', id, color: resultado.color, mensaje: `«${nombreDe(proyecto, id)}» está en ${resultado.color}.` });
     }
@@ -154,8 +159,13 @@ export function puedePublicar(proyecto, semaforos, avisos) {
   for (const faltante of cumpleMinimo(proyecto).faltantes) {
     motivos.push({ codigo: 'P_MINIMO', faltante: faltante.codigo, mensaje: `${faltante.mensaje}: ${faltante.actual} de ${faltante.requerido}.` });
   }
-  for (const aviso of avisos) {
+  for (const aviso of validar(proyecto.juego)) {
     if (aviso.nivel === 'bloqueante') motivos.push({ codigo: 'P_BLOQUEANTE', aviso: aviso.codigo, mensaje: aviso.mensaje });
   }
-  return { ok: motivos.length === 0, motivos };
+  const cuenta = (codigo) => motivos.filter((m) => m.codigo === codigo).length;
+  return {
+    ok: motivos.length === 0,
+    motivos,
+    resumen: { semaforo: cuenta('P_SEMAFORO'), minimo: cuenta('P_MINIMO'), bloqueantes: cuenta('P_BLOQUEANTE') },
+  };
 }
