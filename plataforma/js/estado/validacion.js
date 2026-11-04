@@ -127,3 +127,35 @@ export function cumpleMinimo(proyecto) {
 
   return { ok: faltantes.length === 0, faltantes };
 }
+
+// ---- Publicación ----
+
+export function nombreDe(proyecto, idFicha) {
+  if (idFicha === 'titulo') return 'Título del juego';
+  if (idFicha === 'historia') return 'Historia';
+  const personaje = proyecto.juego.personajes.find((p) => p.id === idFicha);
+  if (personaje) return personaje.nombre;
+  const elemento = proyecto.juego.elementos.find((e) => e.id === idFicha);
+  if (elemento) return elemento.nombre;
+  return idFicha;
+}
+
+/**
+ * Decide si se puede publicar. semaforos: Map de evaluarTodo; avisos: lista de validar.
+ * Devuelve { ok, motivos: [{ codigo, mensaje, ... }] }.
+ */
+export function puedePublicar(proyecto, semaforos, avisos) {
+  const motivos = [];
+  for (const [id, resultado] of semaforos) {
+    if (resultado.color !== 'verde') {
+      motivos.push({ codigo: 'P_SEMAFORO', id, color: resultado.color, mensaje: `«${nombreDe(proyecto, id)}» está en ${resultado.color}.` });
+    }
+  }
+  for (const faltante of cumpleMinimo(proyecto).faltantes) {
+    motivos.push({ codigo: 'P_MINIMO', faltante: faltante.codigo, mensaje: `${faltante.mensaje}: ${faltante.actual} de ${faltante.requerido}.` });
+  }
+  for (const aviso of avisos) {
+    if (aviso.nivel === 'bloqueante') motivos.push({ codigo: 'P_BLOQUEANTE', aviso: aviso.codigo, mensaje: aviso.mensaje });
+  }
+  return { ok: motivos.length === 0, motivos };
+}

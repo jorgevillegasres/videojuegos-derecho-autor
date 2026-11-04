@@ -62,3 +62,9 @@ export function evaluar(ficha, contexto) {
     : 'verde';
   return { color, razones, notas };
 }
+
+/** Evalúa todas las fichas del proyecto. Devuelve Map<idFicha, resultado>. */
+export function evaluarTodo(proyecto) {
+  const contexto = { destino: proyecto.juego.destino };
+  return new Map(Object.entries(proyecto.fichas).map(([id, ficha]) => [id, evaluar(ficha, contexto)]));
+}

@@ -187,3 +187,52 @@ test('una decisión con una sola opción no cuenta para el mínimo', () => {
   p.juego.titulo = null;
   assert.ok(cumpleMinimo(p).faltantes.some((f) => f.codigo === 'M_TITULO' && f.mensaje === 'Título del juego'));
 });
+
+// tests/validacion.test.js (agregar al final)
+import { puedePublicar, nombreDe } from '../plataforma/js/estado/validacion.js';
+import { evaluarTodo } from '../plataforma/js/juridico/semaforo.js';
+
+function dejarTodoEnVerde(p) {
+  for (const ficha of Object.values(p.fichas)) {
+    if (ficha.origen === 'biblioteca') ficha.licenciaLeida = true;
+    if (ficha.origen === 'subido' && ficha.autoria === 'yo') ficha.prueba = 'original';
+  }
+}
+
+test('evaluarTodo devuelve un resultado por ficha con el destino del juego', () => {
+  const { p } = juegoMinimoCompleto();
+  const semaforos = evaluarTodo(p);
+  assert.equal(semaforos.size, Object.keys(p.fichas).length);
+  const tema = p.juego.elementos.find((e) => e.tipo === 'musica');
+  assert.equal(semaforos.get(tema.id).color, 'amarillo', 'la licencia de biblioteca no se ha leído');
+  assert.equal(semaforos.get('titulo').color, 'verde');
+});
+
+test('nombreDe da un nombre legible para cualquier ficha', () => {
+  const { p } = juegoMinimoCompleto();
+  assert.equal(nombreDe(p, 'titulo'), 'Título del juego');
+  assert.equal(nombreDe(p, 'historia'), 'Historia');
+  assert.equal(nombreDe(p, p.juego.personajes[0].id), 'Ana');
+  const tema = p.juego.elementos.find((e) => e.tipo === 'musica');
+  assert.equal(nombreDe(p, tema.id), 'Tema');
+  assert.equal(nombreDe(p, 'el_noexiste'), 'el_noexiste');
+});
+
+test('puedePublicar exige semáforos en verde, mínimo cumplido y sin bloqueantes', () => {
+  const { p, muelle } = juegoMinimoCompleto();
+  let decision = puedePublicar(p, evaluarTodo(p), validar(p.juego));
+  assert.equal(decision.ok, false);
+  assert.ok(decision.motivos.some((m) => m.codigo === 'P_SEMAFORO' && /Tema/.test(m.mensaje)));
+
+  dejarTodoEnVerde(p);
+  decision = puedePublicar(p, evaluarTodo(p), validar(p.juego));
+  assert.deepEqual(decision, { ok: true, motivos: [] });
+
+  muelle.lineas[1].opciones[0].escena = null;
+  decision = puedePublicar(p, evaluarTodo(p), validar(p.juego));
+  assert.ok(decision.motivos.some((m) => m.codigo === 'P_BLOQUEANTE'));
+
+  p.juego.titulo = '';
+  decision = puedePublicar(p, evaluarTodo(p), validar(p.juego));
+  assert.ok(decision.motivos.some((m) => m.codigo === 'P_MINIMO' && m.faltante === 'M_TITULO'));
+});
