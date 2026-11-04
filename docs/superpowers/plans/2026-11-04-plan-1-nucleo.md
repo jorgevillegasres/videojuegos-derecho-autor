@@ -2053,8 +2053,8 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
       "verificacion": "verificada"
     },
     "R02": {
-      "breve": "Otra persona hizo esto y no tienes nada escrito que te autorice a usarlo.",
-      "completo": "Una cesión o una licencia de derechos patrimoniales debe constar por escrito (Ley 1955 de 2019, art. 181). Un «me dijo que sí» no basta para publicar. Pídele una cesión o una licencia por escrito, con usos, territorio, plazo y contraprestación.",
+      "breve": "Otra persona hizo esto, o es la titular de sus derechos, y no tienes nada escrito que te autorice a usarlo.",
+      "completo": "Si otra persona creó la obra, o si tú la creaste pero los derechos patrimoniales son de otra persona (por ejemplo, un encargo ya pagado o una cesión anterior), necesitas su permiso. Una cesión o una licencia de derechos patrimoniales debe constar por escrito (Ley 1955 de 2019, art. 181). Un «me dijo que sí» no basta para publicar. Pídele una cesión o una licencia por escrito, con usos, territorio, plazo y contraprestación.",
       "fuente": "Memo, sección 5: Ley 1955 de 2019, art. 181.",
       "accion": "Pide a {autor} una cesión o una licencia por escrito.",
       "verificacion": "verificada"
@@ -2162,6 +2162,20 @@ Expected: FAIL con `ENOENT` para `juridico.json`.
       "completo": "Una licencia que la plataforma no conoce solo se puede evaluar si dices qué permite y qué no. Escribe de dónde sale (un correo, un contrato, un aviso en la página de descarga), qué usos autoriza y marca las condiciones que impone: crédito, no comercial, compartir igual, sin derivadas. Si no marcas ninguna, la plataforma confía en tu lectura.",
       "fuente": "Memo, sección 5: Ley 1955 de 2019, art. 181 (los contratos autorizan solo los usos pactados).",
       "accion": "Describe la licencia y marca sus condiciones.",
+      "verificacion": "verificada"
+    },
+    "A12": {
+      "breve": "Dices que te respalda una licencia, pero no elegiste cuál.",
+      "completo": "Sin saber qué licencia es, la plataforma no puede decir qué usos permite. Elige una de la lista o marca «otra» y descríbela.",
+      "fuente": "Memo, sección 5: Ley 1955 de 2019, art. 181 (los contratos autorizan solo los usos pactados).",
+      "accion": "Elige la licencia que te dieron.",
+      "verificacion": "verificada"
+    },
+    "A13": {
+      "breve": "Este elemento se hizo con IA y no dijiste con qué herramienta.",
+      "completo": "El crédito de un elemento generado con IA debe nombrar la herramienta, y los términos de uso de cada herramienta son distintos: algunos permiten uso comercial y otros no. Sin el nombre, ni el crédito ni la revisión de términos se pueden hacer.",
+      "fuente": "Memo, sección 2: DNDA, pronunciamientos sobre IA (solo las personas físicas son autoras). Términos de cada herramienta: por verificar en cada caso.",
+      "accion": "Escribe el nombre de la herramienta de IA.",
       "verificacion": "verificada"
     }
   },
