@@ -16,6 +16,7 @@ function armar(proyecto) {
   document.body.append(contenedor);
   const barra = crearBarra(contenedor, sesion, {
     alJugar: () => llamadas.push('jugar'),
+    alMapa: () => llamadas.push('mapa'),
     alGuardarCopia: () => llamadas.push('guardar-copia'),
     alAbrirCopia: () => llamadas.push('abrir-copia'),
     alNuevoJuego: () => llamadas.push('nuevo-juego'),
@@ -30,8 +31,8 @@ test('muestra título y estudiante (o sus alternativas) y cada botón llama a su
   barra.dibujar();
   assert.equal(contenedor.querySelector('.barra-juego').textContent, 'La llave del faro');
   assert.equal(contenedor.querySelector('.barra-estudiante').textContent, 'Camila R.');
-  for (const accion of ['jugar', 'guardar-copia', 'abrir-copia', 'nuevo-juego']) clic(boton(accion));
-  assert.deepEqual(llamadas, ['jugar', 'guardar-copia', 'abrir-copia', 'nuevo-juego']);
+  for (const accion of ['jugar', 'mapa', 'guardar-copia', 'abrir-copia', 'nuevo-juego']) clic(boton(accion));
+  assert.deepEqual(llamadas, ['jugar', 'mapa', 'guardar-copia', 'abrir-copia', 'nuevo-juego']);
   sesion.proyecto.juego.titulo = ' ';
   sesion.proyecto.estudiante = '';
   barra.dibujar();

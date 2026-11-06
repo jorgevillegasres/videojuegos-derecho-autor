@@ -2,13 +2,13 @@
 // Barra superior: título del juego y nombre del estudiante; Jugar, Guardar copia,
 // Abrir copia, Nuevo juego y Publicar. Publicar lleva candado hasta que puedePublicar
 // diga que sí; al pasar el cursor o enfocarlo, dice qué falta (la lista se muestra con
-// CSS en :hover y :focus-within). «Mapa de activos» llega con el plan 3.
+// CSS en :hover y :focus-within).
 import { h, vaciar, conservarFoco } from '../ui/dom.js';
 import { puedePublicar } from '../estado/validacion.js';
 
 const MAXIMO_MOTIVOS = 8;
 
-export function crearBarra(contenedor, sesion, { alJugar, alGuardarCopia, alAbrirCopia, alNuevoJuego, alPublicar }) {
+export function crearBarra(contenedor, sesion, { alJugar, alMapa, alGuardarCopia, alAbrirCopia, alNuevoJuego, alPublicar }) {
   const boton = (accion, texto, alPulsar, clase = 'btn-ghost') =>
     h('button', { type: 'button', class: `btn ${clase} btn-sm`, dataset: { foco: accion, accion }, onclick: alPulsar }, texto);
 
@@ -34,6 +34,7 @@ export function crearBarra(contenedor, sesion, { alJugar, alGuardarCopia, alAbri
           h('span', { class: 'barra-estudiante' }, proyecto.estudiante?.trim() || 'Sin nombre')),
         h('div', { class: 'barra-acciones' },
           boton('jugar', 'Jugar', alJugar, 'btn-primary'),
+          boton('mapa', 'Mapa de activos', alMapa),
           boton('guardar-copia', 'Guardar copia', alGuardarCopia),
           boton('abrir-copia', 'Abrir copia', alAbrirCopia),
           boton('nuevo-juego', 'Nuevo juego', alNuevoJuego),
