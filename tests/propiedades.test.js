@@ -32,7 +32,7 @@ async function armar({ confirmar = () => true } = {}) {
     alSeleccionar: (s) => selecciones.push(s),
     confirmar,
   });
-  const etiquetas = () => textos(contenedor, '.campo-etiqueta');
+  const etiquetas = () => textos(contenedor, '.propiedades > .campo > .campo-etiqueta');
   const control = (clave) => contenedor.querySelector(`[data-foco="${clave}"]`);
   return { sesion, eventos, p, muelle, torre, ana, fondo, retrato, tema, olas, contenedor, propiedades, selecciones, etiquetas, control };
 }
@@ -155,5 +155,30 @@ test('sin selección, o con algo que ya no existe, muestra textos de vacío', as
   assert.match(contenedor.querySelector('.vacio').textContent, /ya no existe/);
   propiedades.dibujar({ tipo: 'elemento', id: 'el_x' });
   assert.match(contenedor.querySelector('.vacio').textContent, /ya no existe/);
+  contenedor.remove();
+});
+
+test('El juego muestra las fichas del título y de la historia debajo de sus propiedades', async () => {
+  const { contenedor, propiedades } = await armar();
+  propiedades.dibujar({ tipo: 'juego' });
+  const fichas = [...contenedor.querySelectorAll('section.ficha')];
+  assert.deepEqual(fichas.map((f) => f.dataset.ficha), ['titulo', 'historia']);
+  assert.deepEqual(fichas.map((f) => f.querySelector('h3').textContent), ['Ficha del título', 'Ficha de la historia']);
+  assert.equal(fichas[0].querySelector('.ficha-color strong').textContent, 'Semáforo: verde');
+  assert.ok(fichas[1].querySelector('fieldset[data-campo="autoria"]'), 'la historia sí tiene campos');
+});
+
+test('personaje y elemento muestran su ficha; enfocar lleva el foco a «¿Quién lo hizo?»', async () => {
+  const { contenedor, propiedades, sesion, ana, fondo } = await armar();
+  propiedades.dibujar({ tipo: 'personaje', id: ana.id });
+  assert.equal(contenedor.querySelector('section.ficha').dataset.ficha, ana.id);
+  assert.equal(contenedor.querySelector('section.ficha h3').textContent, 'Ficha jurídica del personaje');
+  propiedades.dibujar({ tipo: 'elemento', id: fondo.id }, { enfocar: `ficha:${fondo.id}:autoria` });
+  assert.equal(contenedor.querySelector('section.ficha h3').textContent, 'Ficha jurídica del elemento');
+  assert.equal(document.activeElement, contenedor.querySelector(`[data-foco="ficha:${fondo.id}:autoria:yo"]`));
+  propiedades.dibujar({ tipo: 'elemento', id: fondo.id }, { enfocar: `ficha:${fondo.id}` });
+  assert.equal(document.activeElement, contenedor.querySelector('section.ficha'), 'sin campo, el foco va a la ficha entera');
+  propiedades.dibujar({ tipo: 'escena', id: sesion.proyecto.juego.escenas[0].id });
+  assert.equal(contenedor.querySelector('section.ficha'), null, 'una escena no tiene ficha');
   contenedor.remove();
 });

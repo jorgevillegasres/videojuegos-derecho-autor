@@ -9,6 +9,7 @@ import { DESTINOS, eliminarEscena, eliminarPersonaje, eliminarElemento } from '.
 import { selector, campoTexto, areaTexto } from './controles.js';
 import { NOMBRES_TIPO } from './inventario.js';
 import { NOMBRES_LINEA } from './guion.js';
+import { panelFicha } from './panel-ficha.js';
 
 export const NOMBRES_DESTINO = { personal: 'Uso personal', gratis: 'Publicarlo gratis', venta: 'Venderlo' };
 const NOMBRES_ORIGEN = { creado: 'Creado en la plataforma', subido: 'Subido', biblioteca: 'De la biblioteca' };
@@ -21,6 +22,7 @@ const NOMBRES_ORIGEN = { creado: 'Creado en la plataforma', subido: 'Subido', bi
  */
 export function crearPropiedades(contenedor, sesion, { contenido = null, alSeleccionar, confirmar = (mensaje) => window.confirm(mensaje) }) {
   const cambiar = (fn, estructura = false) => sesion.cambiar(fn, { origen: 'propiedades', estructura });
+  const ficha = (id, titulo) => panelFicha(sesion, id, { contenido: contenido ?? {}, alSeleccionar, titulo });
   const nombreDe = (cosa, alternativa) => cosa.nombre?.trim() || alternativa;
   const elementosDe = (tipo) => sesion.proyecto.juego.elementos.filter((e) => e.tipo === tipo).map((e) => [e.id, nombreDe(e, 'Sin nombre')]);
   const panel = (titulo, ...hijos) => h('section', { class: 'propiedades', 'aria-label': `Propiedades: ${titulo}` }, h('h2', {}, titulo), hijos);
@@ -40,7 +42,9 @@ export function crearPropiedades(contenedor, sesion, { contenido = null, alSelec
       campoTexto('Nombre del estudiante', 'estudiante', proyecto.estudiante, (v) => cambiar((p) => { p.estudiante = v; })),
       selector('Destino del juego', 'destino', DESTINOS.map((d) => [d, NOMBRES_DESTINO[d]]), juego.destino, (v) => cambiar((p) => { p.juego.destino = v; }, true), { sinOpcion: null }),
       ayudaDestino ? h('p', { class: 'ayuda' }, ayudaDestino) : null,
-      areaTexto('Sinopsis', 'sinopsis', juego.sinopsis, (v) => cambiar((p) => { p.juego.sinopsis = v; }), { filas: 4, placeholder: 'De qué trata el juego, en dos o tres líneas.' }));
+      areaTexto('Sinopsis', 'sinopsis', juego.sinopsis, (v) => cambiar((p) => { p.juego.sinopsis = v; }), { filas: 4, placeholder: 'De qué trata el juego, en dos o tres líneas.' }),
+      ficha('titulo', 'Ficha del título'),
+      ficha('historia', 'Ficha de la historia'));
   }
 
   function deEscena(id) {
@@ -83,7 +87,8 @@ export function crearPropiedades(contenedor, sesion, { contenido = null, alSelec
       areaTexto('Descripción corta', 'descripcion', personaje.descripcion, (v) => cambiar(() => { personaje.descripcion = v; }), { filas: 2 }),
       selector('Retrato', 'retrato', elementosDe('retrato'), personaje.retrato, (v) => cambiar(() => { personaje.retrato = v; })),
       h('div', { class: 'acciones' },
-        botonEliminar('Eliminar personaje', `¿Eliminar a «${nombreDe(personaje, 'Sin nombre')}»? Sus diálogos quedarán sin personaje.`, () => cambiar((p) => eliminarPersonaje(p, personaje.id), true))));
+        botonEliminar('Eliminar personaje', `¿Eliminar a «${nombreDe(personaje, 'Sin nombre')}»? Sus diálogos quedarán sin personaje.`, () => cambiar((p) => eliminarPersonaje(p, personaje.id), true))),
+      ficha(personaje.id, 'Ficha jurídica del personaje'));
   }
 
   function deElemento(id) {
@@ -104,10 +109,11 @@ export function crearPropiedades(contenedor, sesion, { contenido = null, alSelec
         botonEliminar('Eliminar elemento', `¿Eliminar «${nombreDe(elemento, 'Sin nombre')}»? Las escenas, personajes y líneas que lo usan quedarán sin él.`, () => {
           cambiar((p) => eliminarElemento(p, elemento.id), true);
           sesion.quitarArchivo(elemento.id).catch(() => {});
-        })));
+        })),
+      ficha(elemento.id, 'Ficha jurídica del elemento'));
   }
 
-  function dibujar(seleccion) {
+  function dibujar(seleccion, { enfocar = null } = {}) {
     conservarFoco(contenedor, () => {
       vaciar(contenedor);
       if (!seleccion) {
@@ -123,6 +129,7 @@ export function crearPropiedades(contenedor, sesion, { contenido = null, alSelec
       };
       contenedor.append(vistas[seleccion.tipo]());
     });
+    if (enfocar) contenedor.querySelector(`[data-foco^="${enfocar}"]`)?.focus();
   }
 
   return { dibujar };
