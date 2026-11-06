@@ -6,11 +6,12 @@ en `docs/superpowers/specs/2026-11-04-plataforma-primer-videojuego-design.md`.
 
 ## Estado
 
-Planes 1 (núcleo), 2 (motor y editor) y 3 (fichas en pantalla) terminados: cada elemento,
-personaje, el título y la historia tienen su ficha jurídica con semáforo en el panel
-derecho; el inventario muestra los colores; el mapa de activos se abre desde la barra; los
-créditos del reproductor salen de las fichas. Faltan la biblioteca (plan 4), las
-herramientas de creación (plan 5) y la publicación (plan 6).
+Planes 1 (núcleo), 2 (motor y editor), 3 (fichas en pantalla) y 4 (biblioteca) terminados.
+La biblioteca trae un **catálogo provisional** de 34 piezas generadas por programa
+(`scripts/generar-biblioteca-provisional.js`): no tienen autor humano, se publican bajo CC0 y el
+catálogo las presenta con las licencias del ejercicio, diciéndolo en cada entrada (`simulado`) y en
+`biblioteca/CREDITOS.md`. Reemplazarlas por piezas reales es una tarea de contenido (ver abajo).
+Faltan las herramientas de creación (plan 5) y la publicación (plan 6).
 
 ## Pruebas
 
@@ -53,6 +54,25 @@ La plataforma usa IndexedDB y Web Crypto; Web Crypto exige un contexto seguro (H
 
 Las vistas se prueban con jsdom; lo que jsdom no cubre (arrastrar, audio, micrófono) se
 comprueba a mano y, desde el plan 6, con Playwright.
+
+## Biblioteca: cómo pasar del catálogo provisional a piezas reales
+
+El código no cambia; cambian los archivos y `biblioteca/catalogo.json`. Por cada pieza:
+
+1. Buscarla en un repositorio con licencia abierta (Kenney y OpenGameArt para imágenes y sonidos;
+   Wikimedia Commons para imágenes de dominio público; Freesound exige cuenta para descargar).
+2. Verificar la licencia **en la página de la pieza**, no en la del repositorio, y guardar el enlace.
+3. Copiar el archivo a la carpeta de su tipo (`fondos/`, `retratos/`, `musica/`, `efectos/`) en PNG, JPG,
+   WebP, MP3, OGG o WAV. Fondos y retratos se muestran enteros, sin recortar; conviene 192×108 y 64×64
+   o proporciones parecidas.
+4. Escribir la entrada: `id`, `tipo`, `titulo`, `autor` (el real), `fuente` (el enlace), `licencia`
+   (código de la tabla del spec), `condiciones` (las del código), `archivo`, `creditoSugerido` (en el
+   formato que pide la licencia). Las piezas `CURSO` y `DESCONOCIDO` deben ser en realidad CC0 o de
+   dominio público y llevar `simulado` con su licencia, autor y fuente reales.
+5. Quitar `provisional: true` del catálogo cuando ya no quede ninguna pieza generada, correr
+   `node scripts/creditos-biblioteca.js` y `npm test`: la prueba `biblioteca-real` comprueba la forma,
+   los mínimos (8 fondos, 8 retratos, 6 pistas, 12 efectos), la mezcla de licencias, que cada archivo
+   exista y que `CREDITOS.md` esté al día.
 
 ## Dependencias
 
