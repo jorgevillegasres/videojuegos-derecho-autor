@@ -16,6 +16,7 @@ import { creditos } from '../juridico/cadena.js';
 import { nombreDe } from '../estado/validacion.js';
 import { crearMapaActivos } from './mapa-activos.js';
 import { crearBiblioteca, tomarPieza } from './biblioteca.js';
+import { crearElementoCreado, reemplazarArchivoCreado } from './creados.js';
 
 const AVISO_MS = 6000;
 
@@ -42,7 +43,8 @@ export function elegirArchivoDelNavegador(accept) {
  * @param {object} sesion de crearSesion
  * @param {object} opciones contenido (juridico.json), JSZip, descargarArchivo(blob, nombre),
  *   confirmar(mensaje) → boolean, elegirArchivo(accept) → Promise<File|null>, alNuevoJuego() → Promise,
- *   catalogo (de crearCatalogo, ya cargado; null si la biblioteca no está disponible), avisoInicial (texto que se muestra al abrir).
+ *   catalogo (de crearCatalogo, ya cargado; null si la biblioteca no está disponible), avisoInicial (texto que se muestra al abrir),
+ *   crearHerramientas(contenedor) → { pixelart, grabador, secuenciador } (cada una con abrir(); null si no hay herramientas).
  */
 export function crearEditor(contenedor, sesion, {
   contenido = null,
@@ -53,6 +55,7 @@ export function crearEditor(contenedor, sesion, {
   alNuevoJuego = async () => {},
   catalogo = null,
   avisoInicial = null,
+  crearHerramientas = null,
 } = {}) {
   let seleccion = null;
   let escenaActivaId = null;
@@ -69,6 +72,7 @@ export function crearEditor(contenedor, sesion, {
   const zonaReproductor = h('div', { class: 'capa-reproductor', hidden: true });
   const zonaMapa = h('div', { class: 'capa-mapa', hidden: true });
   const zonaBiblioteca = h('div', { class: 'capa-biblioteca', hidden: true });
+  const zonaHerramienta = h('div', { class: 'capa-herramienta', hidden: true });
   const estadoGuardado = h('span', { class: 'estado-guardado', 'aria-live': 'polite' });
   const botonJugarAqui = h('button', { type: 'button', class: 'btn btn-ghost btn-sm', dataset: { accion: 'jugar-aqui' }, onclick: () => jugarDesde(escenaActivaId) }, '▶ Jugar desde esta escena');
   vaciar(contenedor).append(
@@ -80,9 +84,11 @@ export function crearEditor(contenedor, sesion, {
     zonaAvisos,
     zonaDialogo,
     zonaBiblioteca,
+    zonaHerramienta,
     zonaMapa,
     zonaReproductor,
   );
+  const herramientas = crearHerramientas ? crearHerramientas(zonaHerramienta) : null;
 
   // ---- vistas ----
   const barra = crearBarra(zonaBarra, sesion, {
@@ -93,13 +99,24 @@ export function crearEditor(contenedor, sesion, {
     alNuevoJuego: nuevoJuego,
     alPublicar: () => avisar('La publicación llega en una versión siguiente. Por ahora el candado te dice qué falta.'),
   });
-  const inventario = crearInventario(zonaInventario, sesion, { alSeleccionar: (s) => seleccionar(s), alSubir: subirArchivo, alBiblioteca: catalogo ? () => abrirBiblioteca() : null });
+  const inventario = crearInventario(zonaInventario, sesion, {
+    alSeleccionar: (s) => seleccionar(s),
+    alSubir: subirArchivo,
+    alBiblioteca: catalogo ? () => abrirBiblioteca() : null,
+    alCrear: herramientas ? (clave) => crearConHerramienta(clave) : null,
+  });
   const vistaPrevia = crearVistaPrevia(zonaVistaPrevia, sesion);
   const guion = crearGuion(zonaGuion, sesion, {
     alSeleccionar: (indice) => seleccionar(indice === null ? { tipo: 'escena', id: escenaActivaId } : { tipo: 'linea', escena: escenaActivaId, indice }, { redibujarGuion: false }),
     confirmar,
   });
-  const propiedades = crearPropiedades(zonaPropiedades, sesion, { contenido, alSeleccionar: (s) => seleccionar(s), confirmar, piezaDe: (id) => catalogo?.piezaDe(id) ?? null });
+  const propiedades = crearPropiedades(zonaPropiedades, sesion, {
+    contenido,
+    alSeleccionar: (s) => seleccionar(s),
+    confirmar,
+    piezaDe: (id) => catalogo?.piezaDe(id) ?? null,
+    alEditarPixel: herramientas ? (id) => editarPixel(id) : null,
+  });
   const biblioteca = catalogo ? crearBiblioteca(zonaBiblioteca, catalogo, {
     alElegir: usarPieza,
     alCerrar: () => {
@@ -298,7 +315,7 @@ export function crearEditor(contenedor, sesion, {
   }
 
   // ---- subida de archivos (spec, sección 10) ----
-  function elegirTipo(tipos, nombre) {
+  function elegirTipo(tipos, nombre, titulo = `¿Qué es «${nombre}»?`) {
     return new Promise((resolver) => {
       const cerrar = (valor) => {
         vaciar(zonaDialogo);
@@ -307,7 +324,7 @@ export function crearEditor(contenedor, sesion, {
       };
       zonaDialogo.hidden = false;
       vaciar(zonaDialogo).append(h('div', { class: 'dialogo', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'dialogo-titulo' },
-        h('h2', { id: 'dialogo-titulo' }, `¿Qué es «${nombre}»?`),
+        h('h2', { id: 'dialogo-titulo' }, titulo),
         h('div', { class: 'acciones' },
           tipos.map((tipo) => h('button', { type: 'button', class: 'btn btn-primary btn-sm', dataset: { tipo }, onclick: () => cerrar(tipo) }, NOMBRES_TIPO[tipo])),
           h('button', { type: 'button', class: 'btn btn-ghost btn-sm', dataset: { tipo: 'cancelar' }, onclick: () => cerrar(null) }, 'Cancelar'))));
@@ -334,6 +351,66 @@ export function crearEditor(contenedor, sesion, {
     }
   }
 
+  // ---- herramientas de creación (spec, sección 9) ----
+  const NOMBRES_CREADO = { fondo: 'Fondo creado', retrato: 'Retrato creado', voz: 'Grabación', efecto: 'Efecto grabado', musica: 'Pista' };
+
+  function nombreCreado(tipo) {
+    const n = sesion.proyecto.juego.elementos.filter((e) => e.tipo === tipo && e.origen === 'creado').length + 1;
+    return `${NOMBRES_CREADO[tipo]} ${n}`;
+  }
+
+  async function conHerramientaAbierta(fn) {
+    document.body.classList.add('con-herramienta');
+    try {
+      return await fn();
+    } finally {
+      document.body.classList.remove('con-herramienta');
+    }
+  }
+
+  /** Abre la herramienta pedida ('pixel', 'grabar' o 'secuencia') y mete lo que devuelva como elemento creado. */
+  async function crearConHerramienta(clave) {
+    let tipo;
+    let blob;
+    if (clave === 'pixel') {
+      tipo = await elegirTipo(['fondo', 'retrato'], null, '¿Qué vas a dibujar?');
+      if (!tipo) return;
+      blob = await conHerramientaAbierta(() => herramientas.pixelart.abrir({ tipo }));
+    } else if (clave === 'grabar') {
+      tipo = await elegirTipo(['voz', 'efecto'], null, '¿Qué vas a grabar?');
+      if (!tipo) return;
+      blob = await conHerramientaAbierta(() => herramientas.grabador.abrir({ alSubirEnSuLugar: () => subirArchivo() }));
+    } else if (clave === 'secuencia') {
+      tipo = 'musica';
+      blob = await conHerramientaAbierta(() => herramientas.secuenciador.abrir());
+    } else {
+      return;
+    }
+    if (!blob) return;
+    try {
+      const elemento = await crearElementoCreado(sesion, blob, { tipo, nombre: nombreCreado(tipo) });
+      seleccionar({ tipo: 'elemento', id: elemento.id }, { enfocar: `ficha:${elemento.id}` });
+      avisar(`«${elemento.nombre}» entró al juego como obra tuya, con sello de creación.`);
+    } catch (error) {
+      mostrarError(error);
+    }
+  }
+
+  /** Reabre un fondo o retrato creado dentro en el pixel art; al guardar se reemplaza el archivo y se recalcula el sello. */
+  async function editarPixel(id) {
+    const elemento = sesion.proyecto.juego.elementos.find((e) => e.id === id);
+    if (!elemento) return;
+    const blob = await conHerramientaAbierta(() => herramientas.pixelart.abrir({ tipo: elemento.tipo, archivo: sesion.archivos.get(id) ?? null }));
+    if (!blob) return;
+    try {
+      await reemplazarArchivoCreado(sesion, id, blob);
+      seleccionar({ tipo: 'elemento', id });
+      avisar(`«${elemento.nombre}» se actualizó, con un sello de creación nuevo.`);
+    } catch (error) {
+      mostrarError(error);
+    }
+  }
+
   // ---- arranque ----
   barra.dibujar();
   seleccionar({ tipo: 'escena', id: sesion.proyecto.juego.escenaInicial });
@@ -346,6 +423,8 @@ export function crearEditor(contenedor, sesion, {
     nuevoJuego,
     subirArchivo,
     usarPieza,
+    crearConHerramienta,
+    editarPixel,
     jugarDesde,
     mostrarError,
     destruir() {

@@ -14,7 +14,7 @@ import { puntoSemaforo } from './panel-ficha.js';
 
 export const NOMBRES_TIPO = { fondo: 'Fondo', retrato: 'Retrato', musica: 'Música', efecto: 'Efecto', voz: 'Voz' };
 
-export function crearInventario(contenedor, sesion, { alSeleccionar, alSubir, alBiblioteca = null }) {
+export function crearInventario(contenedor, sesion, { alSeleccionar, alSubir, alBiblioteca = null, alCrear = null }) {
   function entrada({ clave, texto, detalle = null, activa = false, marca = null, alPulsar }) {
     return h('li', {},
       h('button', { type: 'button', class: `entrada${activa ? ' activa' : ''}`, dataset: { foco: clave }, 'aria-current': activa ? 'true' : null, onclick: alPulsar },
@@ -77,6 +77,9 @@ export function crearInventario(contenedor, sesion, { alSeleccionar, alSubir, al
           alPulsar: () => alSeleccionar({ tipo: 'personaje', id: personaje.id }),
         }))),
         seccion('Elementos', [
+          botonCrear('Pixel art', alCrear ? () => alCrear('pixel') : undefined, { dataset: { accion: 'crear-pixel' }, disabled: !alCrear, title: alCrear ? 'Dibujar un fondo o un retrato' : 'Las herramientas no están disponibles' }),
+          botonCrear('Grabar', alCrear ? () => alCrear('grabar') : undefined, { dataset: { accion: 'crear-grabar' }, disabled: !alCrear, title: alCrear ? 'Grabar una voz o un efecto con el micrófono' : 'Las herramientas no están disponibles' }),
+          botonCrear('Secuenciador', alCrear ? () => alCrear('secuencia') : undefined, { dataset: { accion: 'crear-secuencia' }, disabled: !alCrear, title: alCrear ? 'Componer una pista' : 'Las herramientas no están disponibles' }),
           botonCrear('Biblioteca', alBiblioteca ?? undefined, { dataset: { accion: 'biblioteca' }, disabled: !alBiblioteca, title: alBiblioteca ? null : 'La biblioteca no está disponible' }),
           botonCrear('Subir archivo', alSubir, { dataset: { accion: 'subir' } }),
         ], juego.elementos.map((elemento) => entrada({

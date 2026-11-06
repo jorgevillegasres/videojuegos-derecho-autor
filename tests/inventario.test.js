@@ -20,11 +20,12 @@ function armar() {
   ana.retrato = agregarElemento(p, { tipo: 'retrato', nombre: 'Ana', archivo: 'a.png', origen: 'subido' }).id;
   agregarLinea(torre, 'dialogo', { personaje: null, texto: 'Sin quién.' });
   const selecciones = [];
+  const creaciones = [];
   let subidas = 0;
   let bibliotecas = 0;
   const contenedor = document.createElement('div');
-  const inventario = crearInventario(contenedor, sesion, { alSeleccionar: (s) => selecciones.push(s), alSubir: () => { subidas += 1; }, alBiblioteca: () => { bibliotecas += 1; } });
-  return { sesion, eventos, p, muelle, torre, ana, sinNombre, fondo, contenedor, inventario, selecciones, subidas: () => subidas, bibliotecas: () => bibliotecas };
+  const inventario = crearInventario(contenedor, sesion, { alSeleccionar: (s) => selecciones.push(s), alSubir: () => { subidas += 1; }, alBiblioteca: () => { bibliotecas += 1; }, alCrear: (clave) => creaciones.push(clave) });
+  return { sesion, eventos, p, muelle, torre, ana, sinNombre, fondo, contenedor, inventario, selecciones, creaciones, subidas: () => subidas, bibliotecas: () => bibliotecas };
 }
 
 test('dibuja El juego, escenas, personajes y elementos con sus nombres y detalles, y marca la selección', () => {
@@ -91,7 +92,7 @@ test('pulsar una entrada selecciona lo correcto; Subir archivo y Biblioteca avis
   assert.equal(contenedor.querySelector('button[data-accion="biblioteca"]').disabled, false);
 });
 
-test('sin biblioteca disponible el botón queda deshabilitado y explica por qué', () => {
+test('sin biblioteca ni herramientas los botones quedan deshabilitados y explican por qué', () => {
   const { sesion } = sesionDePrueba();
   const contenedor = document.createElement('div');
   crearInventario(contenedor, sesion, { alSeleccionar: () => {}, alSubir: () => {} }).dibujar(null);
@@ -99,6 +100,20 @@ test('sin biblioteca disponible el botón queda deshabilitado y explica por qué
   assert.equal(boton.disabled, true);
   assert.equal(boton.title, 'La biblioteca no está disponible');
   assert.equal(contenedor.querySelector('button[data-accion="subir"]').disabled, false);
+  for (const accion of ['crear-pixel', 'crear-grabar', 'crear-secuencia']) {
+    assert.equal(contenedor.querySelector(`button[data-accion="${accion}"]`).disabled, true, accion);
+  }
+});
+
+test('los botones de crear avisan qué herramienta abrir', () => {
+  const { contenedor, inventario, creaciones } = armar();
+  inventario.dibujar(null);
+  assert.deepEqual([...contenedor.querySelectorAll('.inventario-botones button')].map((b) => b.textContent), ['Nueva escena', 'Nuevo personaje', 'Pixel art', 'Grabar', 'Secuenciador', 'Biblioteca', 'Subir archivo']);
+  clic(contenedor.querySelector('button[data-accion="crear-pixel"]'));
+  clic(contenedor.querySelector('button[data-accion="crear-grabar"]'));
+  clic(contenedor.querySelector('button[data-accion="crear-secuencia"]'));
+  assert.deepEqual(creaciones, ['pixel', 'grabar', 'secuencia']);
+  assert.equal(contenedor.querySelector('button[data-accion="crear-pixel"]').disabled, false);
 });
 
 test('sin título, sin personajes ni elementos muestra textos de vacío', () => {

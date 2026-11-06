@@ -20,7 +20,7 @@ const NOMBRES_ORIGEN = { creado: 'Creado en la plataforma', subido: 'Subido', bi
  * @param {{ contenido?: object|null, alSeleccionar: (seleccion: object|null) => void, confirmar?: (mensaje: string) => boolean }} opciones
  *   contenido es el JSON de contenido/juridico.json (para la ayuda del destino); puede faltar.
  */
-export function crearPropiedades(contenedor, sesion, { contenido = null, alSeleccionar, confirmar = (mensaje) => window.confirm(mensaje), piezaDe = () => null }) {
+export function crearPropiedades(contenedor, sesion, { contenido = null, alSeleccionar, confirmar = (mensaje) => window.confirm(mensaje), piezaDe = () => null, alEditarPixel = null }) {
   const cambiar = (fn, estructura = false) => sesion.cambiar(fn, { origen: 'propiedades', estructura });
   const ficha = (id, titulo) => panelFicha(sesion, id, { contenido: contenido ?? {}, alSeleccionar, titulo, piezaDe });
   const nombreDe = (cosa, alternativa) => cosa.nombre?.trim() || alternativa;
@@ -106,6 +106,9 @@ export function crearPropiedades(contenedor, sesion, { contenido = null, alSelec
       h('p', { class: 'ayuda' }, `${NOMBRES_ORIGEN[elemento.origen]} · ${elemento.archivo}`),
       muestra,
       h('div', { class: 'acciones' },
+        esImagen && elemento.origen === 'creado' && alEditarPixel
+          ? h('button', { type: 'button', class: 'btn btn-ghost btn-sm', dataset: { accion: 'editar-pixel' }, onclick: () => alEditarPixel(elemento.id) }, 'Editar en pixel art')
+          : null,
         botonEliminar('Eliminar elemento', `¿Eliminar «${nombreDe(elemento, 'Sin nombre')}»? Las escenas, personajes y líneas que lo usan quedarán sin él.`, () => {
           cambiar((p) => eliminarElemento(p, elemento.id), true);
           sesion.quitarArchivo(elemento.id).catch(() => {});

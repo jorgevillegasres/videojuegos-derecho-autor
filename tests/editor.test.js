@@ -12,7 +12,7 @@ import { crearEditor } from '../plataforma/js/editor/editor.js';
 
 instalarDom();
 
-function armar({ proyecto, confirmar = () => true, archivoElegido = null, catalogo = null, avisoInicial = null } = {}) {
+function armar({ proyecto, confirmar = () => true, archivoElegido = null, catalogo = null, avisoInicial = null, herramientas = null } = {}) {
   const { sesion, eventos } = sesionDePrueba(proyecto);
   const llamadas = [];
   const contenedor = document.createElement('div');
@@ -26,6 +26,7 @@ function armar({ proyecto, confirmar = () => true, archivoElegido = null, catalo
     alNuevoJuego: async () => llamadas.push(['nuevo-juego']),
     catalogo,
     avisoInicial,
+    crearHerramientas: herramientas ? () => herramientas : null,
   });
   const q = (selector) => contenedor.querySelector(selector);
   const qa = (selector) => [...contenedor.querySelectorAll(selector)];
@@ -271,6 +272,88 @@ test('sin catálogo, Biblioteca queda deshabilitado y el aviso inicial se muestr
   assert.equal(q('.inventario button[data-accion="biblioteca"]').disabled, true);
   assert.ok([...contenedor.querySelectorAll('.aviso')].some((a) => /La biblioteca no está disponible/.test(a.textContent)));
   assert.equal(q('.capa-biblioteca').hidden, true);
+  contenedor.remove();
+});
+
+function herramientasFalsas(resultados = {}) {
+  const llamadas = [];
+  const blob = (tipo, texto) => new Blob([texto], { type: tipo });
+  return {
+    llamadas,
+    pixelart: { abrir: async (opciones) => { llamadas.push(['pixelart', opciones]); return resultados.pixelart === null ? null : blob('image/png', 'png nuevo'); } },
+    grabador: { abrir: async (opciones) => { llamadas.push(['grabador', Object.keys(opciones)]); return resultados.grabador === null ? null : blob('audio/webm;codecs=opus', 'voz'); } },
+    secuenciador: { abrir: async () => { llamadas.push(['secuenciador']); return resultados.secuenciador === null ? null : blob('audio/wav', 'wav'); } },
+  };
+}
+
+test('Pixel art pregunta qué dibujar, abre la herramienta y mete el resultado como elemento creado con sello y ficha en verde', async () => {
+  const herramientas = herramientasFalsas();
+  const { p } = proyectoConLineas();
+  const { sesion, contenedor, q } = armar({ proyecto: p, herramientas });
+  clic(q('.inventario button[data-accion="crear-pixel"]'));
+  await new Promise((r) => setTimeout(r, 0));
+  assert.equal(q('.dialogo h2').textContent, '¿Qué vas a dibujar?');
+  assert.deepEqual(textos(contenedor, '.dialogo button'), ['Fondo', 'Retrato', 'Cancelar']);
+  clic(q('.dialogo button[data-tipo="retrato"]'));
+  await new Promise((r) => setTimeout(r, 20));
+  assert.deepEqual(herramientas.llamadas, [['pixelart', { tipo: 'retrato' }]]);
+  const elemento = sesion.proyecto.juego.elementos[0];
+  assert.equal(elemento.origen, 'creado');
+  assert.equal(elemento.tipo, 'retrato');
+  assert.equal(elemento.nombre, 'Retrato creado 1');
+  assert.match(elemento.sello.huella, /^sha256:[0-9a-f]{64}$/);
+  assert.equal(q('.propiedades h2').textContent, 'Retrato');
+  assert.equal(document.activeElement, q(`section.ficha[data-ficha="${elemento.id}"]`));
+  assert.ok(q('.inventario .punto-semaforo').classList.contains('semaforo-verde'));
+  assert.ok(q('.ficha-notas li[data-codigo="N_SELLO"]'), 'la ficha explica el sello');
+  assert.ok([...contenedor.querySelectorAll('.aviso')].some((a) => /sello de creación/.test(a.textContent)));
+  assert.ok(!document.body.classList.contains('con-herramienta'));
+  contenedor.remove();
+});
+
+test('Grabar pregunta voz o efecto y ofrece subir en su lugar; el secuenciador no pregunta; cancelar no crea nada; sin herramientas, los botones se deshabilitan', async () => {
+  const herramientas = herramientasFalsas({ secuenciador: null });
+  const { p } = proyectoConLineas();
+  const { sesion, contenedor, q } = armar({ proyecto: p, herramientas });
+  clic(q('.inventario button[data-accion="crear-grabar"]'));
+  await new Promise((r) => setTimeout(r, 0));
+  assert.equal(q('.dialogo h2').textContent, '¿Qué vas a grabar?');
+  assert.deepEqual(textos(contenedor, '.dialogo button'), ['Voz', 'Efecto', 'Cancelar']);
+  clic(q('.dialogo button[data-tipo="voz"]'));
+  await new Promise((r) => setTimeout(r, 20));
+  assert.deepEqual(herramientas.llamadas.at(-1), ['grabador', ['alSubirEnSuLugar']]);
+  assert.equal(sesion.proyecto.juego.elementos[0].tipo, 'voz');
+  assert.equal(sesion.proyecto.juego.elementos[0].nombre, 'Grabación 1');
+  assert.equal(sesion.proyecto.juego.elementos[0].archivo, `${sesion.proyecto.juego.elementos[0].id}.webm`);
+  clic(q('.inventario button[data-accion="crear-secuencia"]'));
+  await new Promise((r) => setTimeout(r, 20));
+  assert.equal(q('.dialogo'), null, 'el secuenciador no pregunta el tipo');
+  assert.deepEqual(herramientas.llamadas.at(-1), ['secuenciador']);
+  assert.equal(sesion.proyecto.juego.elementos.length, 1, 'cancelar no crea nada');
+  contenedor.remove();
+  const sinHerramientas = armar({ proyecto: proyectoConLineas().p });
+  assert.equal(sinHerramientas.q('.inventario button[data-accion="crear-pixel"]').disabled, true);
+  sinHerramientas.contenedor.remove();
+});
+
+test('«Editar en pixel art» reabre el fondo creado con su archivo y, al guardar, reemplaza el archivo y el sello', async () => {
+  const herramientas = herramientasFalsas();
+  const { p } = proyectoConLineas();
+  const { sesion, contenedor, editor, q } = armar({ proyecto: p, herramientas });
+  await editor.crearConHerramienta('secuencia');
+  clic(q('.inventario button[data-accion="crear-pixel"]'));
+  await new Promise((r) => setTimeout(r, 0));
+  clic(q('.dialogo button[data-tipo="fondo"]'));
+  await new Promise((r) => setTimeout(r, 20));
+  const fondo = sesion.proyecto.juego.elementos.find((e) => e.tipo === 'fondo');
+  const huellaAntes = fondo.sello.huella;
+  herramientas.pixelart.abrir = async (opciones) => { herramientas.llamadas.push(['pixelart', opciones.tipo, new TextDecoder().decode(opciones.archivo.datos)]); return new Blob(['png editado'], { type: 'image/png' }); };
+  clic(q('.propiedades button[data-accion="editar-pixel"]'));
+  await new Promise((r) => setTimeout(r, 20));
+  assert.deepEqual(herramientas.llamadas.at(-1), ['pixelart', 'fondo', 'png nuevo']);
+  assert.notEqual(fondo.sello.huella, huellaAntes);
+  assert.equal(new TextDecoder().decode(sesion.archivos.get(fondo.id).datos), 'png editado');
+  assert.equal(q('.propiedades h2').textContent, 'Fondo');
   contenedor.remove();
 });
 

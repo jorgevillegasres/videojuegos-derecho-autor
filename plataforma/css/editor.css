@@ -247,6 +247,40 @@ body.con-mapa { overflow: hidden; }
 .ficha-pieza code { font-size: 12px; }
 body.con-biblioteca { overflow: hidden; }
 
+/* ---------- Herramientas de creación ---------- */
+.capa-herramienta { position: fixed; inset: 0; z-index: 68; overflow: auto; padding: 24px; background: rgba(26, 29, 34, .55); }
+.herramienta { width: min(1000px, 100%); margin: 0 auto; padding: 20px 24px; background: var(--claro-panel); border-radius: var(--radius); box-shadow: var(--shadow); display: grid; gap: 12px; }
+.herramienta .mapa-cabecera { margin-bottom: 0; }
+.pixel-barra { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.pixel-herramientas { display: flex; gap: 4px; margin-right: 8px; }
+.pixel-herramientas [aria-pressed="true"], .paso-activo { background: var(--claro-accent-fondo); border-color: var(--claro-accent); color: var(--claro-ink); }
+.pixel-zoom { font-size: 13px; }
+.pixel-zoom select { width: auto; padding: 4px 8px; }
+.pixel-paleta { display: grid; grid-template-columns: repeat(16, 28px); gap: 4px; }
+.pixel-color { width: 28px; height: 28px; border: 2px solid transparent; border-radius: 6px; cursor: pointer; padding: 0; }
+.pixel-color[aria-pressed="true"] { border-color: var(--claro-ink); outline: 2px solid var(--claro-panel); outline-offset: -4px; }
+.pixel-marco { overflow: auto; max-height: 70vh; padding: 8px; background: var(--claro-panel-2); border-radius: 10px; }
+.pixel-lienzo { display: block; cursor: crosshair; image-rendering: pixelated; touch-action: none; }
+.secuenciador-rejilla { display: grid; gap: 4px; overflow-x: auto; }
+.secuenciador-fila { display: flex; align-items: center; gap: 3px; }
+.secuenciador-instrumento { width: 90px; flex: 0 0 auto; font-size: 12px; font-weight: 700; color: var(--claro-muted); }
+.paso { width: 30px; height: 30px; padding: 0; background: var(--claro-panel); border: 1px solid var(--claro-line); border-radius: 6px; cursor: pointer; font-family: var(--mono); font-size: 12px; }
+.paso.paso-compas { margin-left: 8px; }
+.secuenciador-controles { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.campo-tempo { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.campo-tempo input[type="range"] { width: 180px; }
+.grabador-estado { margin: 0; }
+.grabador-error { padding: 10px 12px; background: var(--claro-accent-fondo); border-left: 4px solid var(--amarillo); border-radius: 6px; font-size: 13px; }
+.grabador-error p { margin: 0 0 6px; }
+.grabador-controles { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.grabador-tiempo { font-family: var(--mono); font-size: 12px; color: var(--claro-muted); }
+.grabador-marco { background: #000; border-radius: 8px; overflow: hidden; }
+.grabador-onda { display: block; width: 100%; height: 80px; }
+.grabador-recorte { display: grid; gap: 6px; }
+.campo-rango { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.campo-rango input[type="range"] { flex: 1; }
+body.con-herramienta { overflow: hidden; }
+
 /* ---------- Pantallas angostas: solo se juega ---------- */
 .aviso-angosto { display: none; margin: 0; padding: 12px 16px; background: var(--amber); color: var(--accent-ink); font-weight: 700; }
 @media (max-width: 899px) {

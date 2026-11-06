@@ -12,12 +12,16 @@ import { crearSesion } from './editor/sesion.js';
 import { crearInicio } from './editor/inicio.js';
 import { crearEditor, elegirArchivoDelNavegador } from './editor/editor.js';
 import { crearCatalogo } from './biblioteca/catalogo.js';
+import { crearPixelArt } from './herramientas/pixelart.js';
+import { crearGrabador } from './herramientas/grabador.js';
+import { crearSecuenciador } from './herramientas/secuenciador.js';
 
 const raiz = document.getElementById('app');
 let sesionActual = null;
 let editorActual = null;
 let catalogoActual = null; // el catálogo de la biblioteca ya cargado, o null si no está disponible
 let avisoBiblioteca = null;
+let paletaActual = null; // colores de contenido/paleta.json, o null si no cargó (sin paleta no hay herramientas)
 
 function pantallaDeError(titulo, detalle, lista = []) {
   vaciar(raiz).append(h('main', { class: 'inicio', id: 'contenido' },
@@ -44,6 +48,11 @@ function mostrarEditor(almacen, contenido, proyecto, archivos) {
     JSZip: window.JSZip,
     catalogo: catalogoActual,
     avisoInicial: avisoBiblioteca,
+    crearHerramientas: paletaActual ? (zona) => ({
+      pixelart: crearPixelArt(zona, { paleta: paletaActual }),
+      grabador: crearGrabador(zona),
+      secuenciador: crearSecuenciador(zona),
+    }) : null,
     alNuevoJuego: async () => {
       await almacen.borrarTodo();
       mostrarInicio(almacen, contenido);
@@ -102,6 +111,13 @@ async function arrancar() {
     catalogoActual = catalogo;
   } catch (error) {
     avisoBiblioteca = `La biblioteca no está disponible: ${error.message}`;
+  }
+  try {
+    const respuesta = await fetch(new URL('../contenido/paleta.json', import.meta.url));
+    if (!respuesta.ok) throw new Error(`paleta.json (${respuesta.status})`);
+    paletaActual = (await respuesta.json()).colores;
+  } catch (error) {
+    avisoBiblioteca = [avisoBiblioteca, `Las herramientas de creación no están disponibles: ${error.message}`].filter(Boolean).join(' ');
   }
   const almacen = abrirAlmacen();
   try {

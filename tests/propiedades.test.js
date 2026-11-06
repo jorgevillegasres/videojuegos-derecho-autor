@@ -25,17 +25,31 @@ async function armar({ confirmar = () => true } = {}) {
   agregarLinea(muelle, 'narracion', { texto: 'Niebla.' });
   agregarLinea(muelle, 'dialogo', { personaje: ana.id, texto: '¿Quién?' });
   const selecciones = [];
+  const ediciones = [];
   const contenedor = document.createElement('div');
   document.body.append(contenedor);
   const propiedades = crearPropiedades(contenedor, sesion, {
     contenido: { campos: { destino: { breve: 'El destino delimita qué licencias sirven.' } } },
     alSeleccionar: (s) => selecciones.push(s),
     confirmar,
+    alEditarPixel: (id) => ediciones.push(id),
   });
   const etiquetas = () => textos(contenedor, '.propiedades > .campo > .campo-etiqueta');
   const control = (clave) => contenedor.querySelector(`[data-foco="${clave}"]`);
-  return { sesion, eventos, p, muelle, torre, ana, fondo, retrato, tema, olas, contenedor, propiedades, selecciones, etiquetas, control };
+  return { sesion, eventos, p, muelle, torre, ana, fondo, retrato, tema, olas, contenedor, propiedades, selecciones, ediciones, etiquetas, control };
 }
+
+test('un fondo o retrato creado dentro ofrece «Editar en pixel art»; lo subido o el audio no', async () => {
+  const { contenedor, propiedades, fondo, retrato, tema, ediciones } = await armar();
+  propiedades.dibujar({ tipo: 'elemento', id: fondo.id });
+  clic(contenedor.querySelector('button[data-accion="editar-pixel"]'));
+  assert.deepEqual(ediciones, [fondo.id]);
+  propiedades.dibujar({ tipo: 'elemento', id: retrato.id });
+  assert.equal(contenedor.querySelector('button[data-accion="editar-pixel"]'), null, 'subido: no');
+  propiedades.dibujar({ tipo: 'elemento', id: tema.id });
+  assert.equal(contenedor.querySelector('button[data-accion="editar-pixel"]'), null, 'audio: no');
+  contenedor.remove();
+});
 
 test('El juego: título, estudiante, destino con ayuda del contenido y sinopsis', async () => {
   const { contenedor, propiedades, p, eventos, etiquetas, control } = await armar();
