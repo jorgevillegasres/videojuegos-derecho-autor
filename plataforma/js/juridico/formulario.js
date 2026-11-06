@@ -23,8 +23,10 @@ export const ETIQUETAS = {
   respaldo: { ninguno: 'Nada escrito', cesion: 'Cesión por escrito', licencia: 'Licencia', autorizacion: 'Autorización informal (mensaje, correo, de palabra)' },
   prueba: { ninguna: 'Ninguna', sello: 'Sello de la plataforma', original: 'Archivo original con fecha', repositorio: 'Repositorio con historial', registro_dnda: 'Registro ante la DNDA' },
   condiciones: { BY: 'Exige atribución (BY)', NC: 'No comercial (NC)', SA: 'Compartir igual (SA)', ND: 'Sin derivadas (ND)' },
-  registraria: { si: 'Sí lo registraría', no: 'No lo registraría' },
 };
+
+/** Respuestas de la decisión de registro (spec 12.7); aparte de ETIQUETAS porque no son campos de la ficha. */
+export const ETIQUETAS_REGISTRO = { si: 'Sí lo registraría', no: 'No lo registraría' };
 
 /** Códigos que el estudiante puede elegir cuando el respaldo es una licencia. */
 export const LICENCIAS_ELEGIBLES = Object.keys(LICENCIAS);

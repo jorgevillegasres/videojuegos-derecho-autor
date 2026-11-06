@@ -8,7 +8,7 @@ import { evaluarTodo } from './semaforo.js';
 import { describir } from './textos.js';
 import { filas, TIPOS_ACTIVO } from './mapa.js';
 import { construir } from './cadena.js';
-import { visibles, ETIQUETAS, PREGUNTAS, NOMBRES_DESTINO } from './formulario.js';
+import { visibles, ETIQUETAS, ETIQUETAS_REGISTRO, PREGUNTAS, NOMBRES_DESTINO } from './formulario.js';
 import { LICENCIAS, condicionesDe } from './licencias.js';
 import { TIPOS_OBRA } from './ficha.js';
 import { nombreDe } from '../estado/validacion.js';
@@ -115,7 +115,7 @@ export function generar(proyecto, { contenido, huella, fecha, nombreProducto = c
 <p>El estudiante eligió hasta tres activos y respondió si los registraría ante la Dirección Nacional de Derecho de Autor, a nombre de quién y con qué prueba. No hay respuesta correcta: el ejercicio es pensarlo.</p>
 ${contenido.campos?.prueba ? explicada(contenido.campos.prueba, 'campos.prueba') : ''}
 ${decisiones.length ? decisiones.map((d) => `<article class="decision"><h3>${e(nombreDe(proyecto, d.id))}</h3><dl>
-<dt>¿Lo registraría ante la DNDA?</dt><dd>${e(ETIQUETAS.registraria[d.registraria] ?? '—')}</dd>
+<dt>¿Lo registraría ante la DNDA?</dt><dd>${e(ETIQUETAS_REGISTRO[d.registraria] ?? '—')}</dd>
 <dt>¿A nombre de quién?</dt><dd>${oGuion(d.aNombreDe)}</dd>
 <dt>¿Con qué prueba?</dt><dd>${oGuion(d.prueba)}</dd>
 ${d.porque?.trim() ? `<dt>¿Por qué?</dt><dd>${e(d.porque)}</dd>` : ''}</dl></article>`).join('') : '<p>El estudiante no dejó decisiones de registro.</p>'}</section>`;
