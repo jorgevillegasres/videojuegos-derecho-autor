@@ -11,18 +11,12 @@ import { crearGuion } from './guion.js';
 import { crearVistaPrevia } from './vista-previa.js';
 import { crearPropiedades } from './propiedades.js';
 import { subirElemento, validarSubida, nombreSugerido, TIPOS_POR_MEDIO, ACEPTA } from './subida.js';
+import { evaluarTodo } from '../juridico/semaforo.js';
+import { creditos } from '../juridico/cadena.js';
+import { nombreDe } from '../estado/validacion.js';
+import { crearMapaActivos } from './mapa-activos.js';
 
 const AVISO_MS = 6000;
-
-/** Créditos provisionales del reproductor hasta que el plan 6 traiga juridico/cadena.js. */
-export function creditosProvisionales(proyecto) {
-  const lineas = [`${proyecto.estudiante?.trim() || 'Sin nombre'}: autor(a) del juego y de la historia`];
-  for (const elemento of proyecto.juego.elementos) {
-    const credito = proyecto.fichas[elemento.id]?.credito?.trim();
-    if (credito) lineas.push(credito);
-  }
-  return lineas;
-}
 
 /** «La llave del faro» → la-llave-del-faro, para nombrar descargas. */
 export function nombreDeArchivo(texto) {
@@ -69,6 +63,7 @@ export function crearEditor(contenedor, sesion, {
   const zonaAvisos = h('div', { class: 'avisos' });
   const zonaDialogo = h('div', { class: 'capa-dialogo', hidden: true });
   const zonaReproductor = h('div', { class: 'capa-reproductor', hidden: true });
+  const zonaMapa = h('div', { class: 'capa-mapa', hidden: true });
   const estadoGuardado = h('span', { class: 'estado-guardado', 'aria-live': 'polite' });
   const botonJugarAqui = h('button', { type: 'button', class: 'btn btn-ghost btn-sm', dataset: { accion: 'jugar-aqui' }, onclick: () => jugarDesde(escenaActivaId) }, '▶ Jugar desde esta escena');
   vaciar(contenedor).append(
@@ -79,12 +74,14 @@ export function crearEditor(contenedor, sesion, {
       zonaPropiedades),
     zonaAvisos,
     zonaDialogo,
+    zonaMapa,
     zonaReproductor,
   );
 
   // ---- vistas ----
   const barra = crearBarra(zonaBarra, sesion, {
     alJugar: () => jugarDesde(sesion.proyecto.juego.escenaInicial),
+    alMapa: () => abrirMapa(),
     alGuardarCopia: guardarCopia,
     alAbrirCopia: abrirCopia,
     alNuevoJuego: nuevoJuego,
@@ -97,6 +94,19 @@ export function crearEditor(contenedor, sesion, {
     confirmar,
   });
   const propiedades = crearPropiedades(zonaPropiedades, sesion, { contenido, alSeleccionar: (s) => seleccionar(s), confirmar });
+  const mapa = crearMapaActivos(zonaMapa, sesion, {
+    contenido: contenido ?? {},
+    alSeleccionar: (s, enfocar) => seleccionar(s, { enfocar }),
+    alCerrar: () => {
+      document.body.classList.remove('con-mapa');
+      zonaBarra.querySelector('[data-accion="mapa"]')?.focus();
+    },
+  });
+
+  function abrirMapa() {
+    document.body.classList.add('con-mapa');
+    mapa.abrir();
+  }
 
   // ---- selección y redibujado ----
   const escenaActiva = () => sesion.proyecto.juego.escenas.find((e) => e.id === escenaActivaId) ?? null;
@@ -109,7 +119,7 @@ export function crearEditor(contenedor, sesion, {
     return juego.escenas[0] ? { tipo: 'escena', id: juego.escenas[0].id } : { tipo: 'juego' };
   }
 
-  function seleccionar(nueva, { redibujarGuion = true } = {}) {
+  function seleccionar(nueva, { redibujarGuion = true, enfocar = null } = {}) {
     seleccion = normalizar(nueva);
     const { juego } = sesion.proyecto;
     const escenaId = escenaDe(seleccion);
@@ -119,10 +129,21 @@ export function crearEditor(contenedor, sesion, {
     const indice = seleccion.tipo === 'linea' ? seleccion.indice : null;
     inventario.dibujar(seleccion);
     vistaPrevia.dibujar(escenaActiva(), indice);
-    propiedades.dibujar(seleccion);
+    propiedades.dibujar(seleccion, { enfocar });
     if (cambioEscena || redibujarGuion) guion.dibujar(escenaActiva(), indice);
     else guion.marcarSeleccion(indice);
     botonJugarAqui.disabled = !escenaActiva();
+  }
+
+  // Colores de todas las fichas, para anunciar a lectores de pantalla los que cambian (spec, sección 16).
+  const coloresDe = () => new Map([...evaluarTodo(sesion.proyecto)].map(([id, r]) => [id, r.color]));
+  let colores = coloresDe();
+
+  function anunciarSemaforos() {
+    const nuevos = coloresDe();
+    const cambios = [...nuevos].filter(([id, color]) => colores.has(id) && colores.get(id) !== color);
+    colores = nuevos;
+    if (cambios.length) anunciar(cambios.map(([id, color]) => `Semáforo de «${nombreDe(sesion.proyecto, id)}»: ${color}`).join('. '));
   }
 
   function refrescar({ origen, estructura }) {
@@ -132,6 +153,8 @@ export function crearEditor(contenedor, sesion, {
     vistaPrevia.dibujar(escenaActiva(), indice);
     if (estructura || origen !== 'propiedades') propiedades.dibujar(seleccion);
     if (estructura || origen !== 'guion') guion.dibujar(escenaActiva(), indice);
+    mapa.dibujar();
+    anunciarSemaforos();
   }
 
   sesion.suscribir((evento) => {
@@ -146,6 +169,7 @@ export function crearEditor(contenedor, sesion, {
       avisar('Llevas 50 cambios sin guardar una copia. Descarga una por si acaso.', { accion: ['Guardar copia', guardarCopia] });
     } else if (evento.tipo === 'reemplazo') {
       escenaActivaId = null;
+      colores = coloresDe();
       barra.dibujar();
       seleccionar(null);
     }
@@ -183,7 +207,7 @@ export function crearEditor(contenedor, sesion, {
     document.body.classList.add('jugando');
     reproductor = jugar(zonaReproductor, sesion.proyecto.juego, (id) => sesion.resolverRecurso(id), {
       escenaInicial,
-      creditos: creditosProvisionales(sesion.proyecto),
+      creditos: creditos(sesion.proyecto),
       alCerrar: () => {
         reproductor = null;
         zonaReproductor.hidden = true;
@@ -221,6 +245,7 @@ export function crearEditor(contenedor, sesion, {
     const titulo = copia.proyecto.juego.titulo?.trim() || 'Sin título';
     if (!confirmar(`¿Reemplazar el proyecto actual por «${titulo}»? Lo que tienes ahora se perderá si no guardaste una copia.`)) return;
     try {
+      mapa.cerrar();
       cerrarReproductor();
       await sesion.reemplazar(copia.proyecto, copia.archivos);
       avisar('Copia abierta.');
@@ -235,6 +260,7 @@ export function crearEditor(contenedor, sesion, {
       const descargada = await guardarCopia();
       if (!descargada) return;
     }
+    mapa.cerrar();
     cerrarReproductor();
     await alNuevoJuego();
   }
@@ -269,7 +295,7 @@ export function crearEditor(contenedor, sesion, {
     if (!tipo) return;
     try {
       const elemento = await subirElemento(sesion, archivo, { tipo });
-      seleccionar({ tipo: 'elemento', id: elemento.id });
+      seleccionar({ tipo: 'elemento', id: elemento.id }, { enfocar: `ficha:${elemento.id}:autoria` });
       avisar(`«${elemento.nombre}» entró al juego como ${NOMBRES_TIPO[tipo].toLowerCase()}.`);
     } catch (error) {
       mostrarError(error);
@@ -289,6 +315,7 @@ export function crearEditor(contenedor, sesion, {
     jugarDesde,
     mostrarError,
     destruir() {
+      mapa.cerrar();
       cerrarReproductor();
       vaciar(contenedor);
     },

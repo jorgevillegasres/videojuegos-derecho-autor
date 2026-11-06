@@ -7,7 +7,7 @@ import { sesionDePrueba } from './ayudas/sesion.js';
 import { proyectoPublicable } from './ayudas/proyecto.js';
 import { crearProyecto, agregarEscena, agregarLinea } from '../plataforma/js/estado/modelo.js';
 import { exportarCopia } from '../plataforma/js/estado/copias.js';
-import { crearEditor, creditosProvisionales } from '../plataforma/js/editor/editor.js';
+import { crearEditor } from '../plataforma/js/editor/editor.js';
 
 instalarDom();
 
@@ -194,9 +194,56 @@ test('los errores y el recordatorio de la sesión se muestran con botón de Guar
   contenedor.remove();
 });
 
-test('creditosProvisionales nombra al estudiante y copia los créditos escritos en las fichas', () => {
+test('el reproductor muestra los créditos que salen de las fichas', () => {
+  const { p } = proyectoPublicable();
+  const { contenedor, q } = armar({ proyecto: p });
+  clic(q('button[data-accion="jugar"]'));
+  clic(q('.capa-reproductor button[data-accion="creditos"]'));
+  assert.deepEqual(textos(contenedor, '.escenario-creditos li'), ['Camila R.: autor(a) del juego y de la historia', '«Tema» de Autora Ejemplo, CC BY-NC 4.0']);
+  clic(q('.capa-reproductor button[data-accion="cerrar"]'));
+  contenedor.remove();
+});
+
+test('Mapa de activos abre la capa; «Ver ficha» la cierra y abre la ficha con el foco en ella', () => {
   const { p, tema } = proyectoPublicable();
-  p.fichas[tema.id].credito = '«Tema» de Autora Ejemplo, CC BY-NC 4.0';
-  assert.deepEqual(creditosProvisionales(p), ['Camila R.: autor(a) del juego y de la historia', '«Tema» de Autora Ejemplo, CC BY-NC 4.0']);
-  assert.deepEqual(creditosProvisionales(crearProyecto({ estudiante: ' ' })), ['Sin nombre: autor(a) del juego y de la historia']);
+  const { contenedor, q } = armar({ proyecto: p });
+  clic(q('button[data-accion="mapa"]'));
+  assert.equal(q('.capa-mapa').hidden, false);
+  assert.ok(document.body.classList.contains('con-mapa'));
+  assert.equal(q('.capa-mapa tbody').children.length, 9);
+  clic(q(`.capa-mapa tr[data-ficha="${tema.id}"] button[data-accion="ver-ficha"]`));
+  assert.equal(q('.capa-mapa').hidden, true);
+  assert.ok(!document.body.classList.contains('con-mapa'));
+  assert.equal(q('.propiedades h2').textContent, 'Música');
+  assert.equal(document.activeElement, q(`section.ficha[data-ficha="${tema.id}"]`), 'el foco queda en la ficha');
+  clic(q('button[data-accion="mapa"]'));
+  clic(q('.capa-mapa button[data-accion="cerrar-mapa"]'));
+  assert.equal(document.activeElement, q('button[data-accion="mapa"]'), 'cerrar devuelve el foco al botón');
+  contenedor.remove();
+});
+
+test('al subir un archivo la ficha se abre con el foco en «¿Quién lo hizo?»', async () => {
+  const png = { name: 'ana.png', type: 'image/png', size: 10, arrayBuffer: async () => new TextEncoder().encode('png').buffer };
+  const { p } = proyectoConLineas();
+  const { sesion, contenedor, editor, q } = armar({ proyecto: p, archivoElegido: png });
+  const pendiente = editor.subirArchivo();
+  await new Promise((r) => setTimeout(r, 0));
+  clic(q('.dialogo button[data-tipo="retrato"]'));
+  await pendiente;
+  const elemento = sesion.proyecto.juego.elementos[0];
+  assert.equal(document.activeElement, q(`[data-foco="ficha:${elemento.id}:autoria:yo"]`));
+  contenedor.remove();
+});
+
+test('cambiar el destino recalcula los semáforos y anuncia los que cambian de color', () => {
+  const { p, tema } = proyectoPublicable();
+  const { contenedor, q, qa } = armar({ proyecto: p });
+  clic(qa('.inventario button.entrada')[0]);
+  escribir(q('[data-foco="destino"]'), 'venta');
+  assert.ok(q(`.punto-semaforo[data-ficha="${tema.id}"]`).classList.contains('semaforo-rojo'));
+  assert.equal(document.getElementById('anuncios').textContent, 'Semáforo de «Tema»: rojo');
+  escribir(q('[data-foco="destino"]'), 'gratis');
+  assert.equal(document.getElementById('anuncios').textContent, 'Semáforo de «Tema»: verde');
+  assert.ok(q('section.ficha[data-ficha="titulo"]'), 'El juego muestra sus fichas');
+  contenedor.remove();
 });
