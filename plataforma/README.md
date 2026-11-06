@@ -6,9 +6,10 @@ en `docs/superpowers/specs/2026-11-04-plataforma-primer-videojuego-design.md`.
 
 ## Estado
 
-Plan 1 (núcleo) terminado: modelo del juego, validación, fichas, licencias, semáforo,
-contenido jurídico, almacén en IndexedDB y copias comprimidas. Todavía no hay
-interfaz: llega con el plan 2.
+Plan 1 (núcleo) y plan 2 (motor y editor) terminados: se puede arrancar, armar escenas,
+personajes y líneas, subir fondos, retratos, música, efectos y voces, jugar el proyecto en
+el reproductor, guardar y abrir copias. Faltan las fichas jurídicas en pantalla (plan 3),
+la biblioteca (plan 4), las herramientas de creación (plan 5) y la publicación (plan 6).
 
 ## Pruebas
 
@@ -29,12 +30,28 @@ publicarse sin cotejo. `npm test` imprime la lista. Dos pruebas vigilan que las 
 digan «por verificar» solo en las entradas pendientes y que ningún texto haga las
 afirmaciones que el memo de verificación prohíbe.
 
-## Requisitos del navegador
+## Probar en local
 
-La plataforma usa IndexedDB y Web Crypto. Web Crypto exige un contexto seguro: HTTPS
-(GitHub Pages) o `localhost`. Para probar en local, sirva la carpeta con un servidor
-estático en `localhost`; abrir `index.html` directamente desde el disco no funciona con
-módulos ES.
+```bash
+node tests/manual/servir.js
+```
+
+Abre `http://localhost:8080/plataforma/` (el editor) o
+`http://localhost:8080/tests/manual/motor.html` (el reproductor con un juego escrito a mano).
+La plataforma usa IndexedDB y Web Crypto; Web Crypto exige un contexto seguro (HTTPS o
+`localhost`) y los módulos ES no cargan desde `file://`, por eso hace falta el servidor.
+
+## Cómo está armado el código
+
+- `js/estado/`: el documento del juego y su validación, el almacén y las copias.
+- `js/juridico/`: fichas, licencias, semáforo y textos.
+- `js/motor/`: `partida.js` (estado puro), `pantalla.js` (dibujo) y `reproductor.js` (entrada y audio).
+- `js/editor/`: `sesion.js` (estado del editor) y una vista por columna; `editor.js` las coordina.
+- `js/ui/`: utilidades de DOM y comprobación de capacidades.
+- `js/app.js`: arranque.
+
+Las vistas se prueban con jsdom; lo que jsdom no cubre (arrastrar, audio, micrófono) se
+comprueba a mano y, desde el plan 6, con Playwright.
 
 ## Dependencias
 
