@@ -9,6 +9,8 @@
 import { h, vaciar, conservarFoco } from '../ui/dom.js';
 import { validar } from '../estado/validacion.js';
 import { agregarEscena, agregarPersonaje } from '../estado/modelo.js';
+import { evaluarTodo } from '../juridico/semaforo.js';
+import { puntoSemaforo } from './panel-ficha.js';
 
 export const NOMBRES_TIPO = { fondo: 'Fondo', retrato: 'Retrato', musica: 'Música', efecto: 'Efecto', voz: 'Voz' };
 
@@ -45,6 +47,12 @@ export function crearInventario(contenedor, sesion, { alSeleccionar, alSubir }) 
   function dibujar(seleccion) {
     const { juego } = sesion.proyecto;
     const avisos = validar(juego);
+    const semaforos = evaluarTodo(sesion.proyecto);
+    const punto = (id, nombre) => {
+      const nodo = puntoSemaforo(semaforos.get(id)?.color ?? 'verde', `Semáforo de ${nombre}`);
+      nodo.dataset.ficha = id;
+      return nodo;
+    };
     const esActiva = (tipo, id) => seleccion?.tipo === tipo && seleccion.id === id;
     const escenaActiva = seleccion?.tipo === 'escena' ? seleccion.id : seleccion?.tipo === 'linea' ? seleccion.escena : null;
     conservarFoco(contenedor, () => {
@@ -63,7 +71,7 @@ export function crearInventario(contenedor, sesion, { alSeleccionar, alSubir }) 
           texto: personaje.nombre?.trim() || 'Sin nombre',
           detalle: personaje.retrato ? null : 'sin retrato',
           activa: esActiva('personaje', personaje.id),
-          marca: h('span', { class: 'punto-semaforo', dataset: { ficha: personaje.id } }),
+          marca: punto(personaje.id, personaje.nombre?.trim() || 'Sin nombre'),
           alPulsar: () => alSeleccionar({ tipo: 'personaje', id: personaje.id }),
         }))),
         seccion('Elementos', 'Subir archivo', alSubir, juego.elementos.map((elemento) => entrada({
@@ -71,7 +79,7 @@ export function crearInventario(contenedor, sesion, { alSeleccionar, alSubir }) 
           texto: elemento.nombre?.trim() || 'Sin nombre',
           detalle: NOMBRES_TIPO[elemento.tipo],
           activa: esActiva('elemento', elemento.id),
-          marca: h('span', { class: 'punto-semaforo', dataset: { ficha: elemento.id } }),
+          marca: punto(elemento.id, elemento.nombre?.trim() || 'Sin nombre'),
           alPulsar: () => alSeleccionar({ tipo: 'elemento', id: elemento.id }),
         }))),
       ));

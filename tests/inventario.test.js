@@ -96,3 +96,15 @@ test('sin título, sin personajes ni elementos muestra textos de vacío', () => 
   assert.deepEqual(textos(contenedor, '.vacio'), ['Nada todavía.', 'Nada todavía.']);
   assert.equal(contenedor.querySelectorAll('.aviso-gris').length, 1, 'la escena inicial vacía avisa (sin líneas, sin fin)');
 });
+
+test('los puntos de semáforo de personajes y elementos llevan el color y un nombre accesible', () => {
+  const { contenedor, inventario, ana, fondo } = armar();
+  inventario.dibujar(null);
+  const puntoAna = contenedor.querySelector(`.punto-semaforo[data-ficha="${ana.id}"]`);
+  assert.ok(puntoAna.classList.contains('semaforo-verde'));
+  assert.equal(puntoAna.getAttribute('aria-label'), 'Semáforo de Ana: verde');
+  const puntoFondo = contenedor.querySelector(`.punto-semaforo[data-ficha="${fondo.id}"]`);
+  assert.ok(puntoFondo.classList.contains('semaforo-amarillo'), 'subido, hecho por mí y sin prueba: A06');
+  assert.equal(puntoFondo.getAttribute('aria-label'), 'Semáforo de Muelle: amarillo');
+  assert.equal(contenedor.querySelectorAll('.punto-semaforo').length, 4, 'dos personajes y dos elementos');
+});
