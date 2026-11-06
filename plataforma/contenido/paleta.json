@@ -1,0 +1,22 @@
+{
+  "nombre": "Paleta del taller",
+  "nota": "Dieciséis colores fijos (spec, sección 9). Los usan el pixel art y el generador de la biblioteca provisional.",
+  "colores": [
+    { "nombre": "noche", "hex": "#1b1f2a" },
+    { "nombre": "pizarra", "hex": "#3a4a5c" },
+    { "nombre": "niebla", "hex": "#8da1b4" },
+    { "nombre": "hueso", "hex": "#f2efe6" },
+    { "nombre": "rojo", "hex": "#c92a2a" },
+    { "nombre": "naranja", "hex": "#e8762b" },
+    { "nombre": "ambar", "hex": "#ffb648" },
+    { "nombre": "arena", "hex": "#e9d8a6" },
+    { "nombre": "lima", "hex": "#b6ff3b" },
+    { "nombre": "musgo", "hex": "#2b8a3e" },
+    { "nombre": "pino", "hex": "#1d5c3a" },
+    { "nombre": "mar", "hex": "#1f6f8b" },
+    { "nombre": "cielo", "hex": "#4cc9f0" },
+    { "nombre": "lila", "hex": "#9b5de5" },
+    { "nombre": "rosa", "hex": "#ff5c7a" },
+    { "nombre": "cacao", "hex": "#5a3a2e" }
+  ]
+}
