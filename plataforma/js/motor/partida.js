@@ -3,7 +3,7 @@
 // ni audio. Comparte la regla de corte con la validación (indiceCorte): una escena
 // termina en su primera decisión o fin; sin ninguna de las dos, sigue la siguiente
 // escena de la lista; sin siguiente, créditos. Una escena sin líneas se salta.
-import { indiceCorte } from '../estado/modelo.js';
+import { indiceCorte } from '../estado/corte.js';
 
 const escenaPorId = (juego, id) => juego.escenas.find((e) => e.id === id) ?? null;
 

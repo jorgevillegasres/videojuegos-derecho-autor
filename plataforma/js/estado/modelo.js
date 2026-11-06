@@ -5,8 +5,9 @@
 // sin error; la validez estructural (nombres vacíos, opciones de más o de menos,
 // referencias rotas) la informa validar(), no los mutadores.
 import { crearFicha, DESTINOS } from '../juridico/ficha.js';
+import { indiceCorte } from './corte.js';
 
-export { DESTINOS };
+export { DESTINOS, indiceCorte };
 
 export const VERSION_PROYECTO = 1;
 export const TIPOS_ELEMENTO = ['fondo', 'retrato', 'musica', 'efecto', 'voz'];
@@ -137,7 +138,4 @@ export function eliminarLinea(escena, indice) {
   escena.lineas.splice(indice, 1);
 }
 
-/** Índice de la primera línea de decisión o fin de la escena, o -1 si no hay. El reproductor y la validación comparten esta regla. */
-export function indiceCorte(escena) {
-  return escena.lineas.findIndex((l) => l.tipo === 'decision' || l.tipo === 'fin');
-}
+// La regla de corte (indiceCorte) vive en corte.js y se reexporta arriba: el motor la importa de ahí sin arrastrar las fichas.
