@@ -1,0 +1,116 @@
+// plataforma/js/app.js
+// Arranque: comprueba el navegador, carga el contenido, abre el almacén y muestra la
+// pantalla de inicio o el editor. Atrapa los errores inesperados para que nunca quede
+// una pantalla en blanco (spec, sección 17).
+import { comprobar, NAVEGADORES } from './ui/capacidades.js';
+import { h, vaciar } from './ui/dom.js';
+import { cargarContenido } from './juridico/textos.js';
+import { abrirAlmacen } from './estado/almacen.js';
+import { crearProyecto } from './estado/modelo.js';
+import { importarCopia } from './estado/copias.js';
+import { crearSesion } from './editor/sesion.js';
+import { crearInicio } from './editor/inicio.js';
+import { crearEditor, elegirArchivoDelNavegador } from './editor/editor.js';
+
+const raiz = document.getElementById('app');
+let sesionActual = null;
+let editorActual = null;
+
+function pantallaDeError(titulo, detalle, lista = []) {
+  vaciar(raiz).append(h('main', { class: 'inicio', id: 'contenido' },
+    h('h1', {}, titulo),
+    h('p', {}, detalle),
+    lista.length ? h('ul', {}, lista.map((texto) => h('li', {}, texto))) : null,
+    h('p', { class: 'ayuda' }, `Navegadores con los que funciona: ${NAVEGADORES}`)));
+}
+
+function cerrarEditor() {
+  editorActual?.destruir();
+  editorActual = null;
+  sesionActual?.cerrar();
+  sesionActual = null;
+  document.body.classList.remove('en-editor', 'jugando');
+}
+
+function mostrarEditor(almacen, contenido, proyecto, archivos) {
+  cerrarEditor();
+  document.body.classList.add('en-editor');
+  sesionActual = crearSesion({ proyecto, archivos, almacen });
+  editorActual = crearEditor(raiz, sesionActual, {
+    contenido,
+    JSZip: window.JSZip,
+    alNuevoJuego: async () => {
+      await almacen.borrarTodo();
+      mostrarInicio(almacen, contenido);
+    },
+  });
+}
+
+function mostrarInicio(almacen, contenido) {
+  cerrarEditor();
+  const inicio = crearInicio(raiz, {
+    nombreProducto: contenido.nombre,
+    contenido,
+    alEmpezar: async (datos) => {
+      const proyecto = crearProyecto(datos);
+      try {
+        await almacen.guardar(proyecto);
+      } catch (error) {
+        inicio.mostrarError(error.message);
+        return;
+      }
+      mostrarEditor(almacen, contenido, proyecto, new Map());
+    },
+    alAbrirCopia: async () => {
+      const archivo = await elegirArchivoDelNavegador('.zip,application/zip');
+      if (!archivo) return;
+      try {
+        const copia = await importarCopia(archivo, { JSZip: window.JSZip });
+        await almacen.reemplazarTodo(copia.proyecto, copia.archivos);
+        mostrarEditor(almacen, contenido, copia.proyecto, copia.archivos);
+      } catch (error) {
+        inicio.mostrarError(error.message);
+      }
+    },
+  });
+  inicio.dibujar();
+}
+
+async function arrancar() {
+  const capacidades = comprobar(window);
+  if (!capacidades.ok) {
+    pantallaDeError('Este navegador no puede ejecutar la plataforma', 'Le falta:', capacidades.faltantes);
+    return;
+  }
+  let contenido;
+  try {
+    contenido = await cargarContenido();
+  } catch (error) {
+    pantallaDeError('No se pudo cargar el contenido jurídico', error.message);
+    return;
+  }
+  document.title = contenido.nombre;
+  const almacen = abrirAlmacen();
+  try {
+    const proyecto = await almacen.cargar();
+    if (proyecto) {
+      mostrarEditor(almacen, contenido, proyecto, await almacen.leerArchivos());
+    } else {
+      mostrarInicio(almacen, contenido);
+    }
+  } catch (error) {
+    pantallaDeError('No se pudo abrir lo guardado en el navegador', error.message);
+  }
+}
+
+const aError = (valor) => (valor instanceof Error ? valor : new Error(String(valor?.message ?? valor ?? 'Error desconocido')));
+window.addEventListener('error', (evento) => {
+  if (editorActual) editorActual.mostrarError(aError(evento.error ?? evento.message));
+  else pantallaDeError('Algo salió mal', aError(evento.error ?? evento.message).message);
+});
+window.addEventListener('unhandledrejection', (evento) => {
+  if (editorActual) editorActual.mostrarError(aError(evento.reason));
+  else pantallaDeError('Algo salió mal', aError(evento.reason).message);
+});
+
+arrancar();
