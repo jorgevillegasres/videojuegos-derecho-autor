@@ -1,0 +1,123 @@
+/* plataforma/css/reproductor.css — el reproductor y el escenario (tema oscuro) */
+.reproductor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  min-height: 100%;
+  padding: 12px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  outline: none;
+}
+.reproductor:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+
+.reproductor-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.reproductor-titulo { font-family: var(--display); font-size: 16px; letter-spacing: .02em; }
+.reproductor-acciones { display: flex; flex-wrap: wrap; gap: 6px; }
+.reproductor-acciones .btn-ghost { color: var(--ink); border-color: var(--line); }
+.reproductor-pista { margin: 0; color: var(--muted); font-size: 12px; text-align: center; }
+
+.reproductor-escena { cursor: pointer; user-select: none; }
+
+.escenario {
+  position: relative;
+  width: min(100%, 960px);
+  aspect-ratio: 16 / 9;
+  margin: 0 auto;
+  background: #000;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: var(--serif);
+}
+.escenario-fondo { position: absolute; inset: 0; display: grid; place-items: center; }
+.escenario-fondo img { width: 100%; height: 100%; object-fit: contain; }
+
+.escenario-retrato {
+  position: absolute;
+  left: 3%;
+  bottom: 24%;
+  width: 22%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: end center;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .6));
+}
+/* El retrato llena su recuadro sin recortarse: un pixel art de 64×64 se agranda, una foto grande se reduce. */
+.escenario-retrato img { width: 100%; height: 100%; object-fit: contain; object-position: bottom center; }
+
+.pixel { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+.escenario-caja {
+  position: absolute;
+  left: 2%;
+  right: 2%;
+  bottom: 2%;
+  min-height: 22%;
+  padding: 12px 16px;
+  background: rgba(10, 13, 18, .86);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  backdrop-filter: blur(6px);
+}
+.escenario-nombre {
+  margin-bottom: 4px;
+  font-family: var(--mono);
+  font-size: clamp(11px, 1.6vw, 14px);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.escenario-texto { font-size: clamp(14px, 2.2vw, 20px); line-height: 1.4; white-space: pre-wrap; }
+.es-fin .escenario-texto { text-align: center; font-size: clamp(16px, 2.8vw, 26px); }
+.vacia .escenario-texto { color: var(--muted); font-style: italic; }
+
+.escenario-opciones { display: grid; gap: 8px; margin-top: 10px; }
+.escenario-opciones:empty { display: none; }
+.opcion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  text-align: left;
+  background: var(--panel-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-family: var(--body);
+  font-size: clamp(14px, 2vw, 17px);
+  cursor: pointer;
+}
+.opcion:hover, .opcion:focus-visible { border-color: var(--accent); }
+.opcion kbd {
+  flex: 0 0 auto;
+  min-width: 26px;
+  padding: 2px 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.en-creditos .escenario-caja { inset: 6% 8%; min-height: 0; overflow: auto; text-align: center; }
+.escenario-creditos { font-family: var(--body); }
+.creditos-titulo { margin: 0 0 6px; font-family: var(--display); font-size: clamp(18px, 3vw, 28px); }
+.creditos-encabezado { margin: 0 0 12px; font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.escenario-creditos ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: clamp(13px, 1.8vw, 16px); }
+
+@media (max-width: 600px) {
+  .reproductor { padding: 6px; }
+  .escenario { border-radius: 6px; }
+  .escenario-retrato { width: 26%; bottom: 30%; }
+}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prueba manual del motor</title>
+  <link rel="stylesheet" href="../../plataforma/css/tokens.css">
+  <link rel="stylesheet" href="../../plataforma/css/reproductor.css">
+  <style>
+    body { margin: 0; background: #06080b; color: #9aa4b2; font-family: system-ui, sans-serif; }
+    .nota { margin: 0; padding: 8px 16px; font-size: 13px; }
+    #juego { min-height: calc(100vh - 36px); }
+  </style>
+</head>
+<body>
+  <p class="nota">Juego escrito a mano para probar el reproductor. Imágenes SVG incrustadas; sin audio.</p>
+  <div id="juego"></div>
+  <script type="module">
+    import { crearProyecto, agregarEscena, agregarPersonaje, agregarElemento, agregarLinea } from '../../plataforma/js/estado/modelo.js';
+    import { jugar } from '../../plataforma/js/motor/reproductor.js';
+
+    const svg = (ancho, alto, color, texto) => 'data:image/svg+xml,' + encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${ancho}" height="${alto}">` +
+      `<rect width="100%" height="100%" fill="${color}"/>` +
+      `<text x="6" y="${Math.round(alto * 0.55)}" fill="#fff" font-family="monospace" font-size="${Math.round(alto / 7)}">${texto}</text></svg>`);
+
+    const p = crearProyecto({ estudiante: 'Camila R.', titulo: 'La llave del faro', destino: 'gratis' });
+    const muelle = p.juego.escenas[0];
+    muelle.nombre = 'El muelle';
+    const torre = agregarEscena(p, 'La torre');
+    const playa = agregarEscena(p, 'La playa');
+    const ana = agregarPersonaje(p, { nombre: 'Ana', descripcion: 'Farera en su primer turno.' });
+    const farero = agregarPersonaje(p, { nombre: 'El farero' });
+    const fondoMuelle = agregarElemento(p, { tipo: 'fondo', nombre: 'Muelle', archivo: 'muelle.png', origen: 'creado' });
+    const fondoTorre = agregarElemento(p, { tipo: 'fondo', nombre: 'Torre', archivo: 'torre.png', origen: 'subido' });
+    const retratoAna = agregarElemento(p, { tipo: 'retrato', nombre: 'Ana', archivo: 'ana.png', origen: 'creado' });
+    const retratoFarero = agregarElemento(p, { tipo: 'retrato', nombre: 'Farero', archivo: 'farero.png', origen: 'subido' });
+    ana.retrato = retratoAna.id;
+    farero.retrato = retratoFarero.id;
+    muelle.fondo = fondoMuelle.id;
+    torre.fondo = fondoTorre.id;
+    agregarLinea(muelle, 'narracion', { texto: 'La niebla cubre el muelle. El faro lleva dos noches apagado.' });
+    agregarLinea(muelle, 'dialogo', { personaje: ana.id, texto: '¿Quién dejó la puerta abierta?' });
+    agregarLinea(muelle, 'dialogo', { personaje: farero.id, texto: 'Yo no fui. Llevo tres días en cama.' });
+    agregarLinea(muelle, 'decision', { texto: '¿Subes a la torre?', opciones: [{ texto: 'Sí, ahora mismo', escena: torre.id }, { texto: 'No, voy a la playa', escena: playa.id }] });
+    agregarLinea(torre, 'narracion', { texto: 'La escalera cruje. Arriba, la lámpara está intacta.' });
+    agregarLinea(torre, 'fin', { texto: 'Alguien apagó el faro a propósito. Fin del primer capítulo.' });
+    agregarLinea(playa, 'dialogo', { personaje: ana.id, texto: 'Huellas. Van hacia el pueblo.' });
+    agregarLinea(playa, 'narracion', { texto: 'Esta escena no tiene fin: sigue con la siguiente de la lista (no hay) y termina.' });
+
+    const urls = {
+      [fondoMuelle.id]: svg(192, 108, '#223344', 'Muelle (pixel)'),
+      [fondoTorre.id]: svg(1920, 1080, '#443322', 'Torre (subido)'),
+      [retratoAna.id]: svg(64, 64, '#227755', 'Ana'),
+      [retratoFarero.id]: svg(256, 256, '#775522', 'Farero'),
+    };
+    jugar(document.getElementById('juego'), p.juego, (id) => urls[id] ?? null, {
+      creditos: ['Camila R.: autora del juego y de la historia', 'Fondos y retratos: hechos a mano para esta prueba'],
+      alCerrar: () => { document.getElementById('juego').textContent = 'Reproductor cerrado. Recarga para volver a jugar.'; },
+    });
+  </script>
+</body>
+</html>
