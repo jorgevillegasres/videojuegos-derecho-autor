@@ -225,6 +225,28 @@ audio.muestra { width: 100%; background: transparent; border: 0; }
 .riesgo-amarillo td:first-child { box-shadow: inset 3px 0 0 var(--amarillo); }
 body.con-mapa { overflow: hidden; }
 
+/* ---------- Biblioteca ---------- */
+.inventario-botones { display: flex; gap: 4px; }
+.capa-biblioteca { position: fixed; inset: 0; z-index: 66; overflow: auto; padding: 24px; background: rgba(26, 29, 34, .55); }
+.biblioteca { width: min(1100px, 100%); margin: 0 auto; padding: 20px 24px; background: var(--claro-panel); border-radius: var(--radius); box-shadow: var(--shadow); }
+.biblioteca-filtros { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.biblioteca-piezas { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.biblioteca-pieza { display: grid; gap: 6px; padding: 10px; background: var(--claro-panel-2); border: 1px solid var(--claro-line); border-radius: 10px; }
+.biblioteca-pieza h3 { font-size: 14px; }
+.biblioteca-marco { display: grid; place-items: center; min-height: 96px; background: #000; border-radius: 6px; overflow: hidden; }
+.biblioteca-marco img { max-width: 100%; display: block; }
+.marco-retrato img { width: 96px; height: 96px; image-rendering: pixelated; }
+.marco-fondo img { width: 100%; image-rendering: pixelated; }
+.biblioteca-marco audio { width: 100%; }
+.biblioteca-autor { margin: 0; font-size: 12px; color: var(--claro-muted); }
+.biblioteca-licencia { margin: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.chip { display: inline-block; padding: 2px 7px; border-radius: 99px; border: 1px solid var(--claro-line); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--claro-muted); }
+.chip.licencia-CURSO, .chip.licencia-DESCONOCIDO { border-color: var(--amarillo); color: var(--claro-ink); }
+.ficha-pieza { margin: 6px 0 8px; padding: 8px 10px; background: var(--claro-panel-2); border-radius: 8px; font-size: 13px; }
+.ficha-pieza p { margin: 0 0 4px; }
+.ficha-pieza code { font-size: 12px; }
+body.con-biblioteca { overflow: hidden; }
+
 /* ---------- Pantallas angostas: solo se juega ---------- */
 .aviso-angosto { display: none; margin: 0; padding: 12px 16px; background: var(--amber); color: var(--accent-ink); font-weight: 700; }
 @media (max-width: 899px) {

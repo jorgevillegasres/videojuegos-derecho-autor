@@ -11,10 +11,13 @@ import { importarCopia } from './estado/copias.js';
 import { crearSesion } from './editor/sesion.js';
 import { crearInicio } from './editor/inicio.js';
 import { crearEditor, elegirArchivoDelNavegador } from './editor/editor.js';
+import { crearCatalogo } from './biblioteca/catalogo.js';
 
 const raiz = document.getElementById('app');
 let sesionActual = null;
 let editorActual = null;
+let catalogoActual = null; // el catálogo de la biblioteca ya cargado, o null si no está disponible
+let avisoBiblioteca = null;
 
 function pantallaDeError(titulo, detalle, lista = []) {
   vaciar(raiz).append(h('main', { class: 'inicio', id: 'contenido' },
@@ -39,6 +42,8 @@ function mostrarEditor(almacen, contenido, proyecto, archivos) {
   editorActual = crearEditor(raiz, sesionActual, {
     contenido,
     JSZip: window.JSZip,
+    catalogo: catalogoActual,
+    avisoInicial: avisoBiblioteca,
     alNuevoJuego: async () => {
       await almacen.borrarTodo();
       mostrarInicio(almacen, contenido);
@@ -90,6 +95,14 @@ async function arrancar() {
     return;
   }
   document.title = contenido.nombre;
+  // La biblioteca no es imprescindible: si su catálogo falta o está mal, el editor arranca igual y lo dice.
+  const catalogo = crearCatalogo();
+  try {
+    await catalogo.cargar();
+    catalogoActual = catalogo;
+  } catch (error) {
+    avisoBiblioteca = `La biblioteca no está disponible: ${error.message}`;
+  }
   const almacen = abrirAlmacen();
   try {
     const proyecto = await almacen.cargar();

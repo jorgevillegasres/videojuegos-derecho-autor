@@ -15,6 +15,7 @@ import { evaluarTodo } from '../juridico/semaforo.js';
 import { creditos } from '../juridico/cadena.js';
 import { nombreDe } from '../estado/validacion.js';
 import { crearMapaActivos } from './mapa-activos.js';
+import { crearBiblioteca, tomarPieza } from './biblioteca.js';
 
 const AVISO_MS = 6000;
 
@@ -40,7 +41,8 @@ export function elegirArchivoDelNavegador(accept) {
  * @param {HTMLElement} contenedor
  * @param {object} sesion de crearSesion
  * @param {object} opciones contenido (juridico.json), JSZip, descargarArchivo(blob, nombre),
- *   confirmar(mensaje) → boolean, elegirArchivo(accept) → Promise<File|null>, alNuevoJuego() → Promise
+ *   confirmar(mensaje) → boolean, elegirArchivo(accept) → Promise<File|null>, alNuevoJuego() → Promise,
+ *   catalogo (de crearCatalogo, ya cargado; null si la biblioteca no está disponible), avisoInicial (texto que se muestra al abrir).
  */
 export function crearEditor(contenedor, sesion, {
   contenido = null,
@@ -49,6 +51,8 @@ export function crearEditor(contenedor, sesion, {
   confirmar = (mensaje) => window.confirm(mensaje),
   elegirArchivo = elegirArchivoDelNavegador,
   alNuevoJuego = async () => {},
+  catalogo = null,
+  avisoInicial = null,
 } = {}) {
   let seleccion = null;
   let escenaActivaId = null;
@@ -64,6 +68,7 @@ export function crearEditor(contenedor, sesion, {
   const zonaDialogo = h('div', { class: 'capa-dialogo', hidden: true });
   const zonaReproductor = h('div', { class: 'capa-reproductor', hidden: true });
   const zonaMapa = h('div', { class: 'capa-mapa', hidden: true });
+  const zonaBiblioteca = h('div', { class: 'capa-biblioteca', hidden: true });
   const estadoGuardado = h('span', { class: 'estado-guardado', 'aria-live': 'polite' });
   const botonJugarAqui = h('button', { type: 'button', class: 'btn btn-ghost btn-sm', dataset: { accion: 'jugar-aqui' }, onclick: () => jugarDesde(escenaActivaId) }, '▶ Jugar desde esta escena');
   vaciar(contenedor).append(
@@ -74,6 +79,7 @@ export function crearEditor(contenedor, sesion, {
       zonaPropiedades),
     zonaAvisos,
     zonaDialogo,
+    zonaBiblioteca,
     zonaMapa,
     zonaReproductor,
   );
@@ -87,13 +93,37 @@ export function crearEditor(contenedor, sesion, {
     alNuevoJuego: nuevoJuego,
     alPublicar: () => avisar('La publicación llega en una versión siguiente. Por ahora el candado te dice qué falta.'),
   });
-  const inventario = crearInventario(zonaInventario, sesion, { alSeleccionar: (s) => seleccionar(s), alSubir: subirArchivo });
+  const inventario = crearInventario(zonaInventario, sesion, { alSeleccionar: (s) => seleccionar(s), alSubir: subirArchivo, alBiblioteca: catalogo ? () => abrirBiblioteca() : null });
   const vistaPrevia = crearVistaPrevia(zonaVistaPrevia, sesion);
   const guion = crearGuion(zonaGuion, sesion, {
     alSeleccionar: (indice) => seleccionar(indice === null ? { tipo: 'escena', id: escenaActivaId } : { tipo: 'linea', escena: escenaActivaId, indice }, { redibujarGuion: false }),
     confirmar,
   });
-  const propiedades = crearPropiedades(zonaPropiedades, sesion, { contenido, alSeleccionar: (s) => seleccionar(s), confirmar });
+  const propiedades = crearPropiedades(zonaPropiedades, sesion, { contenido, alSeleccionar: (s) => seleccionar(s), confirmar, piezaDe: (id) => catalogo?.piezaDe(id) ?? null });
+  const biblioteca = catalogo ? crearBiblioteca(zonaBiblioteca, catalogo, {
+    alElegir: usarPieza,
+    alCerrar: () => {
+      document.body.classList.remove('con-biblioteca');
+      zonaInventario.querySelector('[data-accion="biblioteca"]')?.focus();
+    },
+  }) : null;
+
+  function abrirBiblioteca() {
+    document.body.classList.add('con-biblioteca');
+    biblioteca.abrir();
+  }
+
+  /** Mete la pieza elegida al juego y abre su ficha, que llega precargada desde el catálogo. */
+  async function usarPieza(pieza) {
+    try {
+      const elemento = await tomarPieza(sesion, catalogo, pieza);
+      seleccionar({ tipo: 'elemento', id: elemento.id }, { enfocar: `ficha:${elemento.id}` });
+      avisar(`«${elemento.nombre}» entró al juego desde la biblioteca, con su ficha precargada.`);
+    } catch (error) {
+      mostrarError(error);
+    }
+  }
+
   const mapa = crearMapaActivos(zonaMapa, sesion, {
     contenido: contenido ?? {},
     alSeleccionar: (s, enfocar) => seleccionar(s, { enfocar }),
@@ -245,6 +275,7 @@ export function crearEditor(contenedor, sesion, {
     const titulo = copia.proyecto.juego.titulo?.trim() || 'Sin título';
     if (!confirmar(`¿Reemplazar el proyecto actual por «${titulo}»? Lo que tienes ahora se perderá si no guardaste una copia.`)) return;
     try {
+      biblioteca?.cerrar();
       mapa.cerrar();
       cerrarReproductor();
       await sesion.reemplazar(copia.proyecto, copia.archivos);
@@ -260,6 +291,7 @@ export function crearEditor(contenedor, sesion, {
       const descargada = await guardarCopia();
       if (!descargada) return;
     }
+    biblioteca?.cerrar();
     mapa.cerrar();
     cerrarReproductor();
     await alNuevoJuego();
@@ -305,6 +337,7 @@ export function crearEditor(contenedor, sesion, {
   // ---- arranque ----
   barra.dibujar();
   seleccionar({ tipo: 'escena', id: sesion.proyecto.juego.escenaInicial });
+  if (avisoInicial) avisar(avisoInicial);
 
   return {
     seleccionar,
@@ -312,9 +345,11 @@ export function crearEditor(contenedor, sesion, {
     abrirCopia,
     nuevoJuego,
     subirArchivo,
+    usarPieza,
     jugarDesde,
     mostrarError,
     destruir() {
+      biblioteca?.cerrar();
       mapa.cerrar();
       cerrarReproductor();
       vaciar(contenedor);

@@ -5,13 +5,14 @@ import JSZip from 'jszip';
 import { instalarDom, clic, escribir, textos } from './ayudas/dom.js';
 import { sesionDePrueba } from './ayudas/sesion.js';
 import { proyectoPublicable } from './ayudas/proyecto.js';
+import { catalogoCargado } from './ayudas/catalogo.js';
 import { crearProyecto, agregarEscena, agregarLinea } from '../plataforma/js/estado/modelo.js';
 import { exportarCopia } from '../plataforma/js/estado/copias.js';
 import { crearEditor } from '../plataforma/js/editor/editor.js';
 
 instalarDom();
 
-function armar({ proyecto, confirmar = () => true, archivoElegido = null } = {}) {
+function armar({ proyecto, confirmar = () => true, archivoElegido = null, catalogo = null, avisoInicial = null } = {}) {
   const { sesion, eventos } = sesionDePrueba(proyecto);
   const llamadas = [];
   const contenedor = document.createElement('div');
@@ -23,6 +24,8 @@ function armar({ proyecto, confirmar = () => true, archivoElegido = null } = {})
     confirmar: (mensaje) => { llamadas.push(['confirmar', mensaje]); return confirmar(mensaje); },
     elegirArchivo: async () => archivoElegido,
     alNuevoJuego: async () => llamadas.push(['nuevo-juego']),
+    catalogo,
+    avisoInicial,
   });
   const q = (selector) => contenedor.querySelector(selector);
   const qa = (selector) => [...contenedor.querySelectorAll(selector)];
@@ -232,6 +235,42 @@ test('al subir un archivo la ficha se abre con el foco en «¿Quién lo hizo?»'
   await pendiente;
   const elemento = sesion.proyecto.juego.elementos[0];
   assert.equal(document.activeElement, q(`[data-foco="ficha:${elemento.id}:autoria:yo"]`));
+  contenedor.remove();
+});
+
+test('Biblioteca abre el selector; «Usar esta pieza» mete la pieza con su ficha precargada y deja el foco en la ficha', async () => {
+  const catalogo = await catalogoCargado();
+  const { p } = proyectoConLineas();
+  const { sesion, contenedor, q } = armar({ proyecto: p, catalogo });
+  clic(q('.inventario button[data-accion="biblioteca"]'));
+  assert.equal(q('.capa-biblioteca').hidden, false);
+  assert.ok(document.body.classList.contains('con-biblioteca'));
+  clic(q('.capa-biblioteca [data-filtro="musica"]'));
+  clic(q('.capa-biblioteca .biblioteca-pieza[data-pieza="bib_m3"] button[data-accion="usar"]'));
+  await new Promise((r) => setTimeout(r, 20));
+  assert.equal(q('.capa-biblioteca').hidden, true);
+  assert.ok(!document.body.classList.contains('con-biblioteca'));
+  const elemento = sesion.proyecto.juego.elementos[0];
+  assert.equal(elemento.origen, 'biblioteca');
+  assert.equal(elemento.nombre, 'Pista 3');
+  assert.equal(sesion.proyecto.fichas[elemento.id].licencia, 'CC-BY-NC-4.0');
+  assert.equal(q('.propiedades h2').textContent, 'Música');
+  assert.equal(document.activeElement, q(`section.ficha[data-ficha="${elemento.id}"]`));
+  assert.equal(q('.ficha-pieza strong').textContent, 'Pista 3');
+  assert.ok(q('.inventario .punto-semaforo').classList.contains('semaforo-amarillo'), 'falta leer la licencia');
+  assert.ok([...contenedor.querySelectorAll('.aviso')].some((a) => /entró al juego desde la biblioteca/.test(a.textContent)));
+  clic(q('.inventario button[data-accion="biblioteca"]'));
+  clic(q('.capa-biblioteca button[data-accion="cerrar-biblioteca"]'));
+  assert.equal(document.activeElement, q('.inventario button[data-accion="biblioteca"]'), 'cerrar devuelve el foco al botón');
+  contenedor.remove();
+});
+
+test('sin catálogo, Biblioteca queda deshabilitado y el aviso inicial se muestra', () => {
+  const { p } = proyectoConLineas();
+  const { contenedor, q } = armar({ proyecto: p, avisoInicial: 'La biblioteca no está disponible: el catálogo no cargó.' });
+  assert.equal(q('.inventario button[data-accion="biblioteca"]').disabled, true);
+  assert.ok([...contenedor.querySelectorAll('.aviso')].some((a) => /La biblioteca no está disponible/.test(a.textContent)));
+  assert.equal(q('.capa-biblioteca').hidden, true);
   contenedor.remove();
 });
 

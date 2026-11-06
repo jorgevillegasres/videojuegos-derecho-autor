@@ -32,3 +32,17 @@ export function catalogoDePrueba() {
 }
 
 export { pieza };
+
+/** Un catálogo ya cargado con fetch falso: el JSON y bytes ficticios por archivo. */
+export async function catalogoCargado(datos = catalogoDePrueba()) {
+  const { crearCatalogo } = await import('../../plataforma/js/biblioteca/catalogo.js');
+  const fetchFalso = async (url) => {
+    const texto = String(url);
+    if (texto.endsWith('catalogo.json')) return { ok: true, json: async () => datos };
+    if (texto.endsWith('.png') || texto.endsWith('.wav')) return { ok: true, arrayBuffer: async () => new TextEncoder().encode(`bytes de ${texto}`).buffer };
+    return { ok: false, status: 404 };
+  };
+  const catalogo = crearCatalogo({ url: 'http://localhost/plataforma/biblioteca/catalogo.json', fetch: fetchFalso });
+  await catalogo.cargar();
+  return catalogo;
+}
