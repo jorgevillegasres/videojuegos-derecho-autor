@@ -5,7 +5,7 @@ import { TIPOS_FICHA, ORIGENES_FICHA, DESTINOS as DESTINOS_FICHA } from '../plat
 import {
   DESTINOS, TIPOS_ELEMENTO, ORIGENES,
   crearProyecto, agregarEscena, eliminarEscena, agregarPersonaje, eliminarPersonaje,
-  agregarElemento, eliminarElemento, crearLinea, agregarLinea, moverLinea, indiceCorte,
+  agregarElemento, eliminarElemento, crearLinea, agregarLinea, moverLinea, eliminarLinea, indiceCorte,
 } from '../plataforma/js/estado/modelo.js';
 
 function proyectoBase() {
@@ -159,6 +159,20 @@ test('indiceCorte encuentra la primera decisión o fin', () => {
   agregarLinea(escena, 'fin', { texto: 'b' });
   agregarLinea(escena, 'decision');
   assert.equal(indiceCorte(escena), 1);
+});
+
+test('crearProyecto deja la sinopsis vacía y eliminarLinea quita la línea indicada', () => {
+  const p = proyectoBase();
+  assert.equal(p.juego.sinopsis, '');
+  const escena = p.juego.escenas[0];
+  agregarLinea(escena, 'narracion', { texto: 'uno' });
+  agregarLinea(escena, 'narracion', { texto: 'dos' });
+  agregarLinea(escena, 'narracion', { texto: 'tres' });
+  eliminarLinea(escena, 1);
+  assert.deepEqual(escena.lineas.map((l) => l.texto), ['uno', 'tres']);
+  eliminarLinea(escena, 7);
+  eliminarLinea(escena, -1);
+  assert.equal(escena.lineas.length, 2, 'un índice fuera de rango se ignora');
 });
 
 test('las listas del modelo son coherentes con las de la ficha', () => {

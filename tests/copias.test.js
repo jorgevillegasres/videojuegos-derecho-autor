@@ -134,6 +134,10 @@ test('validarEstructura detecta lo que una copia editada a mano puede traer, sin
   p.fichas = [];
   assert.ok(validarEstructura(p).includes('faltan las fichas'), 'fichas como lista');
 
+  p = base();
+  p.juego.sinopsis = 7;
+  assert.ok(validarEstructura(p).some((m) => /la sinopsis no es texto/.test(m)), 'sinopsis');
+
   assert.equal(validarEstructura({ juego: {} })[0], 'no indica su versión');
   assert.deepEqual(validarEstructura(base()), [], 'un proyecto sano no tiene problemas');
 });

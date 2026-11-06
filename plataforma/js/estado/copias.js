@@ -111,6 +111,7 @@ export function validarEstructura(proyecto) {
     return problemas;
   }
   if (typeof juego.titulo !== 'string') problemas.push('el título del juego no es texto');
+  if (typeof juego.sinopsis !== 'string') problemas.push('la sinopsis no es texto');
   if (!DESTINOS.includes(juego.destino)) problemas.push(`el destino «${juego.destino}» no es válido`);
   if (juego.escenaInicial !== null && typeof juego.escenaInicial !== 'string') problemas.push('la escena inicial no es válida');
 

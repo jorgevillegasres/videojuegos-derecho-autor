@@ -24,7 +24,7 @@ export function crearProyecto({ estudiante = '', titulo = '', destino = 'gratis'
     version: VERSION_PROYECTO,
     estudiante,
     creado: ahora.toISOString(),
-    juego: { titulo, destino, escenaInicial: escena.id, escenas: [escena], personajes: [], elementos: [] },
+    juego: { titulo, sinopsis: '', destino, escenaInicial: escena.id, escenas: [escena], personajes: [], elementos: [] },
     fichas: { titulo: crearFicha('titulo'), historia: crearFicha('historia') },
     registro: [],
     publicado: null,
@@ -130,6 +130,11 @@ export function moverLinea(escena, indice, desplazamiento) {
   if (destino < 0 || destino >= escena.lineas.length) return;
   const [linea] = escena.lineas.splice(indice, 1);
   escena.lineas.splice(destino, 0, linea);
+}
+
+export function eliminarLinea(escena, indice) {
+  if (indice < 0 || indice >= escena.lineas.length) return;
+  escena.lineas.splice(indice, 1);
 }
 
 /** Índice de la primera línea de decisión o fin de la escena, o -1 si no hay. El reproductor y la validación comparten esta regla. */

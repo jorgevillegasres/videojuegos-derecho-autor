@@ -86,6 +86,7 @@ Esquema orientativo:
   "creado": "2026-11-04T20:00:00Z",
   "juego": {
     "titulo": "La llave del faro",
+    "sinopsis": "Una farera descubre quién abrió la puerta.",
     "destino": "gratis",
     "escenaInicial": "esc1",
     "escenas": [
@@ -143,6 +144,8 @@ Un módulo que recibe un contenedor, el documento del juego y una función que r
 Es el mismo código que usa la vista previa del editor y el que se incrusta en el `juego.html` exportado. Lo que se prueba es lo que se entrega.
 
 Las imágenes creadas con la herramienta de pixel art se escalan sin suavizado para conservar el estilo.
+
+**Avance natural.** Una escena sin decisión ni fin sigue con la siguiente escena de la lista; la última termina y muestra los créditos (regla de corte, sección 6). Una escena sin líneas se salta. El editor avisa (I05) de las líneas que quedan después de una decisión o un fin, porque nunca se verán. Una opción cuyo destino no existe termina el juego con los créditos: jugar no se bloquea, pero publicar sí (B02).
 
 ## 9. Herramientas de creación
 
