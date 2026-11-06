@@ -1,5 +1,6 @@
 // plataforma/js/estado/archivos.js
-// Utilidades para archivos binarios: tipo MIME, huella SHA-256 y sello de creación.
+// Utilidades para archivos binarios: tipo MIME, huella SHA-256, sello de creación y
+// nombres de archivo seguros para las descargas.
 
 const MIME_POR_EXTENSION = {
   png: 'image/png',
@@ -54,4 +55,10 @@ export async function huellaSha256(datos) {
 /** Sello de creación para lo que se hace dentro de la plataforma. */
 export async function crearSello(datos, ahora = new Date()) {
   return { fecha: ahora.toISOString(), huella: await huellaSha256(datos) };
+}
+
+/** «La llave del faro» → la-llave-del-faro, para nombrar descargas. */
+export function nombreDeArchivo(texto) {
+  const limpio = String(texto ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return limpio || 'sin-nombre';
 }

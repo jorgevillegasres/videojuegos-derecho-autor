@@ -163,3 +163,18 @@ test('validarEstructura rechaza fichas faltantes, cambiadas o incoherentes y esc
   assert.ok(problemasDe((p) => { p.fichas[p.juego.escenas[0].id] = crearFicha('fondo', { origen: 'creado' }); }).some((m) => /no corresponde a ningún elemento ni personaje/.test(m)), 'ficha de escena');
   assert.deepEqual(validarEstructura(base()), []);
 });
+
+test('validarEstructura exige la decisión de registro como lista con ids y la fecha de publicación como texto o null', () => {
+  const p = crearProyecto({ titulo: 'x' });
+  p.registro = 'no';
+  assert.deepEqual(validarEstructura(p), ['la decisión de registro no tiene la forma esperada']);
+  p.registro = [{ registraria: 'si' }];
+  assert.deepEqual(validarEstructura(p), ['la decisión de registro no tiene la forma esperada']);
+  p.registro = [{ id: 'historia', registraria: 'si', aNombreDe: 'Camila', prueba: 'sello', porque: '' }];
+  p.publicado = 12;
+  assert.deepEqual(validarEstructura(p), ['la fecha de publicación no es válida']);
+  p.publicado = '2026-11-06T15:30:00.000Z';
+  assert.deepEqual(validarEstructura(p), []);
+  delete p.registro;
+  assert.deepEqual(validarEstructura(p), ['la decisión de registro no tiene la forma esperada']);
+});

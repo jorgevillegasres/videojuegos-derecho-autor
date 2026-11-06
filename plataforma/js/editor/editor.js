@@ -17,14 +17,11 @@ import { nombreDe } from '../estado/validacion.js';
 import { crearMapaActivos } from './mapa-activos.js';
 import { crearBiblioteca, tomarPieza } from './biblioteca.js';
 import { crearElementoCreado, reemplazarArchivoCreado } from './creados.js';
+import { nombreDeArchivo } from '../estado/archivos.js';
 
 const AVISO_MS = 6000;
 
-/** «La llave del faro» → la-llave-del-faro, para nombrar descargas. */
-export function nombreDeArchivo(texto) {
-  const limpio = String(texto ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  return limpio || 'sin-nombre';
-}
+export { nombreDeArchivo };
 
 /** Abre el selector de archivos del navegador. Resuelve con el File o con null si se cancela. */
 export function elegirArchivoDelNavegador(accept) {

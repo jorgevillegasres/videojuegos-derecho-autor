@@ -190,5 +190,10 @@ export function validarEstructura(proyecto) {
   for (const id of Object.keys(fichas)) {
     if (!duenos.has(id)) problemas.push(`la ficha «${id}» no corresponde a ningún elemento ni personaje`);
   }
+  // Publicación (plan 6): la decisión de registro es una lista de respuestas con el id del activo; publicado es la fecha ISO o null.
+  if (!Array.isArray(proyecto.registro) || !proyecto.registro.every((d) => esObjeto(d) && typeof d.id === 'string')) {
+    problemas.push('la decisión de registro no tiene la forma esperada');
+  }
+  if (proyecto.publicado !== null && typeof proyecto.publicado !== 'string') problemas.push('la fecha de publicación no es válida');
   return problemas;
 }

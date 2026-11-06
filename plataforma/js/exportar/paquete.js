@@ -3,6 +3,9 @@
 // los recursos incrustados; el informe; y el proyecto en bruto. Sin DOM de la
 // plataforma: lo llama el editor en el navegador y las pruebas en Node.
 import { creditos as creditosDe } from '../juridico/cadena.js';
+import { generar as generarInforme } from '../juridico/informe.js';
+import { validarEstructura } from '../estado/copias.js';
+import { huellaSha256, nombreDeArchivo } from '../estado/archivos.js';
 import { empaquetarModulos, aDataUrl, escaparHtml, escaparParaScript } from './empaquetar.js';
 
 /** Cada archivo va dos veces en el paquete (en bruto y en base64 dentro de juego.html): el peso se estima al doble. */
@@ -77,4 +80,36 @@ export function pesos(proyecto, archivos) {
   elementos.sort((a, b) => b.bytes - a.bytes);
   const total = elementos.reduce((suma, e) => suma + e.bytes, 0);
   return { elementos, total, estimado: total * FACTOR_PAQUETE };
+}
+
+/** entrega-<estudiante>-<juego>.zip (spec 14). */
+export function nombreDeEntrega(proyecto) {
+  return `entrega-${nombreDeArchivo(proyecto.estudiante)}-${nombreDeArchivo(proyecto.juego?.titulo)}.zip`;
+}
+
+/**
+ * El paquete de entrega completo (spec 14): juego.html, informe-juridico.html,
+ * proyecto.json y archivos/. proyecto.json va en el mismo formato que «Guardar copia»,
+ * así «Abrir copia» acepta el paquete. No muta el proyecto: la fecha de publicación la
+ * escribe el editor antes de llamar; si no la hay, el informe usa `ahora`.
+ * @param {object} proyecto
+ * @param {Map<string, { tipo, datos }>} archivos
+ * @param {{ JSZip: any, contenido: object, motor: object, nombreProducto?: string, ahora?: Date }} opciones
+ * @returns {Promise<{ blob: Blob, huella: string, nombre: string }>} huella: SHA-256 del proyecto.json del zip
+ */
+export async function generarEntrega(proyecto, archivos, { JSZip, contenido, motor, nombreProducto = contenido?.nombre, ahora = new Date() }) {
+  const problemas = validarEstructura(proyecto);
+  if (problemas.length) throw Object.assign(new Error(`El proyecto no tiene la forma esperada: ${problemas.join('; ')}.`), { codigo: 'forma', problemas });
+  const juego = generarJuegoHtml(proyecto, archivos, motor); // primero: falla pronto si falta un archivo
+  const texto = JSON.stringify(proyecto, null, 2);
+  const huella = await huellaSha256(new TextEncoder().encode(texto));
+  const fecha = proyecto.publicado ?? ahora.toISOString();
+  const informe = generarInforme(proyecto, { contenido, huella, fecha, nombreProducto });
+  const zip = new JSZip();
+  zip.file('juego.html', juego);
+  zip.file('informe-juridico.html', informe);
+  zip.file('proyecto.json', texto);
+  for (const elemento of proyecto.juego.elementos) zip.file(`archivos/${elemento.archivo}`, archivos.get(elemento.id).datos);
+  const bytes = await zip.generateAsync({ type: 'uint8array' });
+  return { blob: new Blob([bytes], { type: 'application/zip' }), huella, nombre: nombreDeEntrega(proyecto) };
 }
