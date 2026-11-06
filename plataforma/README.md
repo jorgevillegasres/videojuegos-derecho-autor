@@ -11,7 +11,9 @@ La biblioteca trae un **catálogo provisional** de 34 piezas generadas por progr
 (`scripts/generar-biblioteca-provisional.js`): no tienen autor humano, se publican bajo CC0 y el
 catálogo las presenta con las licencias del ejercicio, diciéndolo en cada entrada (`simulado`) y en
 `biblioteca/CREDITOS.md`. Reemplazarlas por piezas reales es una tarea de contenido (ver abajo).
-Faltan las herramientas de creación (plan 5) y la publicación (plan 6).
+El plan 5 agrega las tres herramientas de creación: pixel art con la paleta fija, grabador
+con el micrófono y secuenciador de dos compases; lo que producen entra con sello de fecha y
+huella. Falta la publicación (plan 6).
 
 ## Pruebas
 
@@ -49,6 +51,7 @@ La plataforma usa IndexedDB y Web Crypto; Web Crypto exige un contexto seguro (H
 - `js/juridico/`: fichas, licencias, semáforo, textos, reglas del formulario (`formulario.js`), cadena de titularidad y créditos (`cadena.js`) y filas del mapa de activos (`mapa.js`).
 - `js/motor/`: `partida.js` (estado puro), `pantalla.js` (dibujo) y `reproductor.js` (entrada y audio).
 - `js/editor/`: `sesion.js` (estado del editor) y una vista por columna; `editor.js` las coordina.
+- `js/herramientas/`: `pixel.js`, `secuencia.js` y `audio-util.js` son puros (se prueban en Node); `pixelart.js`, `secuenciador.js` y `grabador.js` son las vistas, con canvas, Web Audio y micrófono inyectables.
 - `js/ui/`: utilidades de DOM y comprobación de capacidades.
 - `js/app.js`: arranque.
 
