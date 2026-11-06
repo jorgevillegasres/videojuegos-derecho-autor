@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { LICENCIAS, CONDICIONES, condicionesDe } from '../plataforma/js/juridico/licencias.js';
 import {
-  TIPOS_FICHA, TIPOS_OBRA, ORIGENES_FICHA, AUTORIAS, TITULARES, RESPALDOS, PRUEBAS, tipoObraPara, crearFicha,
+  TIPOS_FICHA, TIPOS_OBRA, ORIGENES_FICHA, AUTORIAS, TITULARES, RESPALDOS, PRUEBAS, DESTINOS, tipoObraPara, crearFicha,
 } from '../plataforma/js/juridico/ficha.js';
 
 test('el catálogo de licencias tiene los ocho códigos del spec más OTRA', () => {
@@ -101,4 +101,8 @@ test('los valores por defecto de la ficha pertenecen a sus enumeraciones', () =>
   for (const entrada of Object.values(LICENCIAS)) {
     for (const condicion of entrada.condiciones ?? []) assert.ok(CONDICIONES.includes(condicion), `${condicion} no está en CONDICIONES`);
   }
+});
+
+test('DESTINOS se define una sola vez y es la lista del spec', () => {
+  assert.deepEqual(DESTINOS, ['personal', 'gratis', 'venta']);
 });

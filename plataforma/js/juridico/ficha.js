@@ -9,6 +9,7 @@ export const AUTORIAS = ['yo', 'otra_persona', 'ia', 'ia_con_aporte'];
 export const TITULARES = ['yo', 'otra_persona'];
 export const RESPALDOS = ['ninguno', 'cesion', 'licencia', 'autorizacion'];
 export const PRUEBAS = ['ninguna', 'sello', 'original', 'repositorio', 'registro_dnda'];
+export const DESTINOS = ['personal', 'gratis', 'venta'];
 
 export const TIPOS_OBRA = {
   literaria: { nombre: 'Obra literaria' },

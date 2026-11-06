@@ -3,6 +3,8 @@
 // clave, 'actual') y 'archivos' (clave = id de elemento, valor = { tipo, datos }).
 // Los datos son ArrayBuffer, nunca Blob, para que la copia estructurada funcione igual
 // en todos los navegadores y en las pruebas.
+// reemplazarTodo deja el proyecto y los archivos nuevos en una sola transacción: una
+// copia importada o entra completa o no entra.
 
 export const NOMBRE_BD_DEFECTO = 'mi-primer-videojuego';
 const VERSION_BD = 1;
@@ -22,7 +24,7 @@ export function traducirError(error) {
 const esArrayBuffer = (valor) => Object.prototype.toString.call(valor) === '[object ArrayBuffer]';
 
 export function abrirAlmacen({ nombre = NOMBRE_BD_DEFECTO, indexedDB = globalThis.indexedDB } = {}) {
-  if (!indexedDB) throw new Error('Este navegador no permite guardar el proyecto (IndexedDB no disponible).');
+  if (!indexedDB) throw Object.assign(new Error('Este navegador no permite guardar el proyecto (IndexedDB no disponible).'), { codigo: 'sin_indexeddb' });
 
   const bd = new Promise((resolve, reject) => {
     const solicitud = indexedDB.open(nombre, VERSION_BD);
@@ -31,7 +33,7 @@ export function abrirAlmacen({ nombre = NOMBRE_BD_DEFECTO, indexedDB = globalThi
       if (!db.objectStoreNames.contains('proyecto')) db.createObjectStore('proyecto');
       if (!db.objectStoreNames.contains('archivos')) db.createObjectStore('archivos');
     };
-    solicitud.onblocked = () => reject(new Error('Cierra las otras pestañas de la plataforma y vuelve a intentar.'));
+    solicitud.onblocked = () => reject(Object.assign(new Error('Cierra las otras pestañas de la plataforma y vuelve a intentar.'), { codigo: 'bloqueado' }));
     solicitud.onsuccess = () => {
       const db = solicitud.result;
       db.onversionchange = () => db.close();
@@ -72,6 +74,33 @@ export function abrirAlmacen({ nombre = NOMBRE_BD_DEFECTO, indexedDB = globalThi
         transaccion.objectStore('proyecto').clear();
         transaccion.objectStore('archivos').clear();
         return null;
+      });
+    },
+    reemplazarTodo: async (proyecto, archivos) => {
+      for (const [id, archivo] of archivos) {
+        if (!esArrayBuffer(archivo?.datos)) throw new Error(`El archivo «${id}» no es { tipo, datos: ArrayBuffer }.`);
+      }
+      const db = await bd;
+      await transaccionCompleta(db, ['proyecto', 'archivos'], 'readwrite', (transaccion) => {
+        const proyectos = transaccion.objectStore('proyecto');
+        proyectos.clear();
+        proyectos.put(proyecto, CLAVE_PROYECTO);
+        const binarios = transaccion.objectStore('archivos');
+        binarios.clear();
+        for (const [id, archivo] of archivos) binarios.put(archivo, id);
+        return null;
+      });
+    },
+    leerArchivos: async () => {
+      const db = await bd;
+      return new Promise((resolve, reject) => {
+        const transaccion = db.transaction('archivos', 'readonly');
+        const almacen = transaccion.objectStore('archivos');
+        const claves = almacen.getAllKeys();
+        const valores = almacen.getAll();
+        transaccion.oncomplete = () => resolve(new Map(claves.result.map((clave, i) => [clave, valores.result[i]])));
+        transaccion.onerror = () => reject(traducirError(transaccion.error));
+        transaccion.onabort = () => reject(traducirError(transaccion.error));
       });
     },
     cerrar: async () => {

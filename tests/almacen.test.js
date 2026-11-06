@@ -82,3 +82,33 @@ test('traducirError convierte la falta de espacio en un mensaje con código', ()
   const otro = new Error('x');
   assert.equal(traducirError(otro), otro);
 });
+
+test('reemplazarTodo deja exactamente el proyecto y los archivos nuevos', async () => {
+  const almacen = abrir();
+  await almacen.guardar(crearProyecto({ titulo: 'viejo' }));
+  await almacen.guardarArchivo('viejo_1', { tipo: 'image/png', datos: new ArrayBuffer(2) });
+  const nuevo = crearProyecto({ titulo: 'nuevo' });
+  const archivos = new Map([['n_1', { tipo: 'audio/wav', datos: new TextEncoder().encode('a').buffer }], ['n_2', { tipo: 'image/png', datos: new TextEncoder().encode('b').buffer }]]);
+  await almacen.reemplazarTodo(nuevo, archivos);
+  assert.equal((await almacen.cargar()).juego.titulo, 'nuevo');
+  assert.deepEqual(await almacen.listarArchivos(), ['n_1', 'n_2']);
+  const leidos = await almacen.leerArchivos();
+  assert.deepEqual([...leidos.keys()], ['n_1', 'n_2']);
+  assert.equal(leidos.get('n_1').tipo, 'audio/wav');
+  assert.equal(new TextDecoder().decode(leidos.get('n_2').datos), 'b');
+  await almacen.cerrar();
+});
+
+test('reemplazarTodo rechaza archivos que no sean ArrayBuffer sin tocar lo guardado; los errores de arranque llevan código', async () => {
+  const almacen = abrir();
+  await almacen.guardar(crearProyecto({ titulo: 'intacto' }));
+  await assert.rejects(almacen.reemplazarTodo(crearProyecto({ titulo: 'x' }), new Map([['a', { tipo: 'image/png', datos: 'texto' }]])), /ArrayBuffer/);
+  assert.equal((await almacen.cargar()).juego.titulo, 'intacto');
+  await almacen.cerrar();
+  try {
+    abrirAlmacen({ nombre: 'x', indexedDB: null });
+    assert.fail('debía lanzar');
+  } catch (e) {
+    assert.equal(e.codigo, 'sin_indexeddb');
+  }
+});

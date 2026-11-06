@@ -3,11 +3,11 @@
 // contexto { destino }, sale { color, razones, notas } con códigos. Los textos
 // se agregan aparte con describir() de textos.js.
 import { condicionesDe } from './licencias.js';
+import { DESTINOS } from './ficha.js';
 
 export const CODIGOS_ROJO = ['R01', 'R02', 'R03', 'R04', 'R05', 'R06'];
 export const CODIGOS_AMARILLO = ['A01', 'A02', 'A03', 'A04', 'A05', 'A06', 'A07', 'A08', 'A09', 'A10', 'A11', 'A12', 'A13'];
 export const CODIGOS_NOTAS = ['N_TITULO', 'N_IA', 'N_IA_APORTE', 'N_SELLO'];
-const DESTINOS = ['personal', 'gratis', 'venta']; // los mismos valores que estado/modelo.js
 
 const vacio = (texto) => !(texto ?? '').trim();
 

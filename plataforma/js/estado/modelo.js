@@ -4,10 +4,11 @@
 // Convenciones: se valida antes de mutar; un id o índice inexistente se ignora
 // sin error; la validez estructural (nombres vacíos, opciones de más o de menos,
 // referencias rotas) la informa validar(), no los mutadores.
-import { crearFicha } from '../juridico/ficha.js';
+import { crearFicha, DESTINOS } from '../juridico/ficha.js';
+
+export { DESTINOS };
 
 export const VERSION_PROYECTO = 1;
-export const DESTINOS = ['personal', 'gratis', 'venta'];
 export const TIPOS_ELEMENTO = ['fondo', 'retrato', 'musica', 'efecto', 'voz'];
 export const ORIGENES = ['creado', 'subido', 'biblioteca'];
 export const TIPOS_LINEA = ['narracion', 'dialogo', 'decision', 'fin'];

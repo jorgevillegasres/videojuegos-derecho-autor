@@ -3,7 +3,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import JSZip from 'jszip';
 import { exportarCopia, importarCopia, validarEstructura } from '../plataforma/js/estado/copias.js';
-import { crearProyecto, agregarElemento } from '../plataforma/js/estado/modelo.js';
+import { crearProyecto, agregarElemento, agregarPersonaje } from '../plataforma/js/estado/modelo.js';
+import { crearFicha } from '../plataforma/js/juridico/ficha.js';
 
 function proyectoConArchivos() {
   const proyecto = crearProyecto({ estudiante: 'Camila', titulo: 'Faro' });
@@ -95,7 +96,7 @@ test('los errores llevan código estable', async () => {
   assert.equal(error.codigo, 'forma');
   assert.deepEqual(error.problemas, ['el elemento «Muelle» no tiene ficha']);
   assert.equal(await codigo(exportarCopia(proyecto, archivos, { JSZip })), 'forma', 'exportar también valida');
-  proyecto.fichas[fondo.id] = { tipo: 'fondo' };
+  proyecto.fichas[fondo.id] = crearFicha('fondo', { origen: 'creado' });
   archivos.delete(fondo.id);
   assert.equal(await codigo(exportarCopia(proyecto, archivos, { JSZip })), 'archivo_faltante');
 });
@@ -135,4 +136,26 @@ test('validarEstructura detecta lo que una copia editada a mano puede traer, sin
 
   assert.equal(validarEstructura({ juego: {} })[0], 'no indica su versión');
   assert.deepEqual(validarEstructura(base()), [], 'un proyecto sano no tiene problemas');
+});
+
+test('validarEstructura rechaza fichas faltantes, cambiadas o incoherentes y escenas malformadas', () => {
+  const base = () => proyectoConArchivos().proyecto;
+  const problemasDe = (modificar) => { const p = base(); modificar(p); return validarEstructura(p); };
+  const primero = (p) => p.juego.elementos[0].id;
+  assert.ok(problemasDe((p) => { delete p.fichas.historia; }).some((m) => /la historia no tiene ficha/.test(m)), 'historia');
+  assert.ok(problemasDe((p) => { delete p.fichas.titulo; }).some((m) => /el título no tiene ficha/.test(m)), 'título');
+  assert.ok(problemasDe((p) => { const per = agregarPersonaje(p, { nombre: 'Ana' }); delete p.fichas[per.id]; }).some((m) => /el personaje «Ana» no tiene ficha/.test(m)), 'personaje');
+  assert.ok(problemasDe((p) => { p.fichas[primero(p)].tipo = 'titulo'; }).some((m) => /es de tipo «titulo»/.test(m)), 'tipo cambiado');
+  assert.ok(problemasDe((p) => { p.fichas[primero(p)].tipoObra = 'literaria'; }).some((m) => /tipo de obra que no corresponde/.test(m)), 'tipoObra cambiado');
+  assert.ok(problemasDe((p) => { p.fichas[primero(p)].licencia = 'FOO'; }).some((m) => /licencia desconocida/.test(m)), 'licencia');
+  assert.ok(problemasDe((p) => { p.fichas[primero(p)].autoria = 'nadie'; }).some((m) => /autoría desconocida/.test(m)), 'autoría');
+  assert.ok(problemasDe((p) => { p.fichas[p.juego.elementos[1].id].origen = 'creado'; }).some((m) => /dice origen «creado»/.test(m)), 'origen');
+  assert.ok(problemasDe((p) => { p.fichas[primero(p)].licenciaLeida = 'sí'; }).some((m) => /no es sí o no/.test(m)), 'booleano');
+  assert.ok(problemasDe((p) => { p.fichas[primero(p)].credito = 5; }).some((m) => /no es texto/.test(m)), 'texto');
+  assert.ok(problemasDe((p) => { p.fichas[primero(p)].condicionesOtra = ['XX']; }).some((m) => /condiciones de licencia desconocidas/.test(m)), 'condiciones');
+  assert.ok(problemasDe((p) => { delete p.juego.escenas[0].lineas; }).some((m) => /no tiene lista de líneas/.test(m)), 'escena sin líneas');
+  assert.ok(problemasDe((p) => { p.juego.escenas[0].lineas.push({ tipo: 'decision', texto: '¿?' }); }).some((m) => /no tiene lista de opciones/.test(m)), 'decisión sin opciones');
+  assert.ok(problemasDe((p) => { p.juego.escenas[0].lineas.push({ tipo: 'salto' }); }).some((m) => /no tiene un tipo conocido/.test(m)), 'línea rara');
+  assert.ok(problemasDe((p) => { p.fichas[p.juego.escenas[0].id] = crearFicha('fondo', { origen: 'creado' }); }).some((m) => /no corresponde a ningún elemento ni personaje/.test(m)), 'ficha de escena');
+  assert.deepEqual(validarEstructura(base()), []);
 });

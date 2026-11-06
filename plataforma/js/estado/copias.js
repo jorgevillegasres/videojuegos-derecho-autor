@@ -4,14 +4,22 @@
 // en las pruebas es el paquete de npm. Los errores llevan un código estable para la
 // interfaz: no_es_zip, sin_proyecto, json_danado, forma (con la lista `problemas`),
 // archivo_faltante. El paquete de entrega (plan 6) usa el mismo formato más otros archivos.
+// Regla: el semáforo es permisivo ante datos inesperados, así que solo debe ver fichas
+// que pasaron por validarEstructura.
 import { mimePorExtension } from './archivos.js';
-import { VERSION_PROYECTO, DESTINOS, TIPOS_ELEMENTO, ORIGENES } from './modelo.js';
+import { VERSION_PROYECTO, DESTINOS, TIPOS_ELEMENTO, ORIGENES, TIPOS_LINEA } from './modelo.js';
+import { AUTORIAS, TITULARES, RESPALDOS, PRUEBAS, tipoObraPara } from '../juridico/ficha.js';
+import { LICENCIAS, CONDICIONES } from '../juridico/licencias.js';
 
-const FICHAS_FIJAS = ['titulo', 'historia'];
+const FICHAS_FIJAS = { titulo: 'el título', historia: 'la historia' };
 const NOMBRE_ARCHIVO = /^(?!\.+$)[\w.-]+$/;
+const BOOLEANOS = ['reconoceSinDerechos', 'basadoEnObraAjena', 'autorizacionDerivada', 'licenciaLeida', 'aceptaCompartirIgual', 'modificado'];
+const TEXTOS = ['autorNombre', 'herramientaIA', 'aporteHumano', 'licenciaTexto', 'credito'];
+
 const esObjeto = (valor) => valor !== null && typeof valor === 'object' && !Array.isArray(valor);
 const falla = (codigo, mensaje, extra = {}) => Object.assign(new Error(mensaje), { codigo, ...extra });
 const fallaDeForma = (problemas) => falla('forma', `El proyecto no tiene la forma esperada: ${problemas.join('; ')}.`, { problemas });
+const etiquetaDe = (item) => `«${typeof item.nombre === 'string' && item.nombre ? item.nombre : item.id}»`;
 
 /**
  * @param {object} proyecto
@@ -66,11 +74,30 @@ export async function importarCopia(entrada, { JSZip }) {
   return { proyecto, archivos };
 }
 
+/** Problemas de una ficha frente a lo que su dueño exige. */
+function problemasDeFicha(ficha, etiqueta, { tipo, origen }) {
+  if (!esObjeto(ficha)) return [`${etiqueta} no tiene ficha`];
+  const problemas = [];
+  if (ficha.tipo !== tipo) problemas.push(`la ficha de ${etiqueta} es de tipo «${ficha.tipo}» y debería ser «${tipo}»`);
+  else if (ficha.tipoObra !== tipoObraPara(tipo)) problemas.push(`la ficha de ${etiqueta} tiene un tipo de obra que no corresponde`);
+  if (ficha.origen !== origen) problemas.push(`la ficha de ${etiqueta} dice origen «${ficha.origen}» y debería decir «${origen}»`);
+  if (!AUTORIAS.includes(ficha.autoria)) problemas.push(`la ficha de ${etiqueta} tiene una autoría desconocida`);
+  if (!TITULARES.includes(ficha.titular)) problemas.push(`la ficha de ${etiqueta} tiene un titular desconocido`);
+  if (!RESPALDOS.includes(ficha.respaldo)) problemas.push(`la ficha de ${etiqueta} tiene un respaldo desconocido`);
+  if (!PRUEBAS.includes(ficha.prueba)) problemas.push(`la ficha de ${etiqueta} tiene una prueba desconocida`);
+  if (ficha.licencia !== null && !Object.hasOwn(LICENCIAS, ficha.licencia)) problemas.push(`la ficha de ${etiqueta} tiene una licencia desconocida`);
+  if (!Array.isArray(ficha.condicionesOtra) || !ficha.condicionesOtra.every((c) => CONDICIONES.includes(c))) problemas.push(`la ficha de ${etiqueta} tiene condiciones de licencia desconocidas`);
+  for (const campo of BOOLEANOS) if (typeof ficha[campo] !== 'boolean') problemas.push(`la ficha de ${etiqueta} tiene «${campo}» que no es sí o no`);
+  for (const campo of TEXTOS) if (typeof ficha[campo] !== 'string') problemas.push(`la ficha de ${etiqueta} tiene «${campo}» que no es texto`);
+  return problemas;
+}
+
 /**
  * Comprueba la forma de un proyecto sin lanzar nunca: devuelve una lista de problemas
  * (vacía si está bien). Atrapa lo que una copia editada a mano puede traer: versión,
- * destino, ids repetidos o ausentes, nombres de archivo inseguros o repetidos, fichas
- * faltantes o huérfanas. La validez del juego (escenas, líneas) la informa validar().
+ * destino, ids repetidos o ausentes, escenas y líneas malformadas, nombres de archivo
+ * inseguros o repetidos, fichas faltantes, huérfanas o incoherentes con su dueño.
+ * La validez del juego (alcance de escenas, decisiones sin destino) la informa validar().
  */
 export function validarEstructura(proyecto) {
   if (!esObjeto(proyecto)) return ['no es un objeto'];
@@ -104,29 +131,63 @@ export function validarEstructura(proyecto) {
     }
   }
 
+  if (Array.isArray(juego.escenas)) {
+    for (const escena of juego.escenas) {
+      if (!esObjeto(escena) || typeof escena.id !== 'string') continue;
+      const nombre = etiquetaDe(escena);
+      if (!Array.isArray(escena.lineas)) {
+        problemas.push(`la escena ${nombre} no tiene lista de líneas`);
+        continue;
+      }
+      escena.lineas.forEach((linea, i) => {
+        if (!esObjeto(linea) || !TIPOS_LINEA.includes(linea.tipo)) {
+          problemas.push(`la línea ${i + 1} de la escena ${nombre} no tiene un tipo conocido`);
+        } else if (linea.tipo === 'decision' && (!Array.isArray(linea.opciones) || !linea.opciones.every(esObjeto))) {
+          problemas.push(`la decisión ${i + 1} de la escena ${nombre} no tiene lista de opciones`);
+        }
+      });
+    }
+  }
+
   if (!esObjeto(proyecto.fichas)) {
     problemas.push('faltan las fichas');
     return problemas;
+  }
+  const fichas = proyecto.fichas;
+  const duenos = new Set();
+  for (const [id, etiqueta] of Object.entries(FICHAS_FIJAS)) {
+    duenos.add(id);
+    problemas.push(...problemasDeFicha(fichas[id], etiqueta, { tipo: id, origen: 'escrito' }));
+  }
+  if (Array.isArray(juego.personajes)) {
+    for (const personaje of juego.personajes) {
+      if (!esObjeto(personaje) || typeof personaje.id !== 'string') continue;
+      duenos.add(personaje.id);
+      problemas.push(...problemasDeFicha(fichas[personaje.id], `el personaje ${etiquetaDe(personaje)}`, { tipo: 'personaje', origen: 'escrito' }));
+    }
   }
   if (Array.isArray(juego.elementos)) {
     const usados = new Set();
     for (const elemento of juego.elementos) {
       if (!esObjeto(elemento) || typeof elemento.id !== 'string') continue;
-      const nombre = typeof elemento.nombre === 'string' && elemento.nombre ? elemento.nombre : elemento.id;
-      if (!TIPOS_ELEMENTO.includes(elemento.tipo)) problemas.push(`el elemento «${nombre}» tiene un tipo desconocido`);
-      if (!ORIGENES.includes(elemento.origen)) problemas.push(`el elemento «${nombre}» tiene un origen desconocido`);
+      duenos.add(elemento.id);
+      const nombre = etiquetaDe(elemento);
+      if (!TIPOS_ELEMENTO.includes(elemento.tipo)) problemas.push(`el elemento ${nombre} tiene un tipo desconocido`);
+      if (!ORIGENES.includes(elemento.origen)) problemas.push(`el elemento ${nombre} tiene un origen desconocido`);
       if (typeof elemento.archivo !== 'string' || !NOMBRE_ARCHIVO.test(elemento.archivo)) {
-        problemas.push(`el elemento «${nombre}» tiene un nombre de archivo no permitido`);
+        problemas.push(`el elemento ${nombre} tiene un nombre de archivo no permitido`);
       } else if (usados.has(elemento.archivo)) {
         problemas.push(`el archivo «${elemento.archivo}» está repetido`);
       } else {
         usados.add(elemento.archivo);
       }
-      if (!esObjeto(proyecto.fichas[elemento.id])) problemas.push(`el elemento «${nombre}» no tiene ficha`);
+      if (TIPOS_ELEMENTO.includes(elemento.tipo) && ORIGENES.includes(elemento.origen)) {
+        problemas.push(...problemasDeFicha(fichas[elemento.id], `el elemento ${nombre}`, { tipo: elemento.tipo, origen: elemento.origen }));
+      }
     }
   }
-  for (const id of Object.keys(proyecto.fichas)) {
-    if (!FICHAS_FIJAS.includes(id) && !ids.has(id)) problemas.push(`la ficha «${id}» no corresponde a ningún elemento ni personaje`);
+  for (const id of Object.keys(fichas)) {
+    if (!duenos.has(id)) problemas.push(`la ficha «${id}» no corresponde a ningún elemento ni personaje`);
   }
   return problemas;
 }

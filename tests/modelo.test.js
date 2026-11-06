@@ -1,7 +1,9 @@
 // tests/modelo.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { TIPOS_FICHA, ORIGENES_FICHA, DESTINOS as DESTINOS_FICHA } from '../plataforma/js/juridico/ficha.js';
 import {
+  DESTINOS, TIPOS_ELEMENTO, ORIGENES,
   crearProyecto, agregarEscena, eliminarEscena, agregarPersonaje, eliminarPersonaje,
   agregarElemento, eliminarElemento, crearLinea, agregarLinea, moverLinea, indiceCorte,
 } from '../plataforma/js/estado/modelo.js';
@@ -157,4 +159,10 @@ test('indiceCorte encuentra la primera decisión o fin', () => {
   agregarLinea(escena, 'fin', { texto: 'b' });
   agregarLinea(escena, 'decision');
   assert.equal(indiceCorte(escena), 1);
+});
+
+test('las listas del modelo son coherentes con las de la ficha', () => {
+  assert.equal(DESTINOS, DESTINOS_FICHA, 'es el mismo arreglo, no una copia');
+  for (const tipo of TIPOS_ELEMENTO) assert.ok(TIPOS_FICHA.includes(tipo), `${tipo} debe tener ficha`);
+  for (const origen of ORIGENES) assert.ok(ORIGENES_FICHA.includes(origen), `${origen} debe ser un origen de ficha`);
 });
