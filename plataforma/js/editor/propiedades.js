@@ -10,8 +10,9 @@ import { selector, campoTexto, areaTexto } from './controles.js';
 import { NOMBRES_TIPO } from './inventario.js';
 import { NOMBRES_LINEA } from './guion.js';
 import { panelFicha } from './panel-ficha.js';
+import { NOMBRES_DESTINO } from '../juridico/formulario.js';
 
-export const NOMBRES_DESTINO = { personal: 'Uso personal', gratis: 'Publicarlo gratis', venta: 'Venderlo' };
+export { NOMBRES_DESTINO };
 const NOMBRES_ORIGEN = { creado: 'Creado en la plataforma', subido: 'Subido', biblioteca: 'De la biblioteca' };
 
 /**

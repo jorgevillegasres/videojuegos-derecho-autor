@@ -15,12 +15,15 @@ export const PREGUNTAS = {
   prueba: '¿Qué prueba la fecha?',
 };
 
+export const NOMBRES_DESTINO = { personal: 'Uso personal', gratis: 'Publicarlo gratis', venta: 'Venderlo' };
+
 export const ETIQUETAS = {
   autoria: { yo: 'Yo', otra_persona: 'Otra persona', ia: 'Una herramienta de IA', ia_con_aporte: 'IA con mi aporte creativo' },
   titular: { yo: 'Yo', otra_persona: 'Otra persona' },
   respaldo: { ninguno: 'Nada escrito', cesion: 'Cesión por escrito', licencia: 'Licencia', autorizacion: 'Autorización informal (mensaje, correo, de palabra)' },
   prueba: { ninguna: 'Ninguna', sello: 'Sello de la plataforma', original: 'Archivo original con fecha', repositorio: 'Repositorio con historial', registro_dnda: 'Registro ante la DNDA' },
   condiciones: { BY: 'Exige atribución (BY)', NC: 'No comercial (NC)', SA: 'Compartir igual (SA)', ND: 'Sin derivadas (ND)' },
+  registraria: { si: 'Sí lo registraría', no: 'No lo registraría' },
 };
 
 /** Códigos que el estudiante puede elegir cuando el respaldo es una licencia. */
