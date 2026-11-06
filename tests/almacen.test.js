@@ -112,3 +112,15 @@ test('reemplazarTodo rechaza archivos que no sean ArrayBuffer sin tocar lo guard
     assert.equal(e.codigo, 'sin_indexeddb');
   }
 });
+
+test('si algo falla a mitad del reemplazo, lo guardado queda intacto', async () => {
+  const almacen = abrir();
+  await almacen.guardar(crearProyecto({ titulo: 'viejo' }));
+  await almacen.guardarArchivo('viejo_1', { tipo: 'image/png', datos: new ArrayBuffer(2) });
+  const imposible = crearProyecto({ titulo: 'nuevo' });
+  imposible.funcion = () => {};
+  await assert.rejects(almacen.reemplazarTodo(imposible, new Map()));
+  assert.equal((await almacen.cargar()).juego.titulo, 'viejo');
+  assert.deepEqual(await almacen.listarArchivos(), ['viejo_1']);
+  await almacen.cerrar();
+});

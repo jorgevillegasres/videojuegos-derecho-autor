@@ -46,7 +46,16 @@ export function abrirAlmacen({ nombre = NOMBRE_BD_DEFECTO, indexedDB = globalThi
   function transaccionCompleta(db, almacenes, modo, accion) {
     return new Promise((resolve, reject) => {
       const transaccion = db.transaction(almacenes, modo);
-      const resultado = accion(transaccion);
+      let resultado;
+      try {
+        resultado = accion(transaccion);
+      } catch (error) {
+        // Un fallo síncrono (por ejemplo un valor que no se puede clonar) no debe dejar
+        // a medias lo que ya se encoló: se aborta y nada cambia.
+        transaccion.abort();
+        reject(traducirError(error));
+        return;
+      }
       transaccion.oncomplete = () => resolve(resultado?.result);
       transaccion.onerror = () => reject(traducirError(transaccion.error));
       transaccion.onabort = () => reject(traducirError(transaccion.error));
@@ -76,6 +85,7 @@ export function abrirAlmacen({ nombre = NOMBRE_BD_DEFECTO, indexedDB = globalThi
         return null;
       });
     },
+    /** Reemplaza proyecto y archivos en una sola transacción. El proyecto debe haber pasado por validarEstructura (importarCopia lo garantiza). */
     reemplazarTodo: async (proyecto, archivos) => {
       for (const [id, archivo] of archivos) {
         if (!esArrayBuffer(archivo?.datos)) throw new Error(`El archivo «${id}» no es { tipo, datos: ArrayBuffer }.`);
