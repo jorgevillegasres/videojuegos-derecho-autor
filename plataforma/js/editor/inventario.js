@@ -14,7 +14,7 @@ import { puntoSemaforo } from './panel-ficha.js';
 
 export const NOMBRES_TIPO = { fondo: 'Fondo', retrato: 'Retrato', musica: 'Música', efecto: 'Efecto', voz: 'Voz' };
 
-export function crearInventario(contenedor, sesion, { alSeleccionar, alSubir }) {
+export function crearInventario(contenedor, sesion, { alSeleccionar, alSubir, alBiblioteca = null }) {
   function entrada({ clave, texto, detalle = null, activa = false, marca = null, alPulsar }) {
     return h('li', {},
       h('button', { type: 'button', class: `entrada${activa ? ' activa' : ''}`, dataset: { foco: clave }, 'aria-current': activa ? 'true' : null, onclick: alPulsar },
@@ -23,9 +23,11 @@ export function crearInventario(contenedor, sesion, { alSeleccionar, alSubir }) 
         detalle ? h('span', { class: 'entrada-detalle' }, detalle) : null));
   }
 
-  function seccion(titulo, textoBoton, alCrear, entradas) {
+  const botonCrear = (texto, alPulsar, extra = {}) => h('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: alPulsar, ...extra }, texto);
+
+  function seccion(titulo, botones, entradas) {
     return h('section', { class: 'inventario-seccion' },
-      h('div', { class: 'inventario-cabecera' }, h('h2', {}, titulo), h('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: alCrear }, textoBoton)),
+      h('div', { class: 'inventario-cabecera' }, h('h2', {}, titulo), h('span', { class: 'inventario-botones' }, botones)),
       entradas.length ? h('ul', { class: 'lista' }, entradas) : h('p', { class: 'vacio' }, 'Nada todavía.'));
   }
 
@@ -58,7 +60,7 @@ export function crearInventario(contenedor, sesion, { alSeleccionar, alSubir }) 
     conservarFoco(contenedor, () => {
       vaciar(contenedor).append(h('nav', { class: 'inventario', 'aria-label': 'Inventario' },
         h('ul', { class: 'lista' }, entrada({ clave: 'juego', texto: juego.titulo?.trim() || 'Sin título', detalle: 'El juego', activa: seleccion?.tipo === 'juego', alPulsar: () => alSeleccionar({ tipo: 'juego' }) })),
-        seccion('Escenas', 'Nueva escena', nuevaEscena, juego.escenas.map((escena, i) => entrada({
+        seccion('Escenas', [botonCrear('Nueva escena', nuevaEscena)], juego.escenas.map((escena, i) => entrada({
           clave: `escena:${escena.id}`,
           texto: escena.nombre?.trim() || `Escena ${i + 1}`,
           detalle: escena.id === juego.escenaInicial ? 'inicial' : null,
@@ -66,7 +68,7 @@ export function crearInventario(contenedor, sesion, { alSeleccionar, alSubir }) 
           marca: marcaAvisos(avisos.filter((a) => a.escena === escena.id)),
           alPulsar: () => alSeleccionar({ tipo: 'escena', id: escena.id }),
         }))),
-        seccion('Personajes', 'Nuevo personaje', nuevoPersonaje, juego.personajes.map((personaje) => entrada({
+        seccion('Personajes', [botonCrear('Nuevo personaje', nuevoPersonaje)], juego.personajes.map((personaje) => entrada({
           clave: `personaje:${personaje.id}`,
           texto: personaje.nombre?.trim() || 'Sin nombre',
           detalle: personaje.retrato ? null : 'sin retrato',
@@ -74,7 +76,10 @@ export function crearInventario(contenedor, sesion, { alSeleccionar, alSubir }) 
           marca: punto(personaje.id, personaje.nombre?.trim() || 'Sin nombre'),
           alPulsar: () => alSeleccionar({ tipo: 'personaje', id: personaje.id }),
         }))),
-        seccion('Elementos', 'Subir archivo', alSubir, juego.elementos.map((elemento) => entrada({
+        seccion('Elementos', [
+          botonCrear('Biblioteca', alBiblioteca ?? undefined, { dataset: { accion: 'biblioteca' }, disabled: !alBiblioteca, title: alBiblioteca ? null : 'La biblioteca no está disponible' }),
+          botonCrear('Subir archivo', alSubir, { dataset: { accion: 'subir' } }),
+        ], juego.elementos.map((elemento) => entrada({
           clave: `elemento:${elemento.id}`,
           texto: elemento.nombre?.trim() || 'Sin nombre',
           detalle: NOMBRES_TIPO[elemento.tipo],

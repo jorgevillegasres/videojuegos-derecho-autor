@@ -20,9 +20,9 @@ const NOMBRES_ORIGEN = { creado: 'Creado en la plataforma', subido: 'Subido', bi
  * @param {{ contenido?: object|null, alSeleccionar: (seleccion: object|null) => void, confirmar?: (mensaje: string) => boolean }} opciones
  *   contenido es el JSON de contenido/juridico.json (para la ayuda del destino); puede faltar.
  */
-export function crearPropiedades(contenedor, sesion, { contenido = null, alSeleccionar, confirmar = (mensaje) => window.confirm(mensaje) }) {
+export function crearPropiedades(contenedor, sesion, { contenido = null, alSeleccionar, confirmar = (mensaje) => window.confirm(mensaje), piezaDe = () => null }) {
   const cambiar = (fn, estructura = false) => sesion.cambiar(fn, { origen: 'propiedades', estructura });
-  const ficha = (id, titulo) => panelFicha(sesion, id, { contenido: contenido ?? {}, alSeleccionar, titulo });
+  const ficha = (id, titulo) => panelFicha(sesion, id, { contenido: contenido ?? {}, alSeleccionar, titulo, piezaDe });
   const nombreDe = (cosa, alternativa) => cosa.nombre?.trim() || alternativa;
   const elementosDe = (tipo) => sesion.proyecto.juego.elementos.filter((e) => e.tipo === tipo).map((e) => [e.id, nombreDe(e, 'Sin nombre')]);
   const panel = (titulo, ...hijos) => h('section', { class: 'propiedades', 'aria-label': `Propiedades: ${titulo}` }, h('h2', {}, titulo), hijos);

@@ -21,10 +21,13 @@ function armar() {
   const fondo = agregarElemento(p, { tipo: 'fondo', nombre: 'Muelle', archivo: 'm.png', origen: 'creado' });
   const olas = agregarElemento(p, { tipo: 'efecto', nombre: 'Olas', archivo: 'o.wav', origen: 'subido' });
   const tema = agregarElemento(p, { tipo: 'musica', nombre: 'Tema', archivo: 't.ogg', origen: 'biblioteca', biblioteca: { id: 'bib_m1', autor: 'Autora Ejemplo', licencia: 'CC-BY-ND-4.0', creditoSugerido: '«Tema» de Autora Ejemplo, CC BY-ND 4.0' } });
+  const piezas = {
+    bib_m1: { id: 'bib_m1', tipo: 'musica', titulo: 'Tema del muelle', autor: 'Autora Ejemplo', fuente: 'https://ejemplo.test/tema', licencia: 'CC-BY-ND-4.0', simulado: { licencia: 'CC0', autor: 'Generada por programa', fuente: 'scripts/x.js' } },
+  };
   const selecciones = [];
   const contenedor = document.createElement('div');
   document.body.append(contenedor);
-  const dibujar = (id) => { vaciar(contenedor).append(panelFicha(sesion, id, { contenido, alSeleccionar: (s) => selecciones.push(s) })); return contenedor; };
+  const dibujar = (id) => { vaciar(contenedor).append(panelFicha(sesion, id, { contenido, alSeleccionar: (s) => selecciones.push(s), piezaDe: (idPieza) => piezas[idPieza] ?? null })); return contenedor; };
   const q = (s) => contenedor.querySelector(s);
   const qa = (s) => [...contenedor.querySelectorAll(s)];
   const control = (id, campo, extra = '') => q(`[data-foco="ficha:${id}:${campo}${extra ? `:${extra}` : ''}"]`);
@@ -187,4 +190,34 @@ test('la ficha de un personaje enlaza a la de su retrato; «basado en obra ajena
   assert.match(q('fieldset[data-campo="tipoObra"] .ayuda').textContent, /retrato/);
   dibujar('no_existe');
   assert.match(q('.vacio').textContent, /ya no existe/);
+});
+
+test('una pieza de biblioteca muestra título, autor y fuente, y «ver más» revela lo que es en realidad', () => {
+  const { dibujar, q, tema, fondo } = armar();
+  dibujar(tema.id);
+  const pieza = q('.ficha-pieza');
+  assert.equal(pieza.querySelector('strong').textContent, 'Tema del muelle');
+  assert.match(pieza.querySelector('p').textContent, /· Autora Ejemplo ·/);
+  assert.equal(pieza.querySelector('a').getAttribute('href'), 'https://ejemplo.test/tema');
+  assert.equal(pieza.querySelector('a').getAttribute('target'), '_blank');
+  const revelado = pieza.querySelector('details p').textContent;
+  assert.match(revelado, /^En la vida real esta pieza es Creative Commons Zero \(CC0 1\.0\) de Generada por programa \(scripts\/x\.js\)/);
+  assert.match(revelado, /se presenta como Creative Commons Atribución y sin derivadas 4\.0 para que practiques\.$/);
+  assert.equal(q('a[data-accion="licencia-curso"]'), null, 'no es CURSO');
+  dibujar(fondo.id);
+  assert.equal(q('.ficha-pieza'), null, 'un elemento creado no viene de la biblioteca');
+});
+
+test('una pieza CURSO enlaza a la licencia del curso; sin entrada en el catálogo se usa lo que guarda el elemento', () => {
+  const { dibujar, q, p } = armar();
+  const curso = agregarElemento(p, { tipo: 'efecto', nombre: 'Zumbido', archivo: 'z.wav', origen: 'biblioteca', biblioteca: { id: 'bib_e11', autor: 'Taller', licencia: 'CURSO', creditoSugerido: '«Zumbido», licencia limitada al curso' } });
+  dibujar(curso.id);
+  const enlace = q('a[data-accion="licencia-curso"]');
+  assert.ok(enlace);
+  assert.match(enlace.getAttribute('href'), /biblioteca\/LICENCIA-CURSO\.md$/);
+  assert.equal(enlace.textContent, 'Leer la licencia del curso');
+  const pieza = q('.ficha-pieza');
+  assert.equal(pieza.querySelector('strong').textContent, 'Zumbido');
+  assert.match(pieza.querySelector('p').textContent, /· Taller$/);
+  assert.equal(pieza.querySelector('details'), null, 'sin entrada del catálogo no hay nada que revelar');
 });

@@ -33,16 +33,23 @@ export function explicacion(entrada) {
   return h('div', { class: 'ficha-explicacion' }, h('p', { class: 'ficha-breve' }, entrada.breve, ' ', marcaPorVerificar(entrada)), verMas(entrada));
 }
 
+const nombreLicencia = (codigo) => LICENCIAS[codigo]?.nombre ?? codigo;
+const fuenteNodo = (fuente) => (/^https?:\/\//.test(fuente) ? h('a', { href: fuente, target: '_blank', rel: 'noopener' }, fuente) : h('code', {}, fuente));
+const URL_LICENCIA_CURSO = new URL('../../biblioteca/LICENCIA-CURSO.md', import.meta.url).href;
+
 /**
  * @param {object} sesion de crearSesion
  * @param {string} idFicha 'titulo' | 'historia' | id de personaje | id de elemento
- * @param {{ contenido: object, alSeleccionar?: (seleccion: object) => void, titulo?: string }} opciones
+ * @param {{ contenido: object, alSeleccionar?: (seleccion: object) => void, titulo?: string, piezaDe?: (id: string) => object|null }} opciones
+ *   piezaDe devuelve la entrada del catálogo de una pieza de biblioteca (para la fuente y lo simulado); puede faltar.
  * @returns {HTMLElement}
  */
-export function panelFicha(sesion, idFicha, { contenido, alSeleccionar = () => {}, titulo = 'Ficha jurídica' }) {
+export function panelFicha(sesion, idFicha, { contenido, alSeleccionar = () => {}, titulo = 'Ficha jurídica', piezaDe = () => null }) {
   const ficha = sesion.proyecto.fichas[idFicha];
   if (!ficha) return h('section', { class: 'ficha' }, h('h3', {}, titulo), h('p', { class: 'vacio' }, 'Esta ficha ya no existe.'));
   const { juego } = sesion.proyecto;
+  const elemento = juego.elementos.find((e) => e.id === idFicha) ?? null;
+  const pieza = elemento?.biblioteca ? piezaDe(elemento.biblioteca.id) : null;
   const v = visibles(ficha);
   const fijo = (campo) => v.soloLectura.includes(campo);
   const clave = (campo, extra = '') => `ficha:${idFicha}:${campo}${extra ? `:${extra}` : ''}`;
@@ -119,6 +126,16 @@ export function panelFicha(sesion, idFicha, { contenido, alSeleccionar = () => {
     return h('div', { class: 'campo' }, h('label', { for: id, class: 'campo-etiqueta' }, 'Prueba'), select);
   }
 
+  /** De dónde salió una pieza de biblioteca y, si es simulada, lo que es en realidad (spec 11, honestidad del catálogo). */
+  function piezaDeBiblioteca() {
+    if (!elemento?.biblioteca) return null;
+    const fuente = pieza?.fuente ?? null;
+    return h('div', { class: 'ficha-pieza' },
+      h('p', {}, 'De la biblioteca: ', h('strong', {}, pieza?.titulo ?? elemento.nombre), ` · ${elemento.biblioteca.autor?.trim() || 'autor desconocido'}`, fuente ? [' · ', fuenteNodo(fuente)] : null),
+      pieza?.simulado ? h('details', { class: 'ficha-mas' }, h('summary', {}, 'Ver más'),
+        h('p', {}, `En la vida real esta pieza es ${nombreLicencia(pieza.simulado.licencia)} de ${pieza.simulado.autor} (${pieza.simulado.fuente}); aquí se presenta como ${nombreLicencia(pieza.licencia)} para que practiques.`)) : null);
+  }
+
   function enlaceRetrato() {
     if (ficha.tipo !== 'personaje') return null;
     const personaje = juego.personajes.find((p) => p.id === idFicha);
@@ -132,6 +149,7 @@ export function panelFicha(sesion, idFicha, { contenido, alSeleccionar = () => {
       h('legend', {}, PREGUNTAS.tipoObra),
       h('p', { class: 'ficha-fijo' }, TIPOS_OBRA[ficha.tipoObra]?.nombre ?? ficha.tipoObra),
       explicacion(contenido.tiposObra?.[ficha.tipoObra]),
+      piezaDeBiblioteca(),
       enlaceRetrato()),
   ];
   if (v.autoria) {
@@ -150,6 +168,7 @@ export function panelFicha(sesion, idFicha, { contenido, alSeleccionar = () => {
     secciones.push(grupo('respaldo', [
       radios('respaldo'),
       v.licencia ? selectorLicencia() : null,
+      ficha.licencia === 'CURSO' ? h('p', {}, h('a', { class: 'ficha-enlace', href: URL_LICENCIA_CURSO, target: '_blank', rel: 'noopener', dataset: { accion: 'licencia-curso' } }, 'Leer la licencia del curso')) : null,
       v.licenciaTexto ? campoTexto('licenciaTexto', 'Describe la licencia', { area: true }) : null,
       v.condicionesOtra ? condiciones() : null,
       v.licenciaLeida ? casilla('licenciaLeida', 'Leí la licencia') : null,

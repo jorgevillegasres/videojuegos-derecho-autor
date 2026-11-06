@@ -21,9 +21,10 @@ function armar() {
   agregarLinea(torre, 'dialogo', { personaje: null, texto: 'Sin quién.' });
   const selecciones = [];
   let subidas = 0;
+  let bibliotecas = 0;
   const contenedor = document.createElement('div');
-  const inventario = crearInventario(contenedor, sesion, { alSeleccionar: (s) => selecciones.push(s), alSubir: () => { subidas += 1; } });
-  return { sesion, eventos, p, muelle, torre, ana, sinNombre, fondo, contenedor, inventario, selecciones, subidas: () => subidas };
+  const inventario = crearInventario(contenedor, sesion, { alSeleccionar: (s) => selecciones.push(s), alSubir: () => { subidas += 1; }, alBiblioteca: () => { bibliotecas += 1; } });
+  return { sesion, eventos, p, muelle, torre, ana, sinNombre, fondo, contenedor, inventario, selecciones, subidas: () => subidas, bibliotecas: () => bibliotecas };
 }
 
 test('dibuja El juego, escenas, personajes y elementos con sus nombres y detalles, y marca la selección', () => {
@@ -74,8 +75,8 @@ test('Nueva escena y Nuevo personaje crean con nombre numerado, avisan con estru
   assert.deepEqual(selecciones.at(-1), { tipo: 'personaje', id: p.juego.personajes[2].id });
 });
 
-test('pulsar una entrada selecciona lo correcto y Subir archivo avisa', () => {
-  const { contenedor, inventario, selecciones, subidas, muelle, ana, fondo } = armar();
+test('pulsar una entrada selecciona lo correcto; Subir archivo y Biblioteca avisan', () => {
+  const { contenedor, inventario, selecciones, subidas, bibliotecas, muelle, ana, fondo } = armar();
   inventario.dibujar(null);
   const botones = [...contenedor.querySelectorAll('button.entrada')];
   clic(botones[0]);
@@ -83,8 +84,21 @@ test('pulsar una entrada selecciona lo correcto y Subir archivo avisa', () => {
   clic(botones[3]);
   clic(botones[5]);
   assert.deepEqual(selecciones, [{ tipo: 'juego' }, { tipo: 'escena', id: muelle.id }, { tipo: 'personaje', id: ana.id }, { tipo: 'elemento', id: fondo.id }]);
-  clic([...contenedor.querySelectorAll('button')].find((b) => b.textContent === 'Subir archivo'));
+  clic(contenedor.querySelector('button[data-accion="subir"]'));
   assert.equal(subidas(), 1);
+  clic(contenedor.querySelector('button[data-accion="biblioteca"]'));
+  assert.equal(bibliotecas(), 1);
+  assert.equal(contenedor.querySelector('button[data-accion="biblioteca"]').disabled, false);
+});
+
+test('sin biblioteca disponible el botón queda deshabilitado y explica por qué', () => {
+  const { sesion } = sesionDePrueba();
+  const contenedor = document.createElement('div');
+  crearInventario(contenedor, sesion, { alSeleccionar: () => {}, alSubir: () => {} }).dibujar(null);
+  const boton = contenedor.querySelector('button[data-accion="biblioteca"]');
+  assert.equal(boton.disabled, true);
+  assert.equal(boton.title, 'La biblioteca no está disponible');
+  assert.equal(contenedor.querySelector('button[data-accion="subir"]').disabled, false);
 });
 
 test('sin título, sin personajes ni elementos muestra textos de vacío', () => {
