@@ -281,6 +281,28 @@ body.con-biblioteca { overflow: hidden; }
 .campo-rango input[type="range"] { flex: 1; }
 body.con-herramienta { overflow: hidden; }
 
+/* ---------- Publicación ---------- */
+.capa-publicar { position: fixed; inset: 0; z-index: 67; overflow: auto; padding: 24px; background: rgba(26, 29, 34, .55); }
+.publicar { width: min(860px, 100%); margin: 0 auto; padding: 20px 24px; background: var(--claro-panel); border-radius: var(--radius); box-shadow: var(--shadow); display: grid; gap: 14px; }
+.publicar .mapa-cabecera { margin-bottom: 0; }
+.publicar-explicacion { padding: 10px 14px; background: var(--claro-panel-2); border-radius: 10px; font-size: 14px; }
+.publicar-explicacion p { margin: 0 0 6px; }
+.publicar-candidatos { margin: 0; padding: 10px 14px; border: 1px solid var(--claro-line); border-radius: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 4px 12px; }
+.publicar-candidatos legend { padding: 0 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--claro-muted); }
+.publicar-candidato { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
+.publicar-candidato input:disabled ~ .candidato-nombre { color: var(--claro-muted); }
+.publicar-decisiones { display: grid; gap: 10px; }
+.publicar-decision { padding: 12px 14px; border: 1px solid var(--claro-line); border-left: 4px solid var(--claro-accent); border-radius: 10px; }
+.publicar-decision h3 { font-size: 15px; margin-bottom: 8px; }
+.publicar-decision .campo-etiqueta { margin: 0 0 4px; }
+.publicar-resumen ul { margin: 6px 0 0; padding-left: 18px; }
+.publicar-resumen li { margin-bottom: 4px; }
+.publicar-peso { padding: 10px 14px; background: var(--claro-accent-fondo); border-left: 4px solid var(--amarillo); border-radius: 6px; font-size: 14px; }
+.publicar-peso p { margin: 0 0 8px; }
+.publicar-peso .mapa-tabla { min-width: 0; }
+.publicar-error { margin: 0; }
+body.con-publicar { overflow: hidden; }
+
 /* ---------- Pantallas angostas: solo se juega ---------- */
 .aviso-angosto { display: none; margin: 0; padding: 12px 16px; background: var(--amber); color: var(--accent-ink); font-weight: 700; }
 @media (max-width: 899px) {
