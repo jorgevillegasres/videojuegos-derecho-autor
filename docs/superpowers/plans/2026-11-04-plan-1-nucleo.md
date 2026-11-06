@@ -2522,7 +2522,7 @@ git commit -m "Contenido jurídico con fuentes del memo y textos del semáforo" 
 - [ ] **Step 1: Correr toda la suite**
 
 Run: `npm test`
-Expected: `# fail 0`. Total antes de los ajustes: 123 (10 ficha + 12 modelo + 22 validación + 46 semáforo + 5 archivos + 8 almacén + 10 copias + 10 contenido). Después del paso 1b: 124.
+Expected: `# fail 0`. Total antes de los ajustes: 123 (10 ficha + 12 modelo + 22 validación + 46 semáforo + 5 archivos + 8 almacén + 10 copias + 10 contenido). Después del paso 1b: 124. Con la tarea 14: 132.
 
 - [ ] **Step 1b: Ajustes menores acumulados de las revisiones**
 
@@ -2598,6 +2598,331 @@ Expected: `M` en los archivos tocados en el paso 1b, `D` para los cinco `.gitkee
 ```bash
 git add -A
 git commit -m "Cierre del plan 1: ajustes de las revisiones, README de la plataforma y limpieza" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+```
+
+---
+
+### Task 14: Importación estricta, reemplazo atómico, DESTINOS único y prueba de ida y vuelta
+
+> Tarea agregada tras la revisión final del plan. Cierra lo que esa revisión pidió antes de construir el editor: la importación de copias debe rechazar cualquier ficha o escena que el semáforo no sabría evaluar (el semáforo es permisivo ante datos inesperados, así que solo debe ver fichas validadas), y reemplazar el proyecto al abrir una copia debe ser atómico.
+
+**Files:**
+- Modify: `plataforma/js/juridico/ficha.js` (exportar `DESTINOS`), `plataforma/js/juridico/semaforo.js` y `plataforma/js/estado/modelo.js` (importarlo; en modelo, reexportarlo)
+- Modify: `plataforma/js/estado/copias.js` (validación estricta de fichas y escenas)
+- Modify: `plataforma/js/estado/almacen.js` (`reemplazarTodo`, `leerArchivos`, códigos `sin_indexeddb` y `bloqueado`, abortar ante fallo síncrono)
+- Test: `tests/ficha.test.js`, `tests/modelo.test.js`, `tests/copias.test.js`, `tests/almacen.test.js` (agregar), `tests/integracion.test.js` (crear)
+
+- [ ] **Step 1: `DESTINOS` una sola vez**
+
+En `ficha.js`, después de `PRUEBAS`: `export const DESTINOS = ['personal', 'gratis', 'venta'];`. En `semaforo.js`, importar `DESTINOS` de `./ficha.js` y borrar la constante local. En `modelo.js`, `import { crearFicha, DESTINOS } from '../juridico/ficha.js'; export { DESTINOS };` y borrar la constante local. Pruebas: en `ficha.test.js`, `DESTINOS` es la lista del spec; en `modelo.test.js`, `DESTINOS` es el mismo arreglo que el de la ficha, todo `TIPOS_ELEMENTO` está en `TIPOS_FICHA` y todo `ORIGENES` en `ORIGENES_FICHA`.
+
+- [ ] **Step 2: `copias.js` final**
+
+```js
+// plataforma/js/estado/copias.js
+// Copia completa del proyecto en un archivo comprimido: proyecto.json + archivos/.
+// JSZip se recibe como parámetro: en el navegador es window.JSZip (vendor/jszip.min.js),
+// en las pruebas es el paquete de npm. Los errores llevan un código estable para la
+// interfaz: no_es_zip, sin_proyecto, json_danado, forma (con la lista `problemas`),
+// archivo_faltante. El paquete de entrega (plan 6) usa el mismo formato más otros archivos.
+// Regla: el semáforo es permisivo ante datos inesperados, así que solo debe ver fichas
+// que pasaron por validarEstructura.
+import { mimePorExtension } from './archivos.js';
+import { VERSION_PROYECTO, DESTINOS, TIPOS_ELEMENTO, ORIGENES, TIPOS_LINEA } from './modelo.js';
+import { AUTORIAS, TITULARES, RESPALDOS, PRUEBAS, tipoObraPara } from '../juridico/ficha.js';
+import { LICENCIAS, CONDICIONES } from '../juridico/licencias.js';
+
+const FICHAS_FIJAS = { titulo: 'el título', historia: 'la historia' };
+const NOMBRE_ARCHIVO = /^(?!\.+$)[\w.-]+$/;
+const BOOLEANOS = ['reconoceSinDerechos', 'basadoEnObraAjena', 'autorizacionDerivada', 'licenciaLeida', 'aceptaCompartirIgual', 'modificado'];
+const TEXTOS = ['autorNombre', 'herramientaIA', 'aporteHumano', 'licenciaTexto', 'credito'];
+
+const esObjeto = (valor) => valor !== null && typeof valor === 'object' && !Array.isArray(valor);
+const falla = (codigo, mensaje, extra = {}) => Object.assign(new Error(mensaje), { codigo, ...extra });
+const fallaDeForma = (problemas) => falla('forma', `El proyecto no tiene la forma esperada: ${problemas.join('; ')}.`, { problemas });
+const etiquetaDe = (item) => `«${typeof item.nombre === 'string' && item.nombre ? item.nombre : item.id}»`;
+
+/**
+ * @param {object} proyecto
+ * @param {Map<string, {tipo: string, datos: ArrayBuffer}>} archivos por id de elemento
+ * @returns {Promise<Blob>}
+ */
+export async function exportarCopia(proyecto, archivos, { JSZip }) {
+  const problemas = validarEstructura(proyecto);
+  if (problemas.length) throw fallaDeForma(problemas);
+  const zip = new JSZip();
+  zip.file('proyecto.json', JSON.stringify(proyecto, null, 2));
+  for (const elemento of proyecto.juego.elementos) {
+    const archivo = archivos.get(elemento.id);
+    if (!archivo) throw falla('archivo_faltante', `Falta el archivo del elemento «${elemento.nombre}».`);
+    zip.file(`archivos/${elemento.archivo}`, archivo.datos);
+  }
+  // En Node no existe el tipo 'blob'; pasar por Uint8Array duplica la memoria un instante, aceptable bajo el aviso de 50 MB.
+  const bytes = await zip.generateAsync({ type: 'uint8array' });
+  return new Blob([bytes], { type: 'application/zip' });
+}
+
+/**
+ * @param {Blob|ArrayBuffer|Uint8Array} entrada
+ * @returns {Promise<{proyecto: object, archivos: Map}>}
+ */
+export async function importarCopia(entrada, { JSZip }) {
+  const datos = typeof Blob !== 'undefined' && entrada instanceof Blob ? await entrada.arrayBuffer() : entrada;
+  let zip;
+  try {
+    zip = await JSZip.loadAsync(datos);
+  } catch {
+    throw falla('no_es_zip', 'El archivo no es una copia válida (no se pudo abrir).');
+  }
+  const entradaProyecto = zip.file('proyecto.json');
+  if (!entradaProyecto) throw falla('sin_proyecto', 'El archivo no contiene proyecto.json.');
+  let proyecto;
+  try {
+    proyecto = JSON.parse(await entradaProyecto.async('string'));
+  } catch {
+    throw falla('json_danado', 'proyecto.json está dañado.');
+  }
+  const problemas = validarEstructura(proyecto);
+  if (problemas.length) throw fallaDeForma(problemas);
+
+  const archivos = new Map();
+  for (const elemento of proyecto.juego.elementos) {
+    const entradaArchivo = zip.file(`archivos/${elemento.archivo}`);
+    if (!entradaArchivo) throw falla('archivo_faltante', `Falta el archivo del elemento «${elemento.nombre}» (archivos/${elemento.archivo}).`);
+    // El tipo sale de la extensión; archivos.js mapea en los dos sentidos y la plataforma nunca escribe .mp4 (usa .m4a).
+    archivos.set(elemento.id, { tipo: mimePorExtension(elemento.archivo), datos: await entradaArchivo.async('arraybuffer') });
+  }
+  return { proyecto, archivos };
+}
+
+/** Problemas de una ficha frente a lo que su dueño exige. */
+function problemasDeFicha(ficha, etiqueta, { tipo, origen }) {
+  if (!esObjeto(ficha)) return [`${etiqueta} no tiene ficha`];
+  const problemas = [];
+  if (ficha.tipo !== tipo) problemas.push(`la ficha de ${etiqueta} es de tipo «${ficha.tipo}» y debería ser «${tipo}»`);
+  else if (ficha.tipoObra !== tipoObraPara(tipo)) problemas.push(`la ficha de ${etiqueta} tiene un tipo de obra que no corresponde`);
+  if (ficha.origen !== origen) problemas.push(`la ficha de ${etiqueta} dice origen «${ficha.origen}» y debería decir «${origen}»`);
+  if (!AUTORIAS.includes(ficha.autoria)) problemas.push(`la ficha de ${etiqueta} tiene una autoría desconocida`);
+  if (!TITULARES.includes(ficha.titular)) problemas.push(`la ficha de ${etiqueta} tiene un titular desconocido`);
+  if (!RESPALDOS.includes(ficha.respaldo)) problemas.push(`la ficha de ${etiqueta} tiene un respaldo desconocido`);
+  if (!PRUEBAS.includes(ficha.prueba)) problemas.push(`la ficha de ${etiqueta} tiene una prueba desconocida`);
+  if (ficha.licencia !== null && !Object.hasOwn(LICENCIAS, ficha.licencia)) problemas.push(`la ficha de ${etiqueta} tiene una licencia desconocida`);
+  if (!Array.isArray(ficha.condicionesOtra) || !ficha.condicionesOtra.every((c) => CONDICIONES.includes(c))) problemas.push(`la ficha de ${etiqueta} tiene condiciones de licencia desconocidas`);
+  for (const campo of BOOLEANOS) if (typeof ficha[campo] !== 'boolean') problemas.push(`la ficha de ${etiqueta} tiene «${campo}» que no es sí o no`);
+  for (const campo of TEXTOS) if (typeof ficha[campo] !== 'string') problemas.push(`la ficha de ${etiqueta} tiene «${campo}» que no es texto`);
+  return problemas;
+}
+
+/**
+ * Comprueba la forma de un proyecto sin lanzar nunca: devuelve una lista de problemas
+ * (vacía si está bien). Atrapa lo que una copia editada a mano puede traer: versión,
+ * destino, ids repetidos o ausentes, escenas y líneas malformadas, nombres de archivo
+ * inseguros o repetidos, fichas faltantes, huérfanas o incoherentes con su dueño.
+ * La validez del juego (alcance de escenas, decisiones sin destino) la informa validar().
+ */
+export function validarEstructura(proyecto) {
+  if (!esObjeto(proyecto)) return ['no es un objeto'];
+  const problemas = [];
+  if (proyecto.version === undefined) problemas.push('no indica su versión');
+  else if (proyecto.version !== VERSION_PROYECTO) problemas.push(`versión ${proyecto.version} no soportada`);
+
+  const juego = proyecto.juego;
+  if (!esObjeto(juego)) {
+    problemas.push('falta el juego');
+    return problemas;
+  }
+  if (typeof juego.titulo !== 'string') problemas.push('el título del juego no es texto');
+  if (!DESTINOS.includes(juego.destino)) problemas.push(`el destino «${juego.destino}» no es válido`);
+  if (juego.escenaInicial !== null && typeof juego.escenaInicial !== 'string') problemas.push('la escena inicial no es válida');
+
+  const ids = new Set();
+  const etiquetas = { escenas: 'las escenas', personajes: 'los personajes', elementos: 'los elementos' };
+  for (const [lista, etiqueta] of Object.entries(etiquetas)) {
+    if (!Array.isArray(juego[lista])) {
+      problemas.push(`faltan ${etiqueta}`);
+      continue;
+    }
+    for (const item of juego[lista]) {
+      if (!esObjeto(item) || typeof item.id !== 'string' || !item.id) {
+        problemas.push(`hay entradas sin identificador en ${etiqueta}`);
+        continue;
+      }
+      if (ids.has(item.id)) problemas.push(`el identificador «${item.id}» está repetido`);
+      ids.add(item.id);
+    }
+  }
+
+  if (Array.isArray(juego.escenas)) {
+    for (const escena of juego.escenas) {
+      if (!esObjeto(escena) || typeof escena.id !== 'string') continue;
+      const nombre = etiquetaDe(escena);
+      if (!Array.isArray(escena.lineas)) {
+        problemas.push(`la escena ${nombre} no tiene lista de líneas`);
+        continue;
+      }
+      escena.lineas.forEach((linea, i) => {
+        if (!esObjeto(linea) || !TIPOS_LINEA.includes(linea.tipo)) {
+          problemas.push(`la línea ${i + 1} de la escena ${nombre} no tiene un tipo conocido`);
+        } else if (linea.tipo === 'decision' && (!Array.isArray(linea.opciones) || !linea.opciones.every(esObjeto))) {
+          problemas.push(`la decisión ${i + 1} de la escena ${nombre} no tiene lista de opciones`);
+        }
+      });
+    }
+  }
+
+  if (!esObjeto(proyecto.fichas)) {
+    problemas.push('faltan las fichas');
+    return problemas;
+  }
+  const fichas = proyecto.fichas;
+  const duenos = new Set();
+  for (const [id, etiqueta] of Object.entries(FICHAS_FIJAS)) {
+    duenos.add(id);
+    problemas.push(...problemasDeFicha(fichas[id], etiqueta, { tipo: id, origen: 'escrito' }));
+  }
+  if (Array.isArray(juego.personajes)) {
+    for (const personaje of juego.personajes) {
+      if (!esObjeto(personaje) || typeof personaje.id !== 'string') continue;
+      duenos.add(personaje.id);
+      problemas.push(...problemasDeFicha(fichas[personaje.id], `el personaje ${etiquetaDe(personaje)}`, { tipo: 'personaje', origen: 'escrito' }));
+    }
+  }
+  if (Array.isArray(juego.elementos)) {
+    const usados = new Set();
+    for (const elemento of juego.elementos) {
+      if (!esObjeto(elemento) || typeof elemento.id !== 'string') continue;
+      duenos.add(elemento.id);
+      const nombre = etiquetaDe(elemento);
+      if (!TIPOS_ELEMENTO.includes(elemento.tipo)) problemas.push(`el elemento ${nombre} tiene un tipo desconocido`);
+      if (!ORIGENES.includes(elemento.origen)) problemas.push(`el elemento ${nombre} tiene un origen desconocido`);
+      if (typeof elemento.archivo !== 'string' || !NOMBRE_ARCHIVO.test(elemento.archivo)) {
+        problemas.push(`el elemento ${nombre} tiene un nombre de archivo no permitido`);
+      } else if (usados.has(elemento.archivo)) {
+        problemas.push(`el archivo «${elemento.archivo}» está repetido`);
+      } else {
+        usados.add(elemento.archivo);
+      }
+      if (TIPOS_ELEMENTO.includes(elemento.tipo) && ORIGENES.includes(elemento.origen)) {
+        problemas.push(...problemasDeFicha(fichas[elemento.id], `el elemento ${nombre}`, { tipo: elemento.tipo, origen: elemento.origen }));
+      }
+    }
+  }
+  for (const id of Object.keys(fichas)) {
+    if (!duenos.has(id)) problemas.push(`la ficha «${id}» no corresponde a ningún elemento ni personaje`);
+  }
+  return problemas;
+}
+```
+
+Pruebas en `tests/copias.test.js`: importar `agregarPersonaje` y `crearFicha`; en la prueba de códigos usar `crearFicha('fondo', { origen: 'creado' })` como ficha de reemplazo; agregar la prueba «validarEstructura rechaza fichas faltantes, cambiadas o incoherentes y escenas malformadas» con quince manipulaciones (historia, título o personaje sin ficha; tipo, tipoObra, licencia, autoría, origen, booleano, texto y condiciones cambiados; escena sin lista de líneas; decisión sin opciones; línea de tipo desconocido; ficha con id de escena) y la comprobación de que un proyecto sano no tiene problemas. Total: 11.
+
+- [ ] **Step 3: `almacen.js`**
+
+El error síncrono de IndexedDB ausente lleva `codigo: 'sin_indexeddb'`; el de `onblocked`, `codigo: 'bloqueado'`. `transaccionCompleta` envuelve la acción en `try`: ante un fallo síncrono (un valor que no se puede clonar) aborta la transacción y rechaza, para que lo ya encolado no se confirme a medias. Métodos nuevos:
+
+```js
+    /** Reemplaza proyecto y archivos en una sola transacción. El proyecto debe haber pasado por validarEstructura (importarCopia lo garantiza). */
+    reemplazarTodo: async (proyecto, archivos) => {
+      for (const [id, archivo] of archivos) {
+        if (!esArrayBuffer(archivo?.datos)) throw new Error(`El archivo «${id}» no es { tipo, datos: ArrayBuffer }.`);
+      }
+      const db = await bd;
+      await transaccionCompleta(db, ['proyecto', 'archivos'], 'readwrite', (transaccion) => {
+        const proyectos = transaccion.objectStore('proyecto');
+        proyectos.clear();
+        proyectos.put(proyecto, CLAVE_PROYECTO);
+        const binarios = transaccion.objectStore('archivos');
+        binarios.clear();
+        for (const [id, archivo] of archivos) binarios.put(archivo, id);
+        return null;
+      });
+    },
+    leerArchivos: async () => {
+      const db = await bd;
+      return new Promise((resolve, reject) => {
+        const transaccion = db.transaction('archivos', 'readonly');
+        const almacen = transaccion.objectStore('archivos');
+        const claves = almacen.getAllKeys();
+        const valores = almacen.getAll();
+        transaccion.oncomplete = () => resolve(new Map(claves.result.map((clave, i) => [clave, valores.result[i]])));
+        transaccion.onerror = () => reject(traducirError(transaccion.error));
+        transaccion.onabort = () => reject(traducirError(transaccion.error));
+      });
+    },
+```
+
+Pruebas en `tests/almacen.test.js`: `reemplazarTodo` deja exactamente el proyecto y los archivos nuevos y `leerArchivos` los devuelve como Map; rechaza datos que no sean ArrayBuffer sin tocar lo guardado y el error de arranque lleva código; si algo falla a mitad del reemplazo (un proyecto con una función dentro), lo guardado queda intacto. Total: 11.
+
+- [ ] **Step 4: prueba de ida y vuelta**
+
+```js
+// tests/integracion.test.js
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import JSZip from 'jszip';
+import { crearProyecto, agregarEscena, agregarPersonaje, agregarElemento, agregarLinea } from '../plataforma/js/estado/modelo.js';
+import { puedePublicar } from '../plataforma/js/estado/validacion.js';
+import { evaluarTodo } from '../plataforma/js/juridico/semaforo.js';
+import { exportarCopia, importarCopia } from '../plataforma/js/estado/copias.js';
+
+function proyectoPublicable() {
+  const p = crearProyecto({ estudiante: 'Camila R.', titulo: 'La llave del faro', destino: 'gratis' });
+  const muelle = p.juego.escenas[0];
+  muelle.nombre = 'El muelle';
+  const torre = agregarEscena(p, 'La torre');
+  const amanecer = agregarEscena(p, 'Amanecer');
+  const ana = agregarPersonaje(p, { nombre: 'Ana' });
+  const farero = agregarPersonaje(p, { nombre: 'El farero' });
+  const bytes = (texto) => new TextEncoder().encode(texto).buffer;
+  const archivos = new Map();
+  const elemento = (datos) => {
+    const e = agregarElemento(p, datos);
+    archivos.set(e.id, { tipo: 'application/octet-stream', datos: bytes(e.nombre) });
+    return e;
+  };
+  ana.retrato = elemento({ tipo: 'retrato', nombre: 'Ana', archivo: 'ana.png', origen: 'creado' }).id;
+  farero.retrato = elemento({ tipo: 'retrato', nombre: 'Farero', archivo: 'farero.png', origen: 'creado' }).id;
+  muelle.fondo = elemento({ tipo: 'fondo', nombre: 'Muelle', archivo: 'muelle.png', origen: 'creado' }).id;
+  const tema = elemento({ tipo: 'musica', nombre: 'Tema', archivo: 'tema.ogg', origen: 'biblioteca', biblioteca: { id: 'bib_m1', autor: 'Autora Ejemplo', licencia: 'CC-BY-NC-4.0', creditoSugerido: '«Tema» de Autora Ejemplo, CC BY-NC 4.0' } });
+  muelle.musica = tema.id;
+  p.fichas[tema.id].licenciaLeida = true;
+  const olas = elemento({ tipo: 'efecto', nombre: 'Olas', archivo: 'olas.wav', origen: 'creado' });
+  agregarLinea(muelle, 'dialogo', { personaje: ana.id, texto: '¿Quién dejó la puerta abierta?', efecto: olas.id });
+  agregarLinea(muelle, 'decision', { texto: '¿Subes a la torre?', opciones: [{ texto: 'Sí', escena: torre.id }, { texto: 'No', escena: amanecer.id }] });
+  agregarLinea(torre, 'fin', { texto: 'Fin' });
+  agregarLinea(amanecer, 'fin', { texto: 'Amanece.' });
+  return { p, archivos, tema };
+}
+
+test('un proyecto publicable sobrevive a exportar e importar con los mismos semáforos', async () => {
+  const { p, archivos } = proyectoPublicable();
+  assert.equal(puedePublicar(p).ok, true);
+  const blob = await exportarCopia(p, archivos, { JSZip });
+  const { proyecto, archivos: importados } = await importarCopia(blob, { JSZip });
+  assert.deepEqual(proyecto, p);
+  assert.deepEqual([...importados.keys()].sort(), [...archivos.keys()].sort());
+  assert.deepEqual(evaluarTodo(proyecto), evaluarTodo(p));
+  assert.equal(puedePublicar(proyecto).ok, true);
+});
+
+test('cambiar el destino a venta tras importar pone en rojo la pieza no comercial', async () => {
+  const { p, archivos, tema } = proyectoPublicable();
+  const { proyecto } = await importarCopia(await exportarCopia(p, archivos, { JSZip }), { JSZip });
+  proyecto.juego.destino = 'venta';
+  const decision = puedePublicar(proyecto);
+  assert.equal(decision.ok, false);
+  assert.equal(evaluarTodo(proyecto).get(tema.id).color, 'rojo');
+  assert.deepEqual(decision.resumen, { semaforo: 1, minimo: 0, bloqueantes: 0 });
+});
+```
+
+- [ ] **Step 5: Correr todo y commit**
+
+Run: `npm test` → 132 pruebas, `# fail 0`.
+
+```bash
+git add plataforma/js/juridico/ficha.js plataforma/js/juridico/semaforo.js plataforma/js/estado/modelo.js plataforma/js/estado/copias.js plataforma/js/estado/almacen.js tests/ficha.test.js tests/modelo.test.js tests/copias.test.js tests/almacen.test.js tests/integracion.test.js
+git commit -m "Importación estricta de fichas y escenas, reemplazo atómico en el almacén, DESTINOS único y prueba de ida y vuelta" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
