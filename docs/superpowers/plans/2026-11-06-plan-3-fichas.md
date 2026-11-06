@@ -37,7 +37,7 @@
 - Las del plan 2: vistas que leen `sesion.proyecto` cada vez; cambios con `sesion.cambiar(fn, { origen, estructura })`; pruebas de vistas con `instalarDom()` y `sesionDePrueba()`.
 - Origen de los cambios de la ficha: los de texto (nombre del autor, herramienta, aporte, texto de la licencia, crédito) van con `origen: 'propiedades'` para no perder el foco, y el panel repinta solo su cuadro de semáforo; los de opciones y casillas van con `origen: 'ficha'`, que redibuja el panel (muestra u oculta campos) conservando el foco por `data-foco`.
 - Todo texto que ve el estudiante sobre derecho sale de `contenido/juridico.json` (`breve`, `completo`, `fuente`, `accion`, `verificacion`). Las etiquetas de los controles (nombres de las respuestas) viven en `juridico/formulario.js` y no afirman nada jurídico.
-- Conteo de pruebas: el plan 2 dejó 207. Cada tarea dice cuántas agrega; el cierre espera 235.
+- Conteo de pruebas: el plan 2 dejó 207. Cada tarea dice cuántas agrega; el cierre espera 236.
 
 ## Estructura de archivos que deja este plan
 
@@ -1684,7 +1684,7 @@ git commit -m "Editor: mapa de activos, créditos desde las fichas, anuncio de s
 - [ ] **Step 1: Correr toda la suite**
 
 Run: `npm test`
-Expected: 235 pruebas, `# fail 0` (207 del plan 2 + 6 formulario + 3 cadena + 3 mapa + 8 panel + 1 inventario + 2 propiedades + 3 mapa de activos + 3 netas del editor). Si el total difiere, buscar la prueba que falta o sobra; lo que importa es `# fail 0`.
+Expected: 236 pruebas, `# fail 0` (207 del plan 2 + 6 formulario + 3 cadena + 3 mapa + 8 panel + 1 inventario + 2 propiedades + 3 mapa de activos + 3 netas del editor). Si el total difiere, buscar la prueba que falta o sobra; lo que importa es `# fail 0`.
 
 - [ ] **Step 2: Comprobación manual en el navegador**
 

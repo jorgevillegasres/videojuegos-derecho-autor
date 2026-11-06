@@ -6,10 +6,11 @@ en `docs/superpowers/specs/2026-11-04-plataforma-primer-videojuego-design.md`.
 
 ## Estado
 
-Plan 1 (núcleo) y plan 2 (motor y editor) terminados: se puede arrancar, armar escenas,
-personajes y líneas, subir fondos, retratos, música, efectos y voces, jugar el proyecto en
-el reproductor, guardar y abrir copias. Faltan las fichas jurídicas en pantalla (plan 3),
-la biblioteca (plan 4), las herramientas de creación (plan 5) y la publicación (plan 6).
+Planes 1 (núcleo), 2 (motor y editor) y 3 (fichas en pantalla) terminados: cada elemento,
+personaje, el título y la historia tienen su ficha jurídica con semáforo en el panel
+derecho; el inventario muestra los colores; el mapa de activos se abre desde la barra; los
+créditos del reproductor salen de las fichas. Faltan la biblioteca (plan 4), las
+herramientas de creación (plan 5) y la publicación (plan 6).
 
 ## Pruebas
 
@@ -44,7 +45,7 @@ La plataforma usa IndexedDB y Web Crypto; Web Crypto exige un contexto seguro (H
 ## Cómo está armado el código
 
 - `js/estado/`: el documento del juego y su validación, el almacén y las copias.
-- `js/juridico/`: fichas, licencias, semáforo y textos.
+- `js/juridico/`: fichas, licencias, semáforo, textos, reglas del formulario (`formulario.js`), cadena de titularidad y créditos (`cadena.js`) y filas del mapa de activos (`mapa.js`).
 - `js/motor/`: `partida.js` (estado puro), `pantalla.js` (dibujo) y `reproductor.js` (entrada y audio).
 - `js/editor/`: `sesion.js` (estado del editor) y una vista por columna; `editor.js` las coordina.
 - `js/ui/`: utilidades de DOM y comprobación de capacidades.
