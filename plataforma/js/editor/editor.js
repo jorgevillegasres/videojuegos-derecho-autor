@@ -18,6 +18,8 @@ import { crearMapaActivos } from './mapa-activos.js';
 import { crearBiblioteca, tomarPieza } from './biblioteca.js';
 import { crearElementoCreado, reemplazarArchivoCreado } from './creados.js';
 import { nombreDeArchivo } from '../estado/archivos.js';
+import { crearPublicar } from './publicar.js';
+import { generarEntrega } from '../exportar/paquete.js';
 
 const AVISO_MS = 6000;
 
@@ -41,7 +43,9 @@ export function elegirArchivoDelNavegador(accept) {
  * @param {object} opciones contenido (juridico.json), JSZip, descargarArchivo(blob, nombre),
  *   confirmar(mensaje) → boolean, elegirArchivo(accept) → Promise<File|null>, alNuevoJuego() → Promise,
  *   catalogo (de crearCatalogo, ya cargado; null si la biblioteca no está disponible), avisoInicial (texto que se muestra al abrir),
- *   crearHerramientas(contenedor) → { pixelart, grabador, secuenciador } (cada una con abrir(); null si no hay herramientas).
+ *   crearHerramientas(contenedor) → { pixelart, grabador, secuenciador } (cada una con abrir(); null si no hay herramientas),
+ *   cargarMotor() → Promise<{ modulos, estilos }> (el motor que se incrusta en juego.html; null si no se puede publicar),
+ *   nombreProducto (para el informe), ahora() → Date.
  */
 export function crearEditor(contenedor, sesion, {
   contenido = null,
@@ -53,6 +57,9 @@ export function crearEditor(contenedor, sesion, {
   catalogo = null,
   avisoInicial = null,
   crearHerramientas = null,
+  cargarMotor = null,
+  nombreProducto = contenido?.nombre ?? 'Mi primer videojuego',
+  ahora = () => new Date(),
 } = {}) {
   let seleccion = null;
   let escenaActivaId = null;
@@ -70,6 +77,7 @@ export function crearEditor(contenedor, sesion, {
   const zonaMapa = h('div', { class: 'capa-mapa', hidden: true });
   const zonaBiblioteca = h('div', { class: 'capa-biblioteca', hidden: true });
   const zonaHerramienta = h('div', { class: 'capa-herramienta', hidden: true });
+  const zonaPublicar = h('div', { class: 'capa-publicar', hidden: true });
   const estadoGuardado = h('span', { class: 'estado-guardado', 'aria-live': 'polite' });
   const botonJugarAqui = h('button', { type: 'button', class: 'btn btn-ghost btn-sm', dataset: { accion: 'jugar-aqui' }, onclick: () => jugarDesde(escenaActivaId) }, '▶ Jugar desde esta escena');
   vaciar(contenedor).append(
@@ -82,6 +90,7 @@ export function crearEditor(contenedor, sesion, {
     zonaDialogo,
     zonaBiblioteca,
     zonaHerramienta,
+    zonaPublicar,
     zonaMapa,
     zonaReproductor,
   );
@@ -94,7 +103,7 @@ export function crearEditor(contenedor, sesion, {
     alGuardarCopia: guardarCopia,
     alAbrirCopia: abrirCopia,
     alNuevoJuego: nuevoJuego,
-    alPublicar: () => avisar('La publicación llega en una versión siguiente. Por ahora el candado te dice qué falta.'),
+    alPublicar: () => abrirPublicar(),
   });
   const inventario = crearInventario(zonaInventario, sesion, {
     alSeleccionar: (s) => seleccionar(s),
@@ -152,6 +161,40 @@ export function crearEditor(contenedor, sesion, {
     mapa.abrir();
   }
 
+  // ---- publicación (spec, sección 3 paso 5, 12.7, 13 y 14) ----
+  const publicar = crearPublicar(zonaPublicar, sesion, {
+    contenido: contenido ?? {},
+    alGenerar: generarPaquete,
+    alCerrar: () => {
+      document.body.classList.remove('con-publicar');
+      zonaBarra.querySelector('[data-accion="publicar"]')?.focus();
+    },
+  });
+
+  function abrirPublicar() {
+    document.body.classList.add('con-publicar');
+    publicar.abrir();
+  }
+
+  /** Escribe la fecha de publicación, genera el paquete y lo descarga. Si algo falla, la fecha vuelve atrás y el error sube a la capa. */
+  async function generarPaquete() {
+    if (!cargarMotor) throw new Error('No se puede generar el paquete: el motor del juego no está disponible.');
+    const motor = await cargarMotor();
+    const anterior = sesion.proyecto.publicado;
+    sesion.cambiar((p) => { p.publicado = ahora().toISOString(); }, { origen: 'publicar' });
+    let paquete;
+    try {
+      paquete = await generarEntrega(sesion.proyecto, sesion.archivos, { JSZip, contenido: contenido ?? {}, motor, nombreProducto, ahora: ahora() });
+    } catch (error) {
+      sesion.cambiar((p) => { p.publicado = anterior; }, { origen: 'publicar' });
+      throw error;
+    }
+    await sesion.guardarAhora();
+    descargarArchivo(paquete.blob, paquete.nombre);
+    sesion.marcarCopiaGuardada();
+    avisar(`Paquete descargado: ${paquete.nombre}. Súbelo al formulario del curso. También sirve como copia del proyecto («Abrir copia» lo acepta): guárdalo bien.`, { accion: ['Guardar copia', guardarCopia] });
+  }
+
   // ---- selección y redibujado ----
   const escenaActiva = () => sesion.proyecto.juego.escenas.find((e) => e.id === escenaActivaId) ?? null;
   const escenaDe = (s) => (s?.tipo === 'escena' ? s.id : s?.tipo === 'linea' ? s.escena : null);
@@ -195,8 +238,8 @@ export function crearEditor(contenedor, sesion, {
     barra.dibujar();
     inventario.dibujar(seleccion);
     vistaPrevia.dibujar(escenaActiva(), indice);
-    if (estructura || origen !== 'propiedades') propiedades.dibujar(seleccion);
-    if (estructura || origen !== 'guion') guion.dibujar(escenaActiva(), indice);
+    if (estructura || (origen !== 'propiedades' && origen !== 'publicar')) propiedades.dibujar(seleccion);
+    if (estructura || (origen !== 'guion' && origen !== 'publicar')) guion.dibujar(escenaActiva(), indice);
     mapa.dibujar();
     anunciarSemaforos();
   }
@@ -291,6 +334,7 @@ export function crearEditor(contenedor, sesion, {
     try {
       biblioteca?.cerrar();
       mapa.cerrar();
+      publicar.cerrar();
       cerrarReproductor();
       await sesion.reemplazar(copia.proyecto, copia.archivos);
       avisar('Copia abierta.');
@@ -307,6 +351,7 @@ export function crearEditor(contenedor, sesion, {
     }
     biblioteca?.cerrar();
     mapa.cerrar();
+    publicar.cerrar();
     cerrarReproductor();
     await alNuevoJuego();
   }
@@ -423,10 +468,12 @@ export function crearEditor(contenedor, sesion, {
     crearConHerramienta,
     editarPixel,
     jugarDesde,
+    publicar: abrirPublicar,
     mostrarError,
     destruir() {
       biblioteca?.cerrar();
       mapa.cerrar();
+      publicar.cerrar();
       cerrarReproductor();
       vaciar(contenedor);
     },

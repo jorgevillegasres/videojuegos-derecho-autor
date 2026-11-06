@@ -15,6 +15,7 @@ import { crearCatalogo } from './biblioteca/catalogo.js';
 import { crearPixelArt } from './herramientas/pixelart.js';
 import { crearGrabador } from './herramientas/grabador.js';
 import { crearSecuenciador } from './herramientas/secuenciador.js';
+import { cargarMotor } from './exportar/empaquetar.js';
 
 const raiz = document.getElementById('app');
 let sesionActual = null;
@@ -22,6 +23,7 @@ let editorActual = null;
 let catalogoActual = null; // el catálogo de la biblioteca ya cargado, o null si no está disponible
 let avisoBiblioteca = null;
 let paletaActual = null; // colores de contenido/paleta.json, o null si no cargó (sin paleta no hay herramientas)
+let motorCargado = null; // el motor leído de la propia plataforma para juego.html; se lee una vez, al publicar
 
 function pantallaDeError(titulo, detalle, lista = []) {
   vaciar(raiz).append(h('main', { class: 'inicio', id: 'contenido' },
@@ -53,6 +55,11 @@ function mostrarEditor(almacen, contenido, proyecto, archivos) {
       grabador: crearGrabador(zona),
       secuenciador: crearSecuenciador(zona),
     }) : null,
+    cargarMotor: async () => {
+      motorCargado ??= await cargarMotor();
+      return motorCargado;
+    },
+    nombreProducto: contenido.nombre,
     alNuevoJuego: async () => {
       await almacen.borrarTodo();
       mostrarInicio(almacen, contenido);

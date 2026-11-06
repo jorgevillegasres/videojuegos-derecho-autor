@@ -1,36 +1,51 @@
 // tests/editor.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import JSZip from 'jszip';
 import { instalarDom, clic, escribir, textos } from './ayudas/dom.js';
+import { motorDesdeDisco } from './ayudas/motor.js';
 import { sesionDePrueba } from './ayudas/sesion.js';
 import { proyectoPublicable } from './ayudas/proyecto.js';
 import { catalogoCargado } from './ayudas/catalogo.js';
 import { crearProyecto, agregarEscena, agregarLinea } from '../plataforma/js/estado/modelo.js';
-import { exportarCopia } from '../plataforma/js/estado/copias.js';
+import { exportarCopia, importarCopia } from '../plataforma/js/estado/copias.js';
 import { crearEditor } from '../plataforma/js/editor/editor.js';
 
 instalarDom();
+const contenidoReal = JSON.parse(readFileSync(new URL('../plataforma/contenido/juridico.json', import.meta.url), 'utf8'));
 
-function armar({ proyecto, confirmar = () => true, archivoElegido = null, catalogo = null, avisoInicial = null, herramientas = null } = {}) {
+/** Espera a que se cumpla una condición (las acciones del editor encadenan promesas; un tiempo fijo es frágil bajo carga). */
+async function esperar(condicion, maximoMs = 3000) {
+  const inicio = Date.now();
+  while (!condicion()) {
+    if (Date.now() - inicio > maximoMs) throw new Error('La condición esperada no se cumplió a tiempo.');
+    await new Promise((r) => setTimeout(r, 5));
+  }
+}
+
+function armar({ proyecto, confirmar = () => true, archivoElegido = null, catalogo = null, avisoInicial = null, herramientas = null, contenido = { campos: { destino: { breve: 'Ayuda del destino.' } } }, cargarMotor = null } = {}) {
   const { sesion, eventos } = sesionDePrueba(proyecto);
   const llamadas = [];
+  const descargas = [];
   const contenedor = document.createElement('div');
   document.body.append(contenedor);
   const editor = crearEditor(contenedor, sesion, {
-    contenido: { campos: { destino: { breve: 'Ayuda del destino.' } } },
+    contenido,
     JSZip,
-    descargarArchivo: (blob, nombre) => llamadas.push(['descargar', nombre, blob.type]),
+    descargarArchivo: (blob, nombre) => { llamadas.push(['descargar', nombre, blob.type]); descargas.push(blob); },
     confirmar: (mensaje) => { llamadas.push(['confirmar', mensaje]); return confirmar(mensaje); },
     elegirArchivo: async () => archivoElegido,
     alNuevoJuego: async () => llamadas.push(['nuevo-juego']),
     catalogo,
     avisoInicial,
     crearHerramientas: herramientas ? () => herramientas : null,
+    cargarMotor,
+    ahora: () => new Date('2026-11-06T15:30:00.000Z'),
   });
   const q = (selector) => contenedor.querySelector(selector);
   const qa = (selector) => [...contenedor.querySelectorAll(selector)];
-  return { sesion, eventos, editor, contenedor, llamadas, q, qa };
+  return { sesion, eventos, editor, contenedor, llamadas, descargas, q, qa };
 }
 
 function proyectoConLineas() {
@@ -248,7 +263,7 @@ test('Biblioteca abre el selector; «Usar esta pieza» mete la pieza con su fich
   assert.ok(document.body.classList.contains('con-biblioteca'));
   clic(q('.capa-biblioteca [data-filtro="musica"]'));
   clic(q('.capa-biblioteca .biblioteca-pieza[data-pieza="bib_m3"] button[data-accion="usar"]'));
-  await new Promise((r) => setTimeout(r, 20));
+  await esperar(() => sesion.proyecto.juego.elementos.length === 1);
   assert.equal(q('.capa-biblioteca').hidden, true);
   assert.ok(!document.body.classList.contains('con-biblioteca'));
   const elemento = sesion.proyecto.juego.elementos[0];
@@ -295,7 +310,7 @@ test('Pixel art pregunta qué dibujar, abre la herramienta y mete el resultado c
   assert.equal(q('.dialogo h2').textContent, '¿Qué vas a dibujar?');
   assert.deepEqual(textos(contenedor, '.dialogo button'), ['Fondo', 'Retrato', 'Cancelar']);
   clic(q('.dialogo button[data-tipo="retrato"]'));
-  await new Promise((r) => setTimeout(r, 20));
+  await esperar(() => sesion.proyecto.juego.elementos.length === 1);
   assert.deepEqual(herramientas.llamadas, [['pixelart', { tipo: 'retrato' }]]);
   const elemento = sesion.proyecto.juego.elementos[0];
   assert.equal(elemento.origen, 'creado');
@@ -320,13 +335,13 @@ test('Grabar pregunta voz o efecto y ofrece subir en su lugar; el secuenciador n
   assert.equal(q('.dialogo h2').textContent, '¿Qué vas a grabar?');
   assert.deepEqual(textos(contenedor, '.dialogo button'), ['Voz', 'Efecto', 'Cancelar']);
   clic(q('.dialogo button[data-tipo="voz"]'));
-  await new Promise((r) => setTimeout(r, 20));
+  await esperar(() => sesion.proyecto.juego.elementos.length === 1);
   assert.deepEqual(herramientas.llamadas.at(-1), ['grabador', ['alSubirEnSuLugar']]);
   assert.equal(sesion.proyecto.juego.elementos[0].tipo, 'voz');
   assert.equal(sesion.proyecto.juego.elementos[0].nombre, 'Grabación 1');
   assert.equal(sesion.proyecto.juego.elementos[0].archivo, `${sesion.proyecto.juego.elementos[0].id}.webm`);
   clic(q('.inventario button[data-accion="crear-secuencia"]'));
-  await new Promise((r) => setTimeout(r, 20));
+  await esperar(() => herramientas.llamadas.at(-1)?.[0] === 'secuenciador' && !document.body.classList.contains('con-herramienta'));
   assert.equal(q('.dialogo'), null, 'el secuenciador no pregunta el tipo');
   assert.deepEqual(herramientas.llamadas.at(-1), ['secuenciador']);
   assert.equal(sesion.proyecto.juego.elementos.length, 1, 'cancelar no crea nada');
@@ -344,12 +359,12 @@ test('«Editar en pixel art» reabre el fondo creado con su archivo y, al guarda
   clic(q('.inventario button[data-accion="crear-pixel"]'));
   await new Promise((r) => setTimeout(r, 0));
   clic(q('.dialogo button[data-tipo="fondo"]'));
-  await new Promise((r) => setTimeout(r, 20));
+  await esperar(() => sesion.proyecto.juego.elementos.some((e) => e.tipo === 'fondo'));
   const fondo = sesion.proyecto.juego.elementos.find((e) => e.tipo === 'fondo');
   const huellaAntes = fondo.sello.huella;
   herramientas.pixelart.abrir = async (opciones) => { herramientas.llamadas.push(['pixelart', opciones.tipo, new TextDecoder().decode(opciones.archivo.datos)]); return new Blob(['png editado'], { type: 'image/png' }); };
   clic(q('.propiedades button[data-accion="editar-pixel"]'));
-  await new Promise((r) => setTimeout(r, 20));
+  await esperar(() => fondo.sello.huella !== huellaAntes);
   assert.deepEqual(herramientas.llamadas.at(-1), ['pixelart', 'fondo', 'png nuevo']);
   assert.notEqual(fondo.sello.huella, huellaAntes);
   assert.equal(new TextDecoder().decode(sesion.archivos.get(fondo.id).datos), 'png editado');
@@ -367,5 +382,71 @@ test('cambiar el destino recalcula los semáforos y anuncia los que cambian de c
   escribir(q('[data-foco="destino"]'), 'gratis');
   assert.equal(document.getElementById('anuncios').textContent, 'Semáforo de «Tema»: verde');
   assert.ok(q('section.ficha[data-ficha="titulo"]'), 'El juego muestra sus fichas');
+  contenedor.remove();
+});
+
+test('Publicar abre la capa; Generar descarga el paquete, escribe la fecha y la decisión, reinicia el contador y recuerda la copia', async () => {
+  const { p, archivos, ana } = proyectoPublicable();
+  const { sesion, contenedor, llamadas, descargas, q, qa } = armar({ proyecto: p, contenido: contenidoReal, cargarMotor: async () => motorDesdeDisco() });
+  for (const [id, a] of archivos) sesion.archivos.set(id, a);
+  sesion.cambiar(() => {});
+  assert.equal(sesion.cambiosSinCopia, 1);
+  clic(q('button[data-accion="publicar"]'));
+  assert.equal(q('.capa-publicar').hidden, false);
+  assert.ok(document.body.classList.contains('con-publicar'));
+  assert.equal(q('.capa-publicar #publicar-titulo').textContent, 'Publicar: decisión de registro');
+  const casilla = q(`.capa-publicar input[data-candidato="${ana.id}"]`);
+  casilla.checked = true;
+  casilla.dispatchEvent(new window.Event('change', { bubbles: true }));
+  clic(q('.capa-publicar button[data-accion="siguiente"]'));
+  clic(q('.capa-publicar button[data-accion="generar"]'));
+  await esperar(() => descargas.length === 1);
+  assert.deepEqual(llamadas.at(-1), ['descargar', 'entrega-camila-r-la-llave-del-faro.zip', 'application/zip']);
+  assert.equal(sesion.proyecto.publicado, '2026-11-06T15:30:00.000Z');
+  assert.deepEqual(sesion.proyecto.registro.map((d) => d.id), [ana.id]);
+  assert.equal(sesion.cambiosSinCopia, 0, 'el paquete también es una copia');
+  await esperar(() => q('.capa-publicar').hidden);
+  assert.ok(!document.body.classList.contains('con-publicar'));
+  assert.equal(document.activeElement, q('button[data-accion="publicar"]'));
+  const aviso = qa('.aviso').find((a) => /Paquete descargado/.test(a.textContent));
+  assert.ok(aviso && aviso.querySelector('button[data-accion="guardar-copia"]'), 'recuerda guardar copia después de publicar');
+  const importado = await importarCopia(descargas[0], { JSZip });
+  assert.deepEqual(importado.proyecto, sesion.proyecto, 'el paquete trae el proyecto tal como quedó');
+  assert.equal(importado.proyecto.publicado, '2026-11-06T15:30:00.000Z');
+  contenedor.remove();
+});
+
+test('si el motor no carga, la capa muestra el error, la fecha de publicación no queda escrita y nada se descarga', async () => {
+  const { p, archivos, ana } = proyectoPublicable();
+  const { sesion, contenedor, descargas, q } = armar({ proyecto: p, contenido: contenidoReal, cargarMotor: async () => { throw new Error('No se pudo leer js/motor/pantalla.js (404).'); } });
+  for (const [id, a] of archivos) sesion.archivos.set(id, a);
+  clic(q('button[data-accion="publicar"]'));
+  const casilla = q(`.capa-publicar input[data-candidato="${ana.id}"]`);
+  casilla.checked = true;
+  casilla.dispatchEvent(new window.Event('change', { bubbles: true }));
+  clic(q('.capa-publicar button[data-accion="siguiente"]'));
+  clic(q('.capa-publicar button[data-accion="generar"]'));
+  await esperar(() => /No se pudo leer/.test(q('.capa-publicar .publicar-error')?.textContent ?? ''));
+  assert.equal(q('.capa-publicar').hidden, false);
+  assert.equal(sesion.proyecto.publicado, null);
+  assert.equal(descargas.length, 0);
+  const sinMotor = armar({ proyecto: proyectoPublicable().p, contenido: contenidoReal });
+  clic(sinMotor.q('button[data-accion="publicar"]'));
+  const c = sinMotor.q('.capa-publicar input[data-candidato="historia"]');
+  c.checked = true;
+  c.dispatchEvent(new window.Event('change', { bubbles: true }));
+  clic(sinMotor.q('.capa-publicar button[data-accion="siguiente"]'));
+  clic(sinMotor.q('.capa-publicar button[data-accion="generar"]'));
+  await esperar(() => /motor del juego no está disponible/.test(sinMotor.q('.capa-publicar .publicar-error')?.textContent ?? ''));
+  contenedor.remove();
+  sinMotor.contenedor.remove();
+});
+
+test('con el candado puesto, Publicar no abre la capa', () => {
+  const { p } = proyectoConLineas();
+  const { contenedor, q } = armar({ proyecto: p, contenido: contenidoReal });
+  assert.equal(q('button[data-accion="publicar"]').getAttribute('aria-disabled'), 'true');
+  clic(q('button[data-accion="publicar"]'));
+  assert.equal(q('.capa-publicar').hidden, true);
   contenedor.remove();
 });
