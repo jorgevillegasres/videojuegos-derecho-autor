@@ -1,0 +1,562 @@
+{
+  "version": 1,
+  "provisional": true,
+  "nota": "Catálogo provisional. Las piezas las generó un programa de la plataforma (sin autor humano) y se publican bajo CC0; la licencia que muestra cada entrada es parte del ejercicio y «simulado» dice la real. Pendiente de reemplazar por piezas reales de repositorios abiertos, verificadas en la fuente (spec, sección 11).",
+  "generadoCon": "scripts/generar-biblioteca-provisional.js",
+  "piezas": [
+    {
+      "id": "bib_f01",
+      "tipo": "fondo",
+      "titulo": "Muelle de noche",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-4.0",
+      "condiciones": [
+        "BY"
+      ],
+      "archivo": "fondos/muelle-noche.png",
+      "creditoSugerido": "«Muelle de noche», Programa generador del taller, CC BY 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_f02",
+      "tipo": "fondo",
+      "titulo": "Bosque de pinos",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC0",
+      "condiciones": [],
+      "archivo": "fondos/bosque.png",
+      "creditoSugerido": "«Bosque de pinos», Programa generador del taller, CC0 1.0"
+    },
+    {
+      "id": "bib_f03",
+      "tipo": "fondo",
+      "titulo": "Ciudad al atardecer",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-SA-4.0",
+      "condiciones": [
+        "BY",
+        "SA"
+      ],
+      "archivo": "fondos/ciudad-atardecer.png",
+      "creditoSugerido": "«Ciudad al atardecer», Programa generador del taller, CC BY-SA 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_f04",
+      "tipo": "fondo",
+      "titulo": "Desierto",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-ND-4.0",
+      "condiciones": [
+        "BY",
+        "ND"
+      ],
+      "archivo": "fondos/desierto.png",
+      "creditoSugerido": "«Desierto», Programa generador del taller, CC BY-ND 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_f05",
+      "tipo": "fondo",
+      "titulo": "Playa",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "DP",
+      "condiciones": [],
+      "archivo": "fondos/playa.png",
+      "creditoSugerido": "«Playa», dominio público",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_f06",
+      "tipo": "fondo",
+      "titulo": "Montaña nevada",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-4.0",
+      "condiciones": [
+        "BY"
+      ],
+      "archivo": "fondos/montana.png",
+      "creditoSugerido": "«Montaña nevada», Programa generador del taller, CC BY 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_f07",
+      "tipo": "fondo",
+      "titulo": "Cueva",
+      "autor": "Taller «¿De quién es tu videojuego?»",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CURSO",
+      "condiciones": [],
+      "archivo": "fondos/cueva.png",
+      "creditoSugerido": "«Cueva», licencia limitada al curso",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_f08",
+      "tipo": "fondo",
+      "titulo": "Interior del faro",
+      "autor": "Desconocido",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "DESCONOCIDO",
+      "condiciones": [],
+      "archivo": "fondos/interior-faro.png",
+      "creditoSugerido": "",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_r01",
+      "tipo": "retrato",
+      "titulo": "Farera",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-4.0",
+      "condiciones": [
+        "BY"
+      ],
+      "archivo": "retratos/farera.png",
+      "creditoSugerido": "«Farera», Programa generador del taller, CC BY 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_r02",
+      "tipo": "retrato",
+      "titulo": "Niño",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC0",
+      "condiciones": [],
+      "archivo": "retratos/nino.png",
+      "creditoSugerido": "«Niño», Programa generador del taller, CC0 1.0"
+    },
+    {
+      "id": "bib_r03",
+      "tipo": "retrato",
+      "titulo": "Anciana",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-SA-4.0",
+      "condiciones": [
+        "BY",
+        "SA"
+      ],
+      "archivo": "retratos/anciana.png",
+      "creditoSugerido": "«Anciana», Programa generador del taller, CC BY-SA 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_r04",
+      "tipo": "retrato",
+      "titulo": "Robot",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-ND-4.0",
+      "condiciones": [
+        "BY",
+        "ND"
+      ],
+      "archivo": "retratos/robot.png",
+      "creditoSugerido": "«Robot», Programa generador del taller, CC BY-ND 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_r05",
+      "tipo": "retrato",
+      "titulo": "Marinero",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "DP",
+      "condiciones": [],
+      "archivo": "retratos/marinero.png",
+      "creditoSugerido": "«Marinero», dominio público",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_r06",
+      "tipo": "retrato",
+      "titulo": "Gata",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-4.0",
+      "condiciones": [
+        "BY"
+      ],
+      "archivo": "retratos/gata.png",
+      "creditoSugerido": "«Gata», Programa generador del taller, CC BY 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_r07",
+      "tipo": "retrato",
+      "titulo": "Fantasma",
+      "autor": "Taller «¿De quién es tu videojuego?»",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CURSO",
+      "condiciones": [],
+      "archivo": "retratos/fantasma.png",
+      "creditoSugerido": "«Fantasma», licencia limitada al curso",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_r08",
+      "tipo": "retrato",
+      "titulo": "Extraño",
+      "autor": "Desconocido",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "DESCONOCIDO",
+      "condiciones": [],
+      "archivo": "retratos/extrano.png",
+      "creditoSugerido": "",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_m01",
+      "tipo": "musica",
+      "titulo": "Tema del faro",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-4.0",
+      "condiciones": [
+        "BY"
+      ],
+      "archivo": "musica/tema-del-faro.wav",
+      "creditoSugerido": "«Tema del faro», Programa generador del taller, CC BY 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_m02",
+      "tipo": "musica",
+      "titulo": "Marea",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC0",
+      "condiciones": [],
+      "archivo": "musica/marea.wav",
+      "creditoSugerido": "«Marea», Programa generador del taller, CC0 1.0"
+    },
+    {
+      "id": "bib_m03",
+      "tipo": "musica",
+      "titulo": "Persecución",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-NC-4.0",
+      "condiciones": [
+        "BY",
+        "NC"
+      ],
+      "archivo": "musica/persecucion.wav",
+      "creditoSugerido": "«Persecución», Programa generador del taller, CC BY-NC 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_m04",
+      "tipo": "musica",
+      "titulo": "Nana",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "DP",
+      "condiciones": [],
+      "archivo": "musica/nana.wav",
+      "creditoSugerido": "«Nana», dominio público",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_m05",
+      "tipo": "musica",
+      "titulo": "Fiesta en el muelle",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-SA-4.0",
+      "condiciones": [
+        "BY",
+        "SA"
+      ],
+      "archivo": "musica/fiesta.wav",
+      "creditoSugerido": "«Fiesta en el muelle», Programa generador del taller, CC BY-SA 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_m06",
+      "tipo": "musica",
+      "titulo": "Suspenso",
+      "autor": "Taller «¿De quién es tu videojuego?»",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CURSO",
+      "condiciones": [],
+      "archivo": "musica/suspenso.wav",
+      "creditoSugerido": "«Suspenso», licencia limitada al curso",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_e01",
+      "tipo": "efecto",
+      "titulo": "Olas",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-4.0",
+      "condiciones": [
+        "BY"
+      ],
+      "archivo": "efectos/olas.wav",
+      "creditoSugerido": "«Olas», Programa generador del taller, CC BY 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_e02",
+      "tipo": "efecto",
+      "titulo": "Puerta que cruje",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC0",
+      "condiciones": [],
+      "archivo": "efectos/puerta-que-cruje.wav",
+      "creditoSugerido": "«Puerta que cruje», Programa generador del taller, CC0 1.0"
+    },
+    {
+      "id": "bib_e03",
+      "tipo": "efecto",
+      "titulo": "Pasos",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-NC-4.0",
+      "condiciones": [
+        "BY",
+        "NC"
+      ],
+      "archivo": "efectos/pasos.wav",
+      "creditoSugerido": "«Pasos», Programa generador del taller, CC BY-NC 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_e04",
+      "tipo": "efecto",
+      "titulo": "Campana",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "DP",
+      "condiciones": [],
+      "archivo": "efectos/campana.wav",
+      "creditoSugerido": "«Campana», dominio público",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_e05",
+      "tipo": "efecto",
+      "titulo": "Trueno",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-4.0",
+      "condiciones": [
+        "BY"
+      ],
+      "archivo": "efectos/trueno.wav",
+      "creditoSugerido": "«Trueno», Programa generador del taller, CC BY 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_e06",
+      "tipo": "efecto",
+      "titulo": "Chispa",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC0",
+      "condiciones": [],
+      "archivo": "efectos/chispa.wav",
+      "creditoSugerido": "«Chispa», Programa generador del taller, CC0 1.0"
+    },
+    {
+      "id": "bib_e07",
+      "tipo": "efecto",
+      "titulo": "Viento",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-SA-4.0",
+      "condiciones": [
+        "BY",
+        "SA"
+      ],
+      "archivo": "efectos/viento.wav",
+      "creditoSugerido": "«Viento», Programa generador del taller, CC BY-SA 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_e08",
+      "tipo": "efecto",
+      "titulo": "Salpicadura",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC-BY-4.0",
+      "condiciones": [
+        "BY"
+      ],
+      "archivo": "efectos/salpicadura.wav",
+      "creditoSugerido": "«Salpicadura», Programa generador del taller, CC BY 4.0",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_e09",
+      "tipo": "efecto",
+      "titulo": "Clic",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CC0",
+      "condiciones": [],
+      "archivo": "efectos/clic.wav",
+      "creditoSugerido": "«Clic», Programa generador del taller, CC0 1.0"
+    },
+    {
+      "id": "bib_e10",
+      "tipo": "efecto",
+      "titulo": "Pitido",
+      "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "DP",
+      "condiciones": [],
+      "archivo": "efectos/pitido.wav",
+      "creditoSugerido": "«Pitido», dominio público",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_e11",
+      "tipo": "efecto",
+      "titulo": "Zumbido",
+      "autor": "Taller «¿De quién es tu videojuego?»",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "CURSO",
+      "condiciones": [],
+      "archivo": "efectos/zumbido.wav",
+      "creditoSugerido": "«Zumbido», licencia limitada al curso",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    },
+    {
+      "id": "bib_e12",
+      "tipo": "efecto",
+      "titulo": "Risa",
+      "autor": "Desconocido",
+      "fuente": "scripts/generar-biblioteca-provisional.js",
+      "licencia": "DESCONOCIDO",
+      "condiciones": [],
+      "archivo": "efectos/risa.wav",
+      "creditoSugerido": "",
+      "simulado": {
+        "licencia": "CC0",
+        "autor": "Programa generador del taller «¿De quién es tu videojuego?» (sin autor humano)",
+        "fuente": "scripts/generar-biblioteca-provisional.js"
+      }
+    }
+  ]
+}
