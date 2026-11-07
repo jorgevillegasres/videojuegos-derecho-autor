@@ -11,10 +11,17 @@ biblioteca, herramientas de creación y publicación. El recorrido completo del 
 (arrancar, armar el juego, llenar fichas, publicar y jugar el `juego.html` exportado) corre
 en Chromium con Playwright.
 
+## Dónde está publicada
+
+La plataforma vive en <https://jorgevillegasres.github.io/videojuegos-derecho-autor/plataforma/>.
+GitHub Pages la sirve desde la raíz de la rama `main` del repositorio
+<https://github.com/jorgevillegasres/videojuegos-derecho-autor>, sin ningún paso de construcción:
+cada `git push` a `main` publica en uno o dos minutos. La raíz del sitio es una portada con enlaces
+a la plataforma y al portal del curso; el archivo `.nojekyll` evita que Pages procese los archivos
+con Jekyll.
+
 Queda fuera del código:
 
-- **Publicar en GitHub Pages** (spec 15.5): el repositorio no tiene remoto todavía. Al crearlo,
-  la plataforma se sirve desde `/plataforma/` sin ningún paso de construcción.
 - **Biblioteca real.** La biblioteca trae un **catálogo provisional** de 34 piezas generadas por
   programa (`scripts/generar-biblioteca-provisional.js`): no tienen autor humano, se publican bajo
   CC0 y el catálogo las presenta con las licencias del ejercicio, diciéndolo en cada entrada
