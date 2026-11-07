@@ -27,6 +27,8 @@ Es la continuación práctica del taller «¿De quién es tu videojuego?» y del
 
 ## 3. Recorrido del estudiante
 
+> **Nota (6 de noviembre de 2026).** La segunda versión cambia este recorrido: el estudiante parte de un juego de ejemplo y lo hace suyo por fases, con una banda de guía sobre el editor. Está en `2026-11-06-modo-guiado-design.md`; donde los dos difieren, manda ese.
+
 1. **Arranque.** Una sola pantalla explica qué va a hacer y qué va a entregar, y declara que nada sale del navegador. El estudiante escribe su nombre, el título del juego y el **destino del juego**: uso personal, publicarlo gratis o venderlo. El destino condiciona qué licencias sirven y se puede cambiar después.
 2. **Editor.** Arma el juego: escenas, personajes, diálogos con decisiones, fondos, retratos, música, efectos y voces. Cada vez que un elemento entra al juego se abre su ficha jurídica en el panel derecho. Puede dejarla incompleta y seguir; el elemento queda en amarillo o rojo.
 3. **Mapa de activos.** En cualquier momento ve todos sus elementos con su semáforo, en la misma tabla del taller, pero viva.
@@ -457,6 +459,6 @@ Lo que la plataforma necesita afirmar y el memo de verificación no cubre. Ningu
 
 - Eventos jurídicos después de publicar: reclamos simulados que el estudiante responde con sus fichas como prueba.
 - Cuentas, almacenamiento en servidor y vista de docente. El paquete de entrega ya tiene el formato que ese servidor recibiría.
-- Proyecto de ejemplo precargado para ver un juego terminado.
+- Proyecto de ejemplo precargado para ver un juego terminado. *Dejó de ser segunda etapa: es la base del modo guiado (`2026-11-06-modo-guiado-design.md`).*
 - Música con composición y grabación como fichas separadas.
 - Derecho comparado.
