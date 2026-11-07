@@ -221,3 +221,17 @@ test('una pieza CURSO enlaza a la licencia del curso; sin entrada en el catálog
   assert.match(pieza.querySelector('p').textContent, /· Taller$/);
   assert.equal(pieza.querySelector('details'), null, 'sin entrada del catálogo no hay nada que revelar');
 });
+
+test('el resultado de una ficha sin notas no deja ningún texto «null»', () => {
+  const { dibujar, q, qa, ana, fondo, olas, tema } = armar();
+  let sinNotas = 0;
+  for (const id of ['titulo', 'historia', ana.id, fondo.id, olas.id, tema.id]) {
+    dibujar(id);
+    const resultado = q('.ficha-resultado');
+    assert.ok(resultado, `${id}: hay resultado`);
+    assert.ok(!resultado.textContent.includes('null'), `${id}: el resultado no dice «null»: ${resultado.textContent}`);
+    assert.ok(!q('.ficha').textContent.includes('null'), `${id}: la ficha no dice «null»`);
+    if (!qa('.ficha-notas').length) sinNotas++;
+  }
+  assert.ok(sinNotas > 0, 'al menos una ficha sin notas ejercita el caso');
+});

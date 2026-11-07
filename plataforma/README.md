@@ -71,6 +71,10 @@ npm run test:e2e
 Levanta el servidor local en el puerto 8089, usa un micrófono falso para el grabador y termina
 abriendo el `juego.html` y el `informe-juridico.html` del paquete descargado.
 
+`tests/e2e/inventario.spec.js` mide lo que jsdom no puede: que los botones del inventario quepan en su
+columna sin desplazamiento escondido y que la lista «Falta para publicar» no reciba los clics del panel
+derecho. Playwright desplaza a la vista lo que pulsa, así que el recorrido solo no lo detecta.
+
 ## Contenido jurídico
 
 Todos los textos que ve el estudiante están en `contenido/juridico.json`. Las entradas

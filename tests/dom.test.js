@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { instalarDom, clic } from './ayudas/dom.js';
-import { h, vaciar, conservarFoco, anunciar, descargar } from '../plataforma/js/ui/dom.js';
+import { h, vaciar, rellenar, conservarFoco, anunciar, descargar } from '../plataforma/js/ui/dom.js';
 
 instalarDom();
 
@@ -57,4 +57,12 @@ test('descargar crea un enlace con el nombre, lo pulsa y libera la URL', () => {
   });
   assert.deepEqual(llamadas, [['crear', 'text/plain'], ['pulsar', 'copia.zip', 'blob:x'], ['liberar', 'blob:x']]);
   assert.equal(document.querySelector('a[download]'), null, 'el enlace no queda en el documento');
+});
+
+test('rellenar vacía el nodo y agrega los hijos saltando null, undefined y false', () => {
+  const nodo = h('div', {}, h('span', {}, 'viejo'));
+  const devuelto = rellenar(nodo, h('p', {}, 'uno'), null, undefined, false, 'dos', [h('b', {}, 'tres'), null]);
+  assert.equal(devuelto, nodo);
+  assert.equal(nodo.innerHTML, '<p>uno</p>dos<b>tres</b>');
+  assert.ok(!nodo.textContent.includes('null'));
 });

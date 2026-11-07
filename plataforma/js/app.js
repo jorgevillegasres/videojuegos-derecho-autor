@@ -3,7 +3,7 @@
 // pantalla de inicio o el editor. Atrapa los errores inesperados para que nunca quede
 // una pantalla en blanco (spec, sección 17).
 import { comprobar, NAVEGADORES } from './ui/capacidades.js';
-import { h, vaciar } from './ui/dom.js';
+import { h, rellenar } from './ui/dom.js';
 import { cargarContenido } from './juridico/textos.js';
 import { abrirAlmacen } from './estado/almacen.js';
 import { crearProyecto } from './estado/modelo.js';
@@ -26,7 +26,7 @@ let paletaActual = null; // colores de contenido/paleta.json, o null si no carg�
 let motorCargado = null; // el motor leído de la propia plataforma para juego.html; se lee una vez, al publicar
 
 function pantallaDeError(titulo, detalle, lista = []) {
-  vaciar(raiz).append(h('main', { class: 'inicio', id: 'contenido' },
+  rellenar(raiz, h('main', { class: 'inicio', id: 'contenido' },
     h('h1', {}, titulo),
     h('p', {}, detalle),
     lista.length ? h('ul', {}, lista.map((texto) => h('li', {}, texto))) : null,

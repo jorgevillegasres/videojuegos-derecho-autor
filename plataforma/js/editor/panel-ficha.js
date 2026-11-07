@@ -4,7 +4,7 @@
 // resultado del semáforo con razones, acciones y notas. Qué se muestra y qué se
 // limpia lo decide juridico/formulario.js; aquí solo se dibuja.
 // Los textos pendientes de verificación llevan la marca «Por verificar» (spec 19.13).
-import { h, vaciar } from '../ui/dom.js';
+import { h, rellenar } from '../ui/dom.js';
 import { evaluar } from '../juridico/semaforo.js';
 import { describir } from '../juridico/textos.js';
 import { visibles, aplicarCambio, ETIQUETAS, PREGUNTAS, LICENCIAS_ELEGIBLES } from '../juridico/formulario.js';
@@ -71,7 +71,7 @@ export function panelFicha(sesion, idFicha, { contenido, alSeleccionar = () => {
     const descrito = describir(evaluar(ficha, { destino: sesion.proyecto.juego.destino }), ficha, contenido);
     const hayA01 = descrito.razones.some((r) => r.codigo === 'A01');
     const razones = hayA01 ? descrito.razones.filter((r) => r.codigo !== 'A02') : descrito.razones;
-    vaciar(resultado).append(
+    rellenar(resultado,
       h('p', { class: 'ficha-color' }, puntoSemaforo(descrito.color), ' ', h('strong', {}, `Semáforo: ${NOMBRES_COLOR[descrito.color]}`)),
       razones.length ? h('ul', { class: 'ficha-razones' }, razones.map((r) => razonNodo(r, 'razon'))) : h('p', { class: 'ficha-ok' }, 'Ninguna regla aplica.'),
       descrito.notas.length ? h('ul', { class: 'ficha-notas' }, descrito.notas.map((n) => razonNodo(n, 'nota'))) : null,

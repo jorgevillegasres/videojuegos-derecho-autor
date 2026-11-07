@@ -32,6 +32,13 @@ export function vaciar(nodo) {
   return nodo;
 }
 
+/** Vacía el nodo y agrega los hijos como lo hace h(): null, undefined y false se saltan. */
+export function rellenar(nodo, ...hijos) {
+  vaciar(nodo);
+  agregar(nodo, hijos);
+  return nodo;
+}
+
 /** Redibuja con fn() y devuelve el foco al nodo que tenga el mismo data-foco que el que lo tenía. */
 export function conservarFoco(contenedor, fn) {
   const activo = document.activeElement;

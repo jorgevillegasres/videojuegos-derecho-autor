@@ -81,6 +81,7 @@ textarea { resize: vertical; font-family: var(--body); }
 .publicar { position: relative; display: inline-block; }
 .con-candado { color: var(--claro-muted); }
 .publicar-falta {
+  pointer-events: none; /* el cursor que baja desde «Publicar» no la mantiene abierta ni la convierte en pared */
   display: none; position: absolute; right: 0; top: calc(100% + 6px); z-index: 40;
   width: min(360px, 80vw); padding: 10px 12px;
   background: var(--claro-panel); color: var(--claro-ink);
@@ -107,7 +108,7 @@ textarea { resize: vertical; font-family: var(--body); }
 /* ---------- Inventario ---------- */
 .inventario { display: grid; gap: 16px; }
 .inventario-seccion { display: grid; gap: 6px; }
-.inventario-cabecera { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.inventario-cabecera { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; }
 .lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
 .entrada {
   display: grid; grid-template-columns: 16px 1fr auto; align-items: center; gap: 8px;
@@ -226,7 +227,7 @@ audio.muestra { width: 100%; background: transparent; border: 0; }
 body.con-mapa { overflow: hidden; }
 
 /* ---------- Biblioteca ---------- */
-.inventario-botones { display: flex; gap: 4px; }
+.inventario-botones { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; margin-left: auto; } /* a la derecha, también cuando baja de línea */
 .capa-biblioteca { position: fixed; inset: 0; z-index: 66; overflow: auto; padding: 24px; background: rgba(26, 29, 34, .55); }
 .biblioteca { width: min(1100px, 100%); margin: 0 auto; padding: 20px 24px; background: var(--claro-panel); border-radius: var(--radius); box-shadow: var(--shadow); }
 .biblioteca-filtros { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
