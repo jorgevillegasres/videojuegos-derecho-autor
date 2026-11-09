@@ -1,6 +1,6 @@
 // plataforma/js/editor/editor.js
-// Arma el editor (spec, sección 7): barra, inventario, escena activa (vista previa y
-// guion), propiedades, avisos, y el reproductor sobre el editor. Coordina la selección
+// Arma el editor (spec, sección 7): barra y banda de guía (modo guiado), inventario,
+// escena activa (vista previa y guion), propiedades, avisos, y el reproductor sobre el editor. Coordina la selección
 // y decide qué redibujar con cada cambio según su origen y si cambió la estructura.
 import { h, vaciar, anunciar, descargar } from '../ui/dom.js';
 import { exportarCopia, importarCopia } from '../estado/copias.js';
@@ -20,6 +20,8 @@ import { crearElementoCreado, reemplazarArchivoCreado } from './creados.js';
 import { nombreDeArchivo } from '../estado/archivos.js';
 import { crearPublicar } from './publicar.js';
 import { generarEntrega } from '../exportar/paquete.js';
+import { crearBanda, retirarMuestrasSinUso } from '../guia/banda.js';
+import { asegurarGuia } from '../estado/modelo.js';
 
 const AVISO_MS = 6000;
 
@@ -64,12 +66,15 @@ export function crearEditor(contenedor, sesion, {
   let seleccion = null;
   let escenaActivaId = null;
   let reproductor = null;
+  // Los proyectos guardados por la primera versión no traen guía.
+  asegurarGuia(sesion.proyecto);
 
   // ---- estructura de la página ----
   const zonaBarra = h('div', { class: 'zona-barra' });
+  const zonaGuia = h('section', { class: 'zona-guia', 'aria-label': 'Guía' });
   const zonaInventario = h('aside', { class: 'columna columna-inventario', 'aria-label': 'Inventario' });
   const zonaVistaPrevia = h('div', { class: 'zona-vista-previa' });
-  const zonaGuion = h('div', { class: 'zona-guion' });
+  const zonaGuion = h('div', { class: 'zona-guion', dataset: { seccion: 'guion' } });
   const zonaPropiedades = h('aside', { class: 'columna columna-propiedades', 'aria-label': 'Propiedades' });
   const zonaAvisos = h('div', { class: 'avisos' });
   const zonaDialogo = h('div', { class: 'capa-dialogo', hidden: true });
@@ -81,7 +86,7 @@ export function crearEditor(contenedor, sesion, {
   const estadoGuardado = h('span', { class: 'estado-guardado', 'aria-live': 'polite' });
   const botonJugarAqui = h('button', { type: 'button', class: 'btn btn-ghost btn-sm', dataset: { accion: 'jugar-aqui' }, onclick: () => jugarDesde(escenaActivaId) }, '▶ Jugar desde esta escena');
   vaciar(contenedor).append(
-    zonaBarra,
+    h('div', { class: 'zona-superior' }, zonaBarra, zonaGuia),
     h('div', { class: 'editor', id: 'contenido' },
       zonaInventario,
       h('main', { class: 'columna columna-centro' }, zonaVistaPrevia, h('div', { class: 'centro-acciones' }, botonJugarAqui, estadoGuardado), zonaGuion),
@@ -122,6 +127,11 @@ export function crearEditor(contenedor, sesion, {
     confirmar,
     piezaDe: (id) => catalogo?.piezaDe(id) ?? null,
     alEditarPixel: herramientas ? (id) => editarPixel(id) : null,
+    alReemplazar: (clave) => {
+      if (clave === 'subir') subirArchivo();
+      else if (clave === 'biblioteca' && catalogo) abrirBiblioteca('retrato');
+      else if (clave === 'pixel' && herramientas) crearConHerramienta('pixel');
+    },
   });
   const biblioteca = catalogo ? crearBiblioteca(zonaBiblioteca, catalogo, {
     alElegir: usarPieza,
@@ -131,9 +141,9 @@ export function crearEditor(contenedor, sesion, {
     },
   }) : null;
 
-  function abrirBiblioteca() {
+  function abrirBiblioteca(tipo) {
     document.body.classList.add('con-biblioteca');
-    biblioteca.abrir();
+    biblioteca.abrir(tipo);
   }
 
   /** Mete la pieza elegida al juego y abre su ficha, que llega precargada desde el catálogo. */
@@ -175,6 +185,17 @@ export function crearEditor(contenedor, sesion, {
     document.body.classList.add('con-publicar');
     publicar.abrir();
   }
+
+  // ---- guía (diseño del modo guiado, sección 7) ----
+  // La banda no anuncia sola: refrescar junta su mensaje con el de los semáforos en un solo anuncio.
+  const banda = crearBanda(zonaGuia, sesion, {
+    contenido: contenido ?? {},
+    raiz: contenedor,
+    alJugar: () => jugarDesde(sesion.proyecto.juego.escenaInicial),
+    alMapa: () => abrirMapa(),
+    alPublicar: () => abrirPublicar(),
+    anunciar: null,
+  });
 
   /** Escribe la fecha de publicación, genera el paquete y lo descarga. Si algo falla, la fecha vuelve atrás y el error sube a la capa. */
   async function generarPaquete() {
@@ -226,11 +247,13 @@ export function crearEditor(contenedor, sesion, {
   const coloresDe = () => new Map([...evaluarTodo(sesion.proyecto)].map(([id, r]) => [id, r.color]));
   let colores = coloresDe();
 
-  function anunciarSemaforos() {
+  function anunciarSemaforos(mensajeGuia = null) {
     const nuevos = coloresDe();
     const cambios = [...nuevos].filter(([id, color]) => colores.has(id) && colores.get(id) !== color);
     colores = nuevos;
-    if (cambios.length) anunciar(cambios.map(([id, color]) => `Semáforo de «${nombreDe(sesion.proyecto, id)}»: ${color}`).join('. '));
+    const textos = cambios.map(([id, color]) => `Semáforo de «${nombreDe(sesion.proyecto, id)}»: ${color}`);
+    if (mensajeGuia) textos.push(mensajeGuia);
+    if (textos.length) anunciar(textos.join('. '));
   }
 
   function refrescar({ origen, estructura }) {
@@ -241,11 +264,13 @@ export function crearEditor(contenedor, sesion, {
     if (estructura || (origen !== 'propiedades' && origen !== 'publicar')) propiedades.dibujar(seleccion);
     if (estructura || (origen !== 'guion' && origen !== 'publicar')) guion.dibujar(escenaActiva(), indice);
     mapa.dibujar();
-    anunciarSemaforos();
+    anunciarSemaforos(banda.dibujar());
   }
 
   sesion.suscribir((evento) => {
     if (evento.tipo === 'cambio') {
+      // Un retrato de muestra que ya nadie usa se retira solo; ese cambio de la guía ya redibuja todo.
+      if (evento.origen !== 'guia' && retirarMuestrasSinUso(sesion, mostrarError).length) return;
       estadoGuardado.textContent = 'Guardando…';
       refrescar(evento);
     } else if (evento.tipo === 'guardado') {
@@ -255,9 +280,11 @@ export function crearEditor(contenedor, sesion, {
     } else if (evento.tipo === 'recordatorio') {
       avisar('Llevas 50 cambios sin guardar una copia. Descarga una por si acaso.', { accion: ['Guardar copia', guardarCopia] });
     } else if (evento.tipo === 'reemplazo') {
+      asegurarGuia(sesion.proyecto);
       escenaActivaId = null;
       colores = coloresDe();
       barra.dibujar();
+      banda.dibujar();
       seleccionar(null);
     }
   });
@@ -295,6 +322,10 @@ export function crearEditor(contenedor, sesion, {
     reproductor = jugar(zonaReproductor, sesion.proyecto.juego, (id) => sesion.resolverRecurso(id), {
       escenaInicial,
       creditos: creditos(sesion.proyecto),
+      // Fase 0 de la guía: jugar hasta los créditos.
+      alTerminar: () => {
+        if (sesion.proyecto.guia && !sesion.proyecto.guia.jugado) sesion.cambiar((p) => { p.guia.jugado = true; }, { origen: 'guia' });
+      },
       alCerrar: () => {
         reproductor = null;
         zonaReproductor.hidden = true;
@@ -337,7 +368,7 @@ export function crearEditor(contenedor, sesion, {
       publicar.cerrar();
       cerrarReproductor();
       await sesion.reemplazar(copia.proyecto, copia.archivos);
-      avisar('Copia abierta.');
+      avisar(copia.guiaCorregida ? 'Copia abierta. La guía no reconoció la fase guardada y volvió al inicio.' : 'Copia abierta.');
     } catch (error) {
       mostrarError(error);
     }
@@ -455,6 +486,7 @@ export function crearEditor(contenedor, sesion, {
 
   // ---- arranque ----
   barra.dibujar();
+  banda.dibujar();
   seleccionar({ tipo: 'escena', id: sesion.proyecto.juego.escenaInicial });
   if (avisoInicial) avisar(avisoInicial);
 
@@ -475,6 +507,7 @@ export function crearEditor(contenedor, sesion, {
       mapa.cerrar();
       publicar.cerrar();
       cerrarReproductor();
+      delete contenedor.dataset.fase;
       vaciar(contenedor);
     },
   };

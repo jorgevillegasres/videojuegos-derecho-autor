@@ -8,7 +8,8 @@ import { motorDesdeDisco } from './ayudas/motor.js';
 import { sesionDePrueba } from './ayudas/sesion.js';
 import { proyectoPublicable } from './ayudas/proyecto.js';
 import { catalogoCargado } from './ayudas/catalogo.js';
-import { crearProyecto, agregarEscena, agregarLinea } from '../plataforma/js/estado/modelo.js';
+import { crearProyecto, agregarEscena, agregarLinea, agregarElemento } from '../plataforma/js/estado/modelo.js';
+import { ejemploArmado } from './ayudas/ejemplo.js';
 import { exportarCopia, importarCopia } from '../plataforma/js/estado/copias.js';
 import { crearEditor } from '../plataforma/js/editor/editor.js';
 
@@ -448,5 +449,46 @@ test('con el candado puesto, Publicar no abre la capa', () => {
   assert.equal(q('button[data-accion="publicar"]').getAttribute('aria-disabled'), 'true');
   clic(q('button[data-accion="publicar"]'));
   assert.equal(q('.capa-publicar').hidden, true);
+  contenedor.remove();
+});
+
+test('el editor aloja la banda en la zona superior y marca su raíz con la fase', async () => {
+  const { proyecto } = await ejemploArmado();
+  const { contenedor, q, editor } = armar({ proyecto, contenido: contenidoReal });
+  assert.ok(q('.zona-superior > .zona-barra'));
+  assert.ok(q('.zona-superior > section.zona-guia[aria-label="Guía"] .banda'));
+  assert.equal(contenedor.dataset.fase, 'conocer');
+  assert.ok(q('[data-seccion="guion"]'));
+  editor.destruir();
+  assert.equal(contenedor.dataset.fase, undefined);
+  contenedor.remove();
+});
+
+test('jugar hasta los créditos marca guia.jugado y habilita Siguiente', async () => {
+  const { proyecto, archivos } = await ejemploArmado();
+  const { contenedor, q, sesion } = armar({ proyecto, contenido: contenidoReal });
+  for (const [id, archivo] of archivos) sesion.archivos.set(id, archivo);
+  clic(q('[data-accion="guia-jugar"]'));
+  const escena = q('.capa-reproductor .reproductor-escena');
+  for (let i = 0; i < 20 && !q('.capa-reproductor .escenario-creditos:not([hidden])'); i += 1) {
+    const opcion = q('.capa-reproductor .opcion');
+    clic(opcion ?? escena);
+  }
+  assert.ok(q('.capa-reproductor .escenario-creditos:not([hidden])'));
+  assert.equal(sesion.proyecto.guia.jugado, true);
+  assert.equal(q('[data-accion="guia-siguiente"]').disabled, false);
+  contenedor.remove();
+});
+
+test('al asignar un retrato propio, el de muestra se retira solo y el inventario lo deja de mostrar', async () => {
+  const { proyecto, archivos } = await ejemploArmado();
+  const { contenedor, q, qa, sesion } = armar({ proyecto, contenido: contenidoReal });
+  for (const [id, archivo] of archivos) sesion.archivos.set(id, archivo);
+  assert.equal(qa('.entrada-muestra').length, 2);
+  const [ana] = sesion.proyecto.juego.personajes;
+  const propio = sesion.cambiar((p) => agregarElemento(p, { tipo: 'retrato', nombre: 'Propio', archivo: 'propio.png', origen: 'creado' }), { origen: 'inventario', estructura: true });
+  sesion.cambiar(() => { ana.retrato = propio.id; }, { origen: 'propiedades' });
+  assert.equal(qa('.entrada-muestra').length, 1);
+  assert.equal(sesion.proyecto.juego.elementos.filter((e) => e.origen === 'muestra').length, 1);
   contenedor.remove();
 });
