@@ -125,3 +125,23 @@ test('con alCerrar hay botón Cerrar y Escape; cerrar detiene el audio y vacía 
   assert.deepEqual(registro.at(-1), ['pause', 'blob:tema']);
   contenedor.remove();
 });
+
+test('alTerminar se llama una vez al llegar a los créditos, y otra vez tras reiniciar', () => {
+  const p = crearProyecto({ estudiante: 'Camila R.', titulo: 'El faro de Camila' });
+  agregarLinea(p.juego.escenas[0], 'narracion', { texto: 'Niebla.' });
+  agregarLinea(p.juego.escenas[0], 'fin', { texto: 'Fin.' });
+  const juego = p.juego;
+  const contenedor = document.createElement('div');
+  document.body.append(contenedor);
+  let terminadas = 0;
+  const { raiz } = jugar(contenedor, juego, () => null, { alTerminar: () => { terminadas += 1; }, crearAudio: () => ({ play() {}, pause() {} }) });
+  const escena = raiz.querySelector('.reproductor-escena');
+  for (let i = 0; i < 10 && !raiz.querySelector('.escenario-creditos:not([hidden])'); i += 1) clic(escena);
+  assert.ok(raiz.querySelector('.escenario-creditos:not([hidden])'));
+  clic(escena);
+  assert.equal(terminadas, 1, 'quedarse en los créditos no vuelve a avisar');
+  clic(raiz.querySelector('[data-accion="reiniciar"]'));
+  for (let i = 0; i < 10 && !raiz.querySelector('.escenario-creditos:not([hidden])'); i += 1) clic(escena);
+  assert.equal(terminadas, 2);
+  contenedor.remove();
+});

@@ -5,7 +5,8 @@
 //
 // jugar(contenedor, juego, resolverRecurso, opciones) → { cerrar, partida, raiz }
 //   resolverRecurso(id) → URL del archivo del elemento, o null.
-//   opciones: escenaInicial, creditos (lista de textos), titulo, alCerrar, crearAudio.
+//   opciones: escenaInicial, creditos (lista de textos), titulo, alCerrar, crearAudio, y
+//   alTerminar (se llama una vez por partida que llega a los créditos; «Reiniciar» la rearma).
 import { crearPartida, vistaActual, avanzar, elegir, reiniciar } from './partida.js';
 import { crearPantalla } from './pantalla.js';
 import { h, vaciar } from '../ui/dom.js';
@@ -66,19 +67,21 @@ export function jugar(contenedor, juego, resolverRecurso, opciones = {}) {
     creditos = [],
     titulo = juego.titulo,
     alCerrar = null,
+    alTerminar = null,
     crearAudio = (url) => new Audio(url),
   } = opciones;
   const nombreJuego = titulo?.trim() || 'Sin título';
   const partida = crearPartida(juego, { escenaInicial });
   const audio = crearMezclador(crearAudio, resolverRecurso);
   let enCreditos = false; // abiertos con el botón, sobre cualquier punto de la partida
+  let terminoAvisado = false; // alTerminar se llama una vez por partida terminada
   let ultimaLinea = null; // "escena:índice" de la última línea dibujada, para no repetir efecto ni voz
 
   const boton = (accion, texto, alPulsar, extra = {}) =>
     h('button', { type: 'button', class: 'btn btn-ghost btn-sm', dataset: { accion }, onclick: alPulsar, ...extra }, texto);
   const botonCreditos = boton('creditos', 'Créditos', () => { enCreditos = true; dibujar(); });
   const botonVolver = boton('volver', 'Volver al juego', () => { enCreditos = false; dibujar(); }, { hidden: true });
-  const botonReiniciar = boton('reiniciar', 'Reiniciar', () => { reiniciar(partida); enCreditos = false; ultimaLinea = null; dibujar(); });
+  const botonReiniciar = boton('reiniciar', 'Reiniciar', () => { reiniciar(partida); enCreditos = false; ultimaLinea = null; terminoAvisado = false; dibujar(); });
   const botonCerrar = alCerrar ? boton('cerrar', 'Cerrar', () => cerrar()) : null;
 
   const zonaEscena = h('div', { class: 'reproductor-escena', onclick: alClic });
@@ -99,6 +102,10 @@ export function jugar(contenedor, juego, resolverRecurso, opciones = {}) {
       pantalla.mostrarCreditos(nombreJuego, creditos);
       botonCreditos.hidden = true;
       botonVolver.hidden = terminada;
+      if (terminada && !terminoAvisado) {
+        terminoAvisado = true;
+        alTerminar?.();
+      }
       return;
     }
     botonCreditos.hidden = false;
