@@ -18,7 +18,9 @@ const etiquetaFase = (i) => (i === 0 ? 'Inicio' : `Fase ${i} de ${FASES.length -
 
 /**
  * Elimina los elementos de muestra que ningún personaje usa (y sus archivos). El estudiante
- * nunca los borra a mano. Devuelve los ids retirados.
+ * nunca los borra a mano. Devuelve los ids retirados. Los archivos se borran después de guardar
+ * el proyecto sin esos elementos: si se cierra la pestaña en medio, el proyecto guardado nunca
+ * apunta a un archivo que ya no está.
  * @param {object} sesion de crearSesion
  * @param {(error: Error) => void} alError si el almacén no pudo borrar un archivo
  */
@@ -28,7 +30,9 @@ export function retirarMuestrasSinUso(sesion, alError = () => {}) {
   const sobrantes = juego.elementos.filter((e) => e.origen === 'muestra' && !usados.has(e.id)).map((e) => e.id);
   if (!sobrantes.length) return [];
   sesion.cambiar((p) => { for (const id of sobrantes) eliminarElemento(p, id); }, { origen: 'guia', estructura: true });
-  for (const id of sobrantes) sesion.quitarArchivo(id).catch(alError);
+  sesion.guardarAhora()
+    .then(() => Promise.all(sobrantes.map((id) => sesion.quitarArchivo(id))))
+    .catch(alError);
   return sobrantes;
 }
 

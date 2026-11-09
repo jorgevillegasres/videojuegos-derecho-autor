@@ -248,3 +248,12 @@ test('la ficha de un retrato de muestra solo avisa y ofrece reemplazarlo', () =>
   for (const boton of nodo.querySelectorAll('button[data-accion^="reemplazar-"]')) clic(boton);
   assert.deepEqual(pedidos, ['pixel', 'subir', 'biblioteca']);
 });
+
+test('en la ficha de muestra, una opción que no está disponible se ve deshabilitada', () => {
+  const p = crearProyecto({ estudiante: 'Camila R.', titulo: 'El faro de Camila' });
+  const muestra = agregarElemento(p, { tipo: 'retrato', nombre: 'Muestra', archivo: 'm.png', origen: 'muestra' });
+  const { sesion } = sesionDePrueba(p);
+  const nodo = panelFicha(sesion, muestra.id, { contenido, alReemplazar: () => {}, reemplazoDisponible: (clave) => clave === 'subir' });
+  const estado = Object.fromEntries([...nodo.querySelectorAll('button[data-accion^="reemplazar-"]')].map((b) => [b.dataset.accion, b.disabled]));
+  assert.deepEqual(estado, { 'reemplazar-pixel': true, 'reemplazar-subir': false, 'reemplazar-biblioteca': true });
+});

@@ -97,10 +97,15 @@ test('retirarMuestrasSinUso quita los retratos de muestra que ningún personaje 
   assert.deepEqual(retirarMuestrasSinUso(sesion), [], 'mientras se usan, se quedan');
   const propio = sesion.cambiar((p) => agregarElemento(p, { tipo: 'retrato', nombre: 'Propio', archivo: 'propio.png', origen: 'creado' }));
   sesion.cambiar(() => { ana.retrato = propio.id; });
+  const guardados = [];
+  const guardarOriginal = sesion.almacen.guardar;
+  sesion.almacen.guardar = async (p) => { guardados.push(p.juego.elementos.some((e) => e.id === muestra)); return guardarOriginal(p); };
   assert.deepEqual(retirarMuestrasSinUso(sesion), [muestra]);
   assert.equal(sesion.proyecto.juego.elementos.some((e) => e.id === muestra), false);
   assert.equal(sesion.proyecto.fichas[muestra], undefined);
-  await new Promise((r) => setTimeout(r, 0));
+  assert.equal(sesion.archivos.has(muestra), true, 'el archivo no se borra antes de guardar el proyecto sin él');
+  await new Promise((r) => setTimeout(r, 10));
+  assert.deepEqual(guardados, [false], 'primero se guarda el proyecto ya sin el retrato');
   assert.equal(sesion.archivos.has(muestra), false);
   cerrar();
 });

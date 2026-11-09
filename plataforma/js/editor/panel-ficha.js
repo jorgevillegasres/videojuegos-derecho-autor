@@ -43,10 +43,11 @@ const URL_LICENCIA_CURSO = new URL('../../biblioteca/LICENCIA-CURSO.md', import.
  * @param {{ contenido: object, alSeleccionar?: (seleccion: object) => void, titulo?: string, piezaDe?: (id: string) => object|null }} opciones
  *   piezaDe devuelve la entrada del catálogo de una pieza de biblioteca (para la fuente y lo simulado); puede faltar.
  *   alReemplazar(clave) abre Pixel art ('pixel'), Subir archivo ('subir') o la Biblioteca ('biblioteca') para
- *   reemplazar un retrato de muestra del ejemplo; puede faltar.
+ *   reemplazar un retrato de muestra del ejemplo; puede faltar. reemplazoDisponible(clave) dice si esa opción
+ *   funciona (sin herramientas o sin biblioteca, el botón se ve deshabilitado).
  * @returns {HTMLElement}
  */
-export function panelFicha(sesion, idFicha, { contenido, alSeleccionar = () => {}, titulo = 'Ficha jurídica', piezaDe = () => null, alReemplazar = null }) {
+export function panelFicha(sesion, idFicha, { contenido, alSeleccionar = () => {}, titulo = 'Ficha jurídica', piezaDe = () => null, alReemplazar = null, reemplazoDisponible = () => true }) {
   const ficha = sesion.proyecto.fichas[idFicha];
   if (!ficha) return h('section', { class: 'ficha' }, h('h3', {}, titulo), h('p', { class: 'vacio' }, 'Esta ficha ya no existe.'));
   const { juego } = sesion.proyecto;
@@ -58,7 +59,7 @@ export function panelFicha(sesion, idFicha, { contenido, alSeleccionar = () => {
       h('h3', {}, titulo),
       h('p', { class: 'ficha-muestra-aviso' }, 'Retrato de muestra del ejemplo: reemplázalo por uno tuyo.'),
       alReemplazar ? h('div', { class: 'acciones' }, opciones.map(([clave, texto]) =>
-        h('button', { type: 'button', class: 'btn btn-ghost btn-sm', dataset: { accion: `reemplazar-${clave}` }, onclick: () => alReemplazar(clave) }, texto))) : null);
+        h('button', { type: 'button', class: 'btn btn-ghost btn-sm', dataset: { accion: `reemplazar-${clave}` }, disabled: !reemplazoDisponible(clave), onclick: () => alReemplazar(clave) }, texto))) : null);
   }
   const pieza = elemento?.biblioteca ? piezaDe(elemento.biblioteca.id) : null;
   const v = visibles(ficha);

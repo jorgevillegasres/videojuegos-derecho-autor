@@ -132,6 +132,7 @@ export function crearEditor(contenedor, sesion, {
       else if (clave === 'biblioteca' && catalogo) abrirBiblioteca('retrato');
       else if (clave === 'pixel' && herramientas) crearConHerramienta('pixel');
     },
+    reemplazoDisponible: (clave) => (clave === 'pixel' ? Boolean(herramientas) : clave === 'biblioteca' ? Boolean(catalogo) : true),
   });
   const biblioteca = catalogo ? crearBiblioteca(zonaBiblioteca, catalogo, {
     alElegir: usarPieza,
@@ -286,6 +287,7 @@ export function crearEditor(contenedor, sesion, {
       barra.dibujar();
       banda.dibujar();
       seleccionar(null);
+      retirarMuestrasSinUso(sesion, mostrarError);
     }
   });
 
@@ -488,6 +490,8 @@ export function crearEditor(contenedor, sesion, {
   barra.dibujar();
   banda.dibujar();
   seleccionar({ tipo: 'escena', id: sesion.proyecto.juego.escenaInicial });
+  // Una copia editada a mano puede traer retratos de muestra sin uso: se retiran al abrir, no en la primera edición.
+  retirarMuestrasSinUso(sesion, mostrarError);
   if (avisoInicial) avisar(avisoInicial);
 
   return {

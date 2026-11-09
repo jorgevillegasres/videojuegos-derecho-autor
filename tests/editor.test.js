@@ -492,3 +492,15 @@ test('al asignar un retrato propio, el de muestra se retira solo y el inventario
   assert.equal(sesion.proyecto.juego.elementos.filter((e) => e.origen === 'muestra').length, 1);
   contenedor.remove();
 });
+
+test('un retrato de muestra que nadie usa se retira al abrir el editor, no en la primera edición', async () => {
+  const { proyecto, archivos } = await ejemploArmado();
+  const [ana] = proyecto.juego.personajes;
+  const propio = agregarElemento(proyecto, { tipo: 'retrato', nombre: 'Propio', archivo: 'propio.png', origen: 'creado' });
+  ana.retrato = propio.id;
+  const { contenedor, qa, sesion } = armar({ proyecto, contenido: contenidoReal });
+  for (const [id, archivo] of archivos) sesion.archivos.set(id, archivo);
+  assert.equal(sesion.proyecto.juego.elementos.filter((e) => e.origen === 'muestra').length, 1);
+  assert.equal(qa('.entrada-muestra').length, 1);
+  contenedor.remove();
+});

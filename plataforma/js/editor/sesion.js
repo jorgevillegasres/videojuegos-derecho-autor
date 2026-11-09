@@ -71,10 +71,11 @@ export function crearSesion({
     /** Aplica fn(proyecto), programa el guardado y avisa { tipo: 'cambio', ...detalle }. Devuelve lo que fn devuelva. */
     cambiar(fn, detalle = {}) {
       const resultado = fn(sesion.proyecto);
-      cambiosSinCopia += 1;
+      // El número se fija antes de avisar: un oyente puede hacer otro cambio dentro de este aviso.
+      const numero = (cambiosSinCopia += 1);
       programar();
       avisar({ tipo: 'cambio', ...detalle });
-      if (cambiosSinCopia === CAMBIOS_PARA_RECORDAR) avisar({ tipo: 'recordatorio' });
+      if (numero === CAMBIOS_PARA_RECORDAR) avisar({ tipo: 'recordatorio' });
       return resultado;
     },
     async agregarArchivo(id, archivo) {

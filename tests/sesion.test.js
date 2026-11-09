@@ -128,3 +128,16 @@ test('reemplazar cambia proyecto y archivos en el almacén, libera las URLs, rei
   assert.equal(tipos().at(-1), 'reemplazo');
   await almacen.cerrar();
 });
+
+test('un cambio hecho dentro de un oyente no duplica el recordatorio de los 50 cambios', () => {
+  const { sesion, tipos } = armar({ almacen: { guardar: async () => {} } });
+  let anidado = false;
+  sesion.suscribir((evento) => {
+    if (evento.tipo === 'cambio' && sesion.cambiosSinCopia === CAMBIOS_PARA_RECORDAR - 1 && !anidado) {
+      anidado = true;
+      sesion.cambiar(() => {}, { origen: 'guia' });
+    }
+  });
+  for (let i = 0; i < CAMBIOS_PARA_RECORDAR + 2; i += 1) sesion.cambiar(() => {});
+  assert.equal(tipos().filter((t) => t === 'recordatorio').length, 1);
+});
