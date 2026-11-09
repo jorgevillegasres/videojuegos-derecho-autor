@@ -27,6 +27,11 @@ Queda fuera del código:
   CC0 y el catálogo las presenta con las licencias del ejercicio, diciéndolo en cada entrada
   (`simulado`) y en `biblioteca/CREDITOS.md`. Reemplazarlas por piezas reales es una tarea de
   contenido (ver abajo).
+- **Juego de ejemplo.** El modo guiado parte de «La llave del faro», que se arma por código al pulsar
+  «Empezar» (`js/guia/ejemplo.js`). Usa tres piezas del catálogo (`bib_f01`, `bib_m05`, `bib_e02`,
+  fijadas en `js/guia/muestra.js`; si la biblioteca cambia, deben seguir existiendo o cambiarse allí) y
+  dos retratos de muestra en `ejemplo/`, dibujados por programa (`scripts/generar-ejemplo.js`), sin autor
+  humano y publicados bajo CC0.
 - **Verificación jurídica pendiente** (spec, sección 19): los textos marcados `pendiente` en
   `contenido/juridico.json` salen con la marca «Por verificar» en la ficha, en el mapa y en el
   informe, y se listan al final del informe.
