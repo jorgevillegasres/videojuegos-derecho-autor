@@ -6,7 +6,6 @@ import { comprobar, NAVEGADORES } from './ui/capacidades.js';
 import { h, rellenar } from './ui/dom.js';
 import { cargarContenido } from './juridico/textos.js';
 import { abrirAlmacen } from './estado/almacen.js';
-import { crearProyecto } from './estado/modelo.js';
 import { importarCopia } from './estado/copias.js';
 import { crearSesion } from './editor/sesion.js';
 import { crearInicio } from './editor/inicio.js';
@@ -16,6 +15,8 @@ import { crearPixelArt } from './herramientas/pixelart.js';
 import { crearGrabador } from './herramientas/grabador.js';
 import { crearSecuenciador } from './herramientas/secuenciador.js';
 import { cargarMotor } from './exportar/empaquetar.js';
+import { crearEjemplo } from './guia/ejemplo.js';
+import { mimePorExtension } from './estado/archivos.js';
 
 const raiz = document.getElementById('app');
 let sesionActual = null;
@@ -31,6 +32,13 @@ function pantallaDeError(titulo, detalle, lista = []) {
     h('p', {}, detalle),
     lista.length ? h('ul', {}, lista.map((texto) => h('li', {}, texto))) : null,
     h('p', { class: 'ayuda' }, `Navegadores con los que funciona: ${NAVEGADORES}`)));
+}
+
+/** Lee un archivo de plataforma/ (los retratos de muestra del ejemplo). crearEjemplo antepone «No se pudo preparar el ejemplo: ». */
+async function cargarDePlataforma(ruta) {
+  const respuesta = await fetch(new URL(`../${ruta}`, import.meta.url));
+  if (!respuesta.ok) throw new Error(`falta ${ruta} (${respuesta.status}).`);
+  return { tipo: mimePorExtension(ruta), datos: await respuesta.arrayBuffer() };
 }
 
 function cerrarEditor() {
@@ -72,15 +80,12 @@ function mostrarInicio(almacen, contenido) {
   const inicio = crearInicio(raiz, {
     nombreProducto: contenido.nombre,
     contenido,
+    ejemploDisponible: Boolean(catalogoActual),
+    // Arma «La llave del faro» y lo guarda con sus archivos; si algo falla, el inicio muestra el mensaje.
     alEmpezar: async (datos) => {
-      const proyecto = crearProyecto(datos);
-      try {
-        await almacen.guardar(proyecto);
-      } catch (error) {
-        inicio.mostrarError(error.message);
-        return;
-      }
-      mostrarEditor(almacen, contenido, proyecto, new Map());
+      const { proyecto, archivos } = await crearEjemplo(datos, { catalogo: catalogoActual, cargar: cargarDePlataforma });
+      await almacen.reemplazarTodo(proyecto, archivos);
+      mostrarEditor(almacen, contenido, proyecto, archivos);
     },
     alAbrirCopia: async () => {
       const archivo = await elegirArchivoDelNavegador('.zip,application/zip');

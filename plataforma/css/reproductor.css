@@ -33,6 +33,7 @@
   aspect-ratio: 16 / 9;
   margin: 0 auto;
   background: #000;
+  color: var(--ink); /* también en la vista previa del editor, que no está dentro de .reproductor */
   border: 1px solid var(--line);
   border-radius: 12px;
   overflow: hidden;

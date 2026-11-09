@@ -59,3 +59,10 @@ test('construir arma el árbol: juego del estudiante, título, historia, persona
   assert.equal(conMapa.hijos.find((n) => n.id === tema.id).color, 'amarillo', 'acepta semáforos ya calculados');
   assert.equal(conMapa.hijos[0].color, null, 'sin resultado, sin color');
 });
+
+test('mientras queden piezas del ejemplo, los créditos lo dicen primero; sin ellas no aparece', () => {
+  const { p } = proyectoPublicable();
+  assert.ok(!creditos(p).some((l) => l.includes('ejemplo')));
+  p.juego.titulo = 'La llave del faro';
+  assert.equal(creditos(p)[0], 'Este juego aún tiene piezas de muestra del ejemplo «La llave del faro», escritas y dibujadas por la plataforma.');
+});

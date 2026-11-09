@@ -3,6 +3,7 @@
 // de las fichas; nada se escribe a mano. El árbol lo dibuja el informe (plan 6); los
 // créditos los muestra el reproductor desde este plan.
 import { evaluarTodo } from './semaforo.js';
+import { piezasDeMuestra, TEXTOS_MUESTRA } from '../guia/muestra.js';
 
 export const NOMBRES_TIPO_CREDITO = { fondo: 'fondo', retrato: 'retrato', musica: 'música', efecto: 'efecto de sonido', voz: 'voz' };
 
@@ -72,6 +73,8 @@ export function creditos(proyecto) {
   const agregar = (texto) => {
     if (texto && !lineas.includes(texto)) lineas.push(texto);
   };
+  // Modo guiado: el juego de ejemplo no es del estudiante; mientras quede algo de él, se dice (publicar exige que no quede nada).
+  if (piezasDeMuestra(proyecto).total > 0) agregar(`Este juego aún tiene piezas de muestra del ejemplo «${TEXTOS_MUESTRA.titulo}», escritas y dibujadas por la plataforma.`);
   const historia = creditoDe(fichas.historia, 'Historia', estudiante);
   if (historia) {
     agregar(`${estudiante}: autor(a) del juego`);

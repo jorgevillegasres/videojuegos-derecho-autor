@@ -60,7 +60,7 @@ export function crearInventario(contenedor, sesion, { alSeleccionar, alSubir, al
     const escenaActiva = seleccion?.tipo === 'escena' ? seleccion.id : seleccion?.tipo === 'linea' ? seleccion.escena : null;
     conservarFoco(contenedor, () => {
       vaciar(contenedor).append(h('nav', { class: 'inventario', 'aria-label': 'Inventario' },
-        h('ul', { class: 'lista', dataset: { seccion: 'juego' } }, entrada({ clave: 'juego', texto: juego.titulo?.trim() || 'Sin título', detalle: 'El juego', activa: seleccion?.tipo === 'juego', alPulsar: () => alSeleccionar({ tipo: 'juego' }) })),
+        h('ul', { class: 'lista', dataset: { seccion: 'juego' } }, entrada({ clave: 'juego', texto: juego.titulo?.trim() || 'Sin título', detalle: 'El juego', activa: seleccion?.tipo === 'juego', marca: h('span', { class: 'marca-vacia', 'aria-hidden': 'true' }), alPulsar: () => alSeleccionar({ tipo: 'juego' }) })),
         seccion('escenas', 'Escenas', [botonCrear('Nueva escena', nuevaEscena)], juego.escenas.map((escena, i) => entrada({
           clave: `escena:${escena.id}`,
           texto: escena.nombre?.trim() || `Escena ${i + 1}`,

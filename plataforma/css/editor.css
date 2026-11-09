@@ -287,8 +287,8 @@ body.con-herramienta { overflow: hidden; }
 
 /* ---------- Publicación ---------- */
 .capa-publicar { position: fixed; inset: 0; z-index: 67; overflow: auto; padding: 24px; background: rgba(26, 29, 34, .55); }
-.publicar { width: min(860px, 100%); margin: 0 auto; padding: 20px 24px; background: var(--claro-panel); border-radius: var(--radius); box-shadow: var(--shadow); display: grid; gap: 14px; }
-.publicar .mapa-cabecera { margin-bottom: 0; }
+.capa-publicar .publicar { width: min(860px, 100%); margin: 0 auto; padding: 20px 24px; background: var(--claro-panel); border-radius: var(--radius); box-shadow: var(--shadow); display: grid; gap: 14px; }
+.capa-publicar .publicar .mapa-cabecera { margin-bottom: 0; }
 .publicar-explicacion { padding: 10px 14px; background: var(--claro-panel-2); border-radius: 10px; font-size: 14px; }
 .publicar-explicacion p { margin: 0 0 6px; }
 .publicar-candidatos { margin: 0; padding: 10px 14px; border: 1px solid var(--claro-line); border-radius: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 4px 12px; }
@@ -309,7 +309,7 @@ body.con-publicar { overflow: hidden; }
 
 /* ---------- Guía: la banda sobre las columnas (modo guiado, sección 7) ---------- */
 .zona-guia { border-bottom: 1px solid var(--claro-line); background: var(--claro-panel); }
-.banda { display: grid; grid-template-columns: 220px minmax(0, 1fr) minmax(240px, 320px); gap: 16px; padding: 10px 16px; max-height: 36vh; overflow: auto; }
+.banda { display: grid; grid-template-columns: 280px minmax(0, 1fr) minmax(240px, 320px); gap: 16px; padding: 10px 16px; max-height: 36vh; overflow: auto; }
 .banda-fase { margin: 0 0 8px; font-size: 14px; }
 .banda-fase:focus { outline: 2px solid var(--claro-accent); outline-offset: 2px; }
 .banda-puntos { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
