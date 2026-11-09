@@ -1,13 +1,13 @@
 // plataforma/js/editor/biblioteca.js
 // El selector de la biblioteca (spec, sección 11) sobre el editor: filtros por tipo y
 // tarjetas con vista previa, autor, licencia y condiciones. tomarPieza mete la pieza
-// elegida al proyecto con origen 'biblioteca', la ficha precargada por crearFicha y el
-// archivo guardado, igual que subirElemento con los archivos subidos.
+// elegida al proyecto con agregarPieza (estado/biblioteca.js, que comparte el juego de
+// ejemplo) y guarda el archivo, igual que subirElemento con los archivos subidos.
 import { h, vaciar } from '../ui/dom.js';
 import { ETIQUETAS } from '../juridico/formulario.js';
-import { agregarElemento, eliminarElemento } from '../estado/modelo.js';
-import { extensionPorMime } from '../estado/archivos.js';
-import { entradaDeFicha, TIPOS_BIBLIOTECA, medioDeTipo } from '../biblioteca/catalogo.js';
+import { eliminarElemento } from '../estado/modelo.js';
+import { agregarPieza } from '../estado/biblioteca.js';
+import { TIPOS_BIBLIOTECA, medioDeTipo } from '../biblioteca/catalogo.js';
 
 export const FILTROS = { fondo: 'Fondos', retrato: 'Retratos', musica: 'Música', efecto: 'Efectos' };
 export const ABREVIATURAS = { DP: 'Dominio público', CC0: 'CC0', 'CC-BY-4.0': 'CC BY', 'CC-BY-SA-4.0': 'CC BY-SA', 'CC-BY-NC-4.0': 'CC BY-NC', 'CC-BY-ND-4.0': 'CC BY-ND', CURSO: 'Solo curso', DESCONOCIDO: 'Autor desconocido' };
@@ -21,11 +21,7 @@ export const ABREVIATURAS = { DP: 'Dominio público', CC0: 'CC0', 'CC-BY-4.0': '
  */
 export async function tomarPieza(sesion, catalogo, pieza) {
   const archivo = await catalogo.obtenerArchivo(pieza.id);
-  const elemento = sesion.cambiar((proyecto) => {
-    const nuevo = agregarElemento(proyecto, { tipo: pieza.tipo, nombre: pieza.titulo, archivo: 'pendiente', origen: 'biblioteca', biblioteca: entradaDeFicha(pieza) });
-    nuevo.archivo = `${nuevo.id}.${extensionPorMime(archivo.tipo)}`;
-    return nuevo;
-  }, { origen: 'biblioteca', estructura: true });
+  const elemento = sesion.cambiar((proyecto) => agregarPieza(proyecto, pieza, archivo), { origen: 'biblioteca', estructura: true });
   try {
     await sesion.agregarArchivo(elemento.id, archivo);
   } catch (error) {
