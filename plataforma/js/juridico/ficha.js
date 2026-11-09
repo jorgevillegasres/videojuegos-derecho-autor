@@ -4,7 +4,7 @@
 import { LICENCIAS } from './licencias.js';
 
 export const TIPOS_FICHA = ['titulo', 'historia', 'personaje', 'fondo', 'retrato', 'musica', 'efecto', 'voz'];
-export const ORIGENES_FICHA = ['escrito', 'creado', 'subido', 'biblioteca'];
+export const ORIGENES_FICHA = ['escrito', 'creado', 'subido', 'biblioteca', 'muestra'];
 export const AUTORIAS = ['yo', 'otra_persona', 'ia', 'ia_con_aporte'];
 export const TITULARES = ['yo', 'otra_persona'];
 export const RESPALDOS = ['ninguno', 'cesion', 'licencia', 'autorizacion'];

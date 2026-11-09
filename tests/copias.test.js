@@ -178,3 +178,33 @@ test('validarEstructura exige la decisión de registro como lista con ids y la f
   delete p.registro;
   assert.deepEqual(validarEstructura(p), ['la decisión de registro no tiene la forma esperada']);
 });
+
+test('ida y vuelta con guía y un retrato de muestra', async () => {
+  const p = crearProyecto({ estudiante: 'Camila R.', titulo: 'El faro de Camila' });
+  p.guia = { fase: 'retratos', jugado: true };
+  const e = agregarElemento(p, { tipo: 'retrato', nombre: 'Muestra', archivo: 'muestra.png', origen: 'muestra' });
+  const archivos = new Map([[e.id, { tipo: 'image/png', datos: new TextEncoder().encode('png').buffer }]]);
+  const copia = await importarCopia(await exportarCopia(p, archivos, { JSZip }), { JSZip });
+  assert.deepEqual(copia.proyecto.guia, { fase: 'retratos', jugado: true });
+  assert.equal(copia.proyecto.juego.elementos[0].origen, 'muestra');
+  assert.equal(copia.guiaCorregida, false);
+});
+
+test('una copia de la primera versión, sin guía, entra en la fase inicial', async () => {
+  const p = crearProyecto({ estudiante: 'Camila R.', titulo: 'El faro de Camila' });
+  delete p.guia;
+  assert.deepEqual(validarEstructura(p), []);
+  const copia = await importarCopia(await exportarCopia(p, new Map(), { JSZip }), { JSZip });
+  assert.deepEqual(copia.proyecto.guia, { fase: 'conocer', jugado: false });
+  assert.equal(copia.guiaCorregida, false);
+});
+
+test('una copia con una fase desconocida entra en la fase inicial y lo avisa; una guía que no es objeto se rechaza', async () => {
+  const p = crearProyecto({ estudiante: 'Camila R.', titulo: 'El faro de Camila' });
+  p.guia = { fase: 'otra', jugado: false };
+  const copia = await importarCopia(await exportarCopia(p, new Map(), { JSZip }), { JSZip });
+  assert.equal(copia.proyecto.guia.fase, 'conocer');
+  assert.equal(copia.guiaCorregida, true);
+  p.guia = 'conocer';
+  assert.ok(validarEstructura(p).includes('la guía no tiene la forma esperada'));
+});

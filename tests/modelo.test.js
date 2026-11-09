@@ -5,7 +5,7 @@ import { TIPOS_FICHA, ORIGENES_FICHA, DESTINOS as DESTINOS_FICHA } from '../plat
 import {
   DESTINOS, TIPOS_ELEMENTO, ORIGENES,
   crearProyecto, agregarEscena, eliminarEscena, agregarPersonaje, eliminarPersonaje,
-  agregarElemento, eliminarElemento, crearLinea, agregarLinea, moverLinea, eliminarLinea, indiceCorte,
+  agregarElemento, eliminarElemento, crearLinea, agregarLinea, moverLinea, eliminarLinea, indiceCorte, asegurarGuia, FASES_GUIA,
 } from '../plataforma/js/estado/modelo.js';
 
 function proyectoBase() {
@@ -179,4 +179,21 @@ test('las listas del modelo son coherentes con las de la ficha', () => {
   assert.equal(DESTINOS, DESTINOS_FICHA, 'es el mismo arreglo, no una copia');
   for (const tipo of TIPOS_ELEMENTO) assert.ok(TIPOS_FICHA.includes(tipo), `${tipo} debe tener ficha`);
   for (const origen of ORIGENES) assert.ok(ORIGENES_FICHA.includes(origen), `${origen} debe ser un origen de ficha`);
+});
+
+test('crearProyecto deja la guía en la fase inicial; asegurarGuia completa y corrige', () => {
+  const p = crearProyecto({ estudiante: 'Camila R.' });
+  assert.deepEqual(p.guia, { fase: 'conocer', jugado: false });
+  assert.deepEqual(FASES_GUIA, ['conocer', 'historia', 'personajes', 'retratos', 'fondo', 'sonido', 'voz', 'destino', 'publicar']);
+  delete p.guia;
+  assert.equal(asegurarGuia(p), false, 'sin guía no hay nada que avisar');
+  assert.deepEqual(p.guia, { fase: 'conocer', jugado: false });
+  p.guia = { fase: 'fase-inventada', jugado: 'sí' };
+  assert.equal(asegurarGuia(p), true, 'una fase desconocida se corrige y se avisa');
+  assert.deepEqual(p.guia, { fase: 'conocer', jugado: false });
+  p.guia = { fase: 'sonido', jugado: true };
+  assert.equal(asegurarGuia(p), false);
+  assert.deepEqual(p.guia, { fase: 'sonido', jugado: true });
+  const e = agregarElemento(p, { tipo: 'retrato', nombre: 'R', archivo: 'r.png', origen: 'muestra' });
+  assert.equal(p.fichas[e.id].origen, 'muestra');
 });

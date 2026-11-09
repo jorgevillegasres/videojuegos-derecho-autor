@@ -11,7 +11,9 @@ export { DESTINOS, indiceCorte };
 
 export const VERSION_PROYECTO = 1;
 export const TIPOS_ELEMENTO = ['fondo', 'retrato', 'musica', 'efecto', 'voz'];
-export const ORIGENES = ['creado', 'subido', 'biblioteca'];
+export const ORIGENES = ['creado', 'subido', 'biblioteca', 'muestra'];
+/** Las nueve fases del modo guiado, en orden (diseño del modo guiado, sección 6). */
+export const FASES_GUIA = ['conocer', 'historia', 'personajes', 'retratos', 'fondo', 'sonido', 'voz', 'destino', 'publicar'];
 export const TIPOS_LINEA = ['narracion', 'dialogo', 'decision', 'fin'];
 
 export function nuevoId(prefijo) {
@@ -29,7 +31,23 @@ export function crearProyecto({ estudiante = '', titulo = '', destino = 'gratis'
     fichas: { titulo: crearFicha('titulo'), historia: crearFicha('historia') },
     registro: [],
     publicado: null,
+    guia: { fase: FASES_GUIA[0], jugado: false },
   };
+}
+
+/**
+ * Deja proyecto.guia con una fase conocida y jugado booleano. Un proyecto de la
+ * primera versión (sin guía) empieza en la fase inicial. Devuelve true solo si había
+ * una fase escrita que no se reconoce, para que quien abre la copia lo avise.
+ */
+export function asegurarGuia(proyecto) {
+  const guia = proyecto.guia !== null && typeof proyecto.guia === 'object' ? proyecto.guia : {};
+  const desconocida = guia.fase !== undefined && !FASES_GUIA.includes(guia.fase);
+  proyecto.guia = {
+    fase: FASES_GUIA.includes(guia.fase) ? guia.fase : FASES_GUIA[0],
+    jugado: guia.jugado === true,
+  };
+  return desconocida;
 }
 
 // ---- Escenas ----

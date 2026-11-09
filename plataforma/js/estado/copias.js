@@ -7,7 +7,7 @@
 // Regla: el semáforo es permisivo ante datos inesperados, así que solo debe ver fichas
 // que pasaron por validarEstructura.
 import { mimePorExtension } from './archivos.js';
-import { VERSION_PROYECTO, DESTINOS, TIPOS_ELEMENTO, ORIGENES, TIPOS_LINEA } from './modelo.js';
+import { VERSION_PROYECTO, DESTINOS, TIPOS_ELEMENTO, ORIGENES, TIPOS_LINEA, asegurarGuia } from './modelo.js';
 import { AUTORIAS, TITULARES, RESPALDOS, PRUEBAS, tipoObraPara } from '../juridico/ficha.js';
 import { LICENCIAS, CONDICIONES } from '../juridico/licencias.js';
 
@@ -43,7 +43,7 @@ export async function exportarCopia(proyecto, archivos, { JSZip }) {
 
 /**
  * @param {Blob|ArrayBuffer|Uint8Array} entrada
- * @returns {Promise<{proyecto: object, archivos: Map}>}
+ * @returns {Promise<{proyecto: object, archivos: Map, guiaCorregida: boolean}>} guiaCorregida dice si la fase guardada no se reconoció y volvió al inicio.
  */
 export async function importarCopia(entrada, { JSZip }) {
   const datos = typeof Blob !== 'undefined' && entrada instanceof Blob ? await entrada.arrayBuffer() : entrada;
@@ -71,7 +71,8 @@ export async function importarCopia(entrada, { JSZip }) {
     // El tipo sale de la extensión; archivos.js mapea en los dos sentidos y la plataforma nunca escribe .mp4 (usa .m4a).
     archivos.set(elemento.id, { tipo: mimePorExtension(elemento.archivo), datos: await entradaArchivo.async('arraybuffer') });
   }
-  return { proyecto, archivos };
+  const guiaCorregida = asegurarGuia(proyecto);
+  return { proyecto, archivos, guiaCorregida };
 }
 
 /** Problemas de una ficha frente a lo que su dueño exige. */
@@ -195,5 +196,7 @@ export function validarEstructura(proyecto) {
     problemas.push('la decisión de registro no tiene la forma esperada');
   }
   if (proyecto.publicado !== null && typeof proyecto.publicado !== 'string') problemas.push('la fecha de publicación no es válida');
+  // Modo guiado: la guía es opcional (las copias de la primera versión no la traen); asegurarGuia completa el resto al importar.
+  if (proyecto.guia !== undefined && !esObjeto(proyecto.guia)) problemas.push('la guía no tiene la forma esperada');
   return problemas;
 }
