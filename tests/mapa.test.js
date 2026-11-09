@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { proyectoPublicable } from './ayudas/proyecto.js';
+import { crearProyecto, agregarElemento } from '../plataforma/js/estado/modelo.js';
 import { crearFicha } from '../plataforma/js/juridico/ficha.js';
 import { evaluar } from '../plataforma/js/juridico/semaforo.js';
 import { describir } from '../plataforma/js/juridico/textos.js';
@@ -53,4 +54,12 @@ test('creadorDe, contratoDe y accionesDe cubren IA, otra licencia, licencia sin 
   assert.deepEqual(accionesDe(descrito), [contenido.reglas.A01.accion], 'A02 se funde con A01');
   const repetidas = describir({ color: 'rojo', razones: ['R02', 'A10'], notas: [] }, dosRazones, contenido);
   assert.deepEqual(accionesDe(repetidas), ['Pide a Luis una cesión o una licencia por escrito.'], 'la misma acción no se repite');
+});
+
+test('las filas de muestra llevan muestra: true, sin color y con la acción de reemplazar', () => {
+  const p = crearProyecto({ estudiante: 'Camila R.', titulo: 'El faro de Camila' });
+  const muestra = agregarElemento(p, { tipo: 'retrato', nombre: 'Retrato de Ana (muestra)', archivo: 'm.png', origen: 'muestra' });
+  const fila = filas(p, contenido).find((f) => f.id === muestra.id);
+  assert.deepEqual(fila, { id: muestra.id, activo: 'Retrato de Ana (muestra)', tipo: 'Retrato', creador: 'Muestra del ejemplo', contrato: '—', prueba: '—', color: null, acciones: ['Reemplázalo por uno tuyo.'], porVerificar: false, muestra: true });
+  assert.equal(filas(p, contenido).filter((f) => f.muestra).length, 1);
 });

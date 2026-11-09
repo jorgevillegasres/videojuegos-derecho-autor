@@ -4,6 +4,7 @@
 // publicar; los 'informativo' solo se muestran.
 import { indiceCorte } from './modelo.js';
 import { evaluarTodo } from '../juridico/semaforo.js';
+import { piezasDeMuestra } from '../guia/muestra.js';
 
 export const OPCIONES_MIN = 2;
 export const OPCIONES_MAX = 4;
@@ -117,7 +118,9 @@ export function cumpleMinimo(proyecto) {
 
   exige('M_TITULO', 'Título del juego', juego.titulo?.trim() ? 1 : 0, 1);
   exige('M_ESCENAS', 'Escenas', juego.escenas.length, MINIMO.escenas);
-  exige('M_PERSONAJES', 'Personajes con retrato', juego.personajes.filter((p) => p.retrato).length, MINIMO.personajesConRetrato);
+  // Un retrato de muestra del ejemplo no cuenta: hay que reemplazarlo.
+  const deMuestra = new Set(juego.elementos.filter((e) => e.origen === 'muestra').map((e) => e.id));
+  exige('M_PERSONAJES', 'Personajes con retrato', juego.personajes.filter((p) => p.retrato && !deMuestra.has(p.retrato)).length, MINIMO.personajesConRetrato);
   const decisiones = juego.escenas.flatMap((e) => e.lineas).filter((l) => l.tipo === 'decision' && l.opciones.length >= 2).length;
   exige('M_DECISIONES', 'Decisiones con al menos dos opciones', decisiones, MINIMO.decisiones);
   exige('M_FONDOS', 'Fondos', cuenta('fondo'), MINIMO.fondos);
@@ -125,6 +128,10 @@ export function cumpleMinimo(proyecto) {
   exige('M_EFECTOS', 'Efectos de sonido', cuenta('efecto'), MINIMO.efectos);
   const ajenos = juego.elementos.filter((e) => e.origen === 'biblioteca' || fichas[e.id]?.autoria === 'otra_persona').length;
   exige('M_AJENOS', 'Elementos que no hizo el estudiante (biblioteca u otra persona)', ajenos, MINIMO.ajenos);
+
+  // Modo guiado: se cumple con cero piezas de muestra; actual es lo que queda.
+  const muestra = piezasDeMuestra(proyecto).total;
+  if (muestra > 0) faltantes.push({ codigo: 'M_MUESTRA', mensaje: 'Piezas de muestra por reemplazar', actual: muestra, requerido: 0 });
 
   return { ok: faltantes.length === 0, faltantes };
 }
@@ -157,7 +164,8 @@ export function puedePublicar(proyecto) {
     }
   }
   for (const faltante of cumpleMinimo(proyecto).faltantes) {
-    motivos.push({ codigo: 'P_MINIMO', faltante: faltante.codigo, mensaje: `${faltante.mensaje}: ${faltante.actual} de ${faltante.requerido}.` });
+    const mensaje = faltante.codigo === 'M_MUESTRA' ? `${faltante.mensaje}: quedan ${faltante.actual}.` : `${faltante.mensaje}: ${faltante.actual} de ${faltante.requerido}.`;
+    motivos.push({ codigo: 'P_MINIMO', faltante: faltante.codigo, mensaje });
   }
   for (const aviso of validar(proyecto.juego)) {
     if (aviso.nivel === 'bloqueante') motivos.push({ codigo: 'P_BLOQUEANTE', aviso: aviso.codigo, mensaje: aviso.mensaje });

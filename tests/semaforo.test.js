@@ -3,7 +3,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { crearFicha } from '../plataforma/js/juridico/ficha.js';
-import { evaluar, CODIGOS_ROJO, CODIGOS_AMARILLO, CODIGOS_NOTAS } from '../plataforma/js/juridico/semaforo.js';
+import { evaluar, evaluarTodo, CODIGOS_ROJO, CODIGOS_AMARILLO, CODIGOS_NOTAS } from '../plataforma/js/juridico/semaforo.js';
+import { crearProyecto, agregarElemento } from '../plataforma/js/estado/modelo.js';
 
 const casos = JSON.parse(readFileSync(new URL('./semaforo.casos.json', import.meta.url), 'utf8'));
 
@@ -37,4 +38,13 @@ test('los códigos esperados existen y los nombres de los casos son honestos', (
 test('un destino desconocido es un error, no un verde silencioso', () => {
   assert.throws(() => evaluar(crearFicha('fondo', { origen: 'creado' }), { destino: 'ventas' }), /Destino inválido/);
   assert.throws(() => evaluar(crearFicha('fondo', { origen: 'creado' }), {}), /Destino inválido/);
+});
+
+test('evaluarTodo salta los elementos de muestra', () => {
+  const p = crearProyecto({ estudiante: 'Camila R.', titulo: 'El faro de Camila' });
+  const muestra = agregarElemento(p, { tipo: 'retrato', nombre: 'Muestra', archivo: 'm.png', origen: 'muestra' });
+  const propio = agregarElemento(p, { tipo: 'retrato', nombre: 'Propio', archivo: 'p.png', origen: 'creado' });
+  const semaforos = evaluarTodo(p);
+  assert.equal(semaforos.has(muestra.id), false);
+  assert.equal(semaforos.has(propio.id), true);
 });

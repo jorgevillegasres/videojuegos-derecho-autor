@@ -29,7 +29,7 @@ function armar(proyecto) {
 test('muestra título y estudiante (o sus alternativas) y cada botón llama a su manejador', () => {
   const { sesion, contenedor, barra, llamadas, boton } = armar();
   barra.dibujar();
-  assert.equal(contenedor.querySelector('.barra-juego').textContent, 'La llave del faro');
+  assert.equal(contenedor.querySelector('.barra-juego').textContent, 'El faro de Camila');
   assert.equal(contenedor.querySelector('.barra-estudiante').textContent, 'Camila R.');
   for (const accion of ['jugar', 'mapa', 'guardar-copia', 'abrir-copia', 'nuevo-juego']) clic(boton(accion));
   assert.deepEqual(llamadas, ['jugar', 'mapa', 'guardar-copia', 'abrir-copia', 'nuevo-juego']);

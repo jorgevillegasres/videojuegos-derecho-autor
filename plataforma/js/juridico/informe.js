@@ -127,7 +127,8 @@ ${d.porque?.trim() ? `<dt>¿Por qué?</dt><dd>${e(d.porque)}</dd>` : ''}</dl></a
   }
   function fichaHtml(id, nombre, tipoActivo) {
     const ficha = proyecto.fichas[id];
-    if (!ficha) return '';
+    // Sin ficha, o una pieza de muestra del ejemplo (no se evalúa; publicar exige que no quede ninguna).
+    if (!ficha || !semaforos.has(id)) return '';
     tiposObraUsados.add(ficha.tipoObra);
     const descrito = describir(semaforos.get(id), ficha, contenido);
     const hayA01 = descrito.razones.some((r) => r.codigo === 'A01');

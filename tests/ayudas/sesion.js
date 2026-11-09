@@ -14,7 +14,7 @@ export function almacenMudo() {
   };
 }
 
-export function sesionDePrueba(proyecto = crearProyecto({ estudiante: 'Camila R.', titulo: 'La llave del faro', destino: 'gratis' }), extra = {}) {
+export function sesionDePrueba(proyecto = crearProyecto({ estudiante: 'Camila R.', titulo: 'El faro de Camila', destino: 'gratis' }), extra = {}) {
   const eventos = [];
   const sesion = crearSesion({
     proyecto,

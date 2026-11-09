@@ -63,8 +63,9 @@ export function evaluar(ficha, contexto) {
   return { color, razones, notas };
 }
 
-/** Evalúa todas las fichas del proyecto. Devuelve Map<idFicha, resultado>. */
+/** Evalúa todas las fichas del proyecto, salvo las de los elementos de muestra del ejemplo (no se resuelven: se reemplazan). Devuelve Map<idFicha, resultado>. */
 export function evaluarTodo(proyecto) {
   const contexto = { destino: proyecto.juego.destino };
-  return new Map(Object.entries(proyecto.fichas).map(([id, ficha]) => [id, evaluar(ficha, contexto)]));
+  const deMuestra = new Set(proyecto.juego.elementos.filter((e) => e.origen === 'muestra').map((e) => e.id));
+  return new Map(Object.entries(proyecto.fichas).filter(([id]) => !deMuestra.has(id)).map(([id, ficha]) => [id, evaluar(ficha, contexto)]));
 }

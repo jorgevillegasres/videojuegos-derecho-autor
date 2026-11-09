@@ -25,7 +25,7 @@ export function proyectoPublicable() {
   p.fichas[tema.id].licenciaLeida = true;
   const olas = elemento({ tipo: 'efecto', nombre: 'Olas', archivo: 'olas.wav', origen: 'creado' });
   agregarLinea(muelle, 'dialogo', { personaje: ana.id, texto: '¿Quién abrió la reja?', efecto: olas.id });
-  agregarLinea(muelle, 'decision', { texto: '¿Subes a la torre?', opciones: [{ texto: 'Sí', escena: torre.id }, { texto: 'No', escena: amanecer.id }] });
+  agregarLinea(muelle, 'decision', { texto: '¿Bajas al sótano?', opciones: [{ texto: 'Sí', escena: torre.id }, { texto: 'No', escena: amanecer.id }] });
   agregarLinea(torre, 'fin', { texto: 'Fin' });
   agregarLinea(amanecer, 'fin', { texto: 'Amanece.' });
   return { p, archivos, tema, muelle, torre, amanecer, ana, farero, olas };

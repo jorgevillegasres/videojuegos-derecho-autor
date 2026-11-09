@@ -4,9 +4,10 @@ import assert from 'node:assert/strict';
 import { crearProyecto, agregarEscena, agregarPersonaje, agregarLinea, agregarElemento } from '../plataforma/js/estado/modelo.js';
 import { validar, escenasAlcanzables, cumpleMinimo, MINIMO, puedePublicar, nombreDe } from '../plataforma/js/estado/validacion.js';
 import { evaluarTodo } from '../plataforma/js/juridico/semaforo.js';
+import { proyectoPublicable } from './ayudas/proyecto.js';
 
 function proyectoBase() {
-  return crearProyecto({ estudiante: 'Camila R.', titulo: 'La llave del faro', destino: 'gratis' }, new Date('2026-11-04T20:00:00Z'));
+  return crearProyecto({ estudiante: 'Camila R.', titulo: 'El faro de Camila', destino: 'gratis' }, new Date('2026-11-04T20:00:00Z'));
 }
 
 function juegoConTresEscenas() {
@@ -15,7 +16,7 @@ function juegoConTresEscenas() {
   muelle.nombre = 'El muelle';
   const torre = agregarEscena(p, 'La torre');
   const amanecer = agregarEscena(p, 'Amanecer');
-  const ana = agregarPersonaje(p, { nombre: 'Ana' });
+  const ana = agregarPersonaje(p, { nombre: 'Lucía' });
   agregarLinea(muelle, 'dialogo', { personaje: ana.id, texto: 'Hola' });
   agregarLinea(muelle, 'decision', { texto: '¿Subes?', opciones: [{ texto: 'Sí', escena: torre.id }, { texto: 'No', escena: amanecer.id }] });
   agregarLinea(torre, 'fin', { texto: 'Fin' });
@@ -75,7 +76,7 @@ test('I02: personaje sin retrato; I03: escena sin líneas; I04: sin fin alcanzab
   torre.lineas = [{ tipo: 'narracion', texto: 'Nunca termina' }];
   agregarLinea(p.juego.escenas[0], 'narracion', { texto: 'después de la decisión' });
   const codigos = validar(p.juego).map((a) => a.codigo);
-  assert.ok(codigos.includes('I02'), 'Ana no tiene retrato');
+  assert.ok(codigos.includes('I02'), 'Lucía no tiene retrato');
   assert.ok(codigos.includes('I03'), `Vacía (${vacia.id}) no tiene líneas`);
   assert.ok(codigos.includes('I04'), 'ninguna escena alcanzable termina en fin');
   assert.ok(codigos.includes('I05'), 'hay una línea después de la decisión del muelle');
@@ -131,9 +132,9 @@ test('I05 señala la primera línea que no se verá y las escenas sin nombre se 
 function juegoMinimoCompleto() {
   const { p, muelle, torre, amanecer } = juegoConTresEscenas();
   const ana = p.juego.personajes[0];
-  const far = agregarPersonaje(p, { nombre: 'El farero' });
-  ana.retrato = agregarElemento(p, { tipo: 'retrato', nombre: 'Ana', archivo: 'a.png', origen: 'creado' }).id;
-  far.retrato = agregarElemento(p, { tipo: 'retrato', nombre: 'Farero', archivo: 'f.png', origen: 'creado' }).id;
+  const far = agregarPersonaje(p, { nombre: 'El guardián' });
+  ana.retrato = agregarElemento(p, { tipo: 'retrato', nombre: 'Lucía', archivo: 'a.png', origen: 'creado' }).id;
+  far.retrato = agregarElemento(p, { tipo: 'retrato', nombre: 'Guardián', archivo: 'f.png', origen: 'creado' }).id;
   muelle.fondo = agregarElemento(p, { tipo: 'fondo', nombre: 'Muelle', archivo: 'm.png', origen: 'creado' }).id;
   const bib = { id: 'bib_m1', autor: 'Autora Ejemplo', licencia: 'CC-BY-NC-4.0', creditoSugerido: 'crédito' };
   muelle.musica = agregarElemento(p, { tipo: 'musica', nombre: 'Tema', archivo: 't.ogg', origen: 'biblioteca', biblioteca: bib }).id;
@@ -207,7 +208,7 @@ test('nombreDe da un nombre legible para cualquier ficha', () => {
   const { p } = juegoMinimoCompleto();
   assert.equal(nombreDe(p, 'titulo'), 'Título del juego');
   assert.equal(nombreDe(p, 'historia'), 'Historia');
-  assert.equal(nombreDe(p, p.juego.personajes[0].id), 'Ana');
+  assert.equal(nombreDe(p, p.juego.personajes[0].id), 'Lucía');
   const tema = p.juego.elementos.find((e) => e.tipo === 'musica');
   assert.equal(nombreDe(p, tema.id), 'Tema');
   assert.equal(nombreDe(p, 'el_noexiste'), 'el_noexiste');
@@ -253,4 +254,23 @@ test('nombreDe no devuelve nombres vacíos', () => {
   const fondo = agregarElemento(p, { tipo: 'fondo', nombre: '  ', archivo: 'x.png', origen: 'creado' });
   assert.equal(nombreDe(p, luis.id), 'Personaje sin nombre');
   assert.equal(nombreDe(p, fondo.id), 'Elemento sin nombre');
+});
+
+test('M_MUESTRA cuenta las piezas de muestra que quedan y bloquea la publicación', () => {
+  const { p } = proyectoPublicable();
+  assert.equal(cumpleMinimo(p).ok, true);
+  p.juego.titulo = ' la llave del faro ';
+  const faltante = cumpleMinimo(p).faltantes.find((f) => f.codigo === 'M_MUESTRA');
+  assert.deepEqual(faltante, { codigo: 'M_MUESTRA', mensaje: 'Piezas de muestra por reemplazar', actual: 1, requerido: 0 });
+  assert.equal(puedePublicar(p).ok, false);
+  p.juego.titulo = 'El faro de Camila';
+  assert.equal(puedePublicar(p).ok, true);
+});
+
+test('un personaje cuyo retrato es de muestra no cuenta como personaje con retrato', () => {
+  const { p, ana } = proyectoPublicable();
+  const muestra = agregarElemento(p, { tipo: 'retrato', nombre: 'Muestra', archivo: 'muestra.png', origen: 'muestra' });
+  ana.retrato = muestra.id;
+  const personajes = cumpleMinimo(p).faltantes.find((f) => f.codigo === 'M_PERSONAJES');
+  assert.equal(personajes.actual, 1);
 });

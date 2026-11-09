@@ -66,7 +66,7 @@ test('el juego.html generado se juega solo en jsdom: avanza, decide y termina en
   assert.ok(q('.escenario-retrato img').classList.contains('pixel'), 'el retrato creado se escala sin suavizado');
   assert.equal(q('button[data-accion="cerrar"]'), null, 'el juego exportado no tiene Cerrar');
   clic(q('.reproductor-escena'));
-  assert.equal(q('.escenario-texto').textContent, '¿Subes a la torre?');
+  assert.equal(q('.escenario-texto').textContent, '¿Bajas al sótano?');
   clic(q('.opcion[data-opcion="0"]'));
   assert.equal(q('.escenario-texto').textContent, 'Fin');
   clic(q('.reproductor-escena'));

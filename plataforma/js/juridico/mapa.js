@@ -53,7 +53,7 @@ export function accionesDe(descrito) {
 /**
  * @param {object} proyecto
  * @param {object} contenido el JSON de contenido/juridico.json
- * @returns {Array<{ id, activo, tipo, creador, contrato, prueba, color, acciones: string[], porVerificar: boolean }>}
+ * @returns {Array<{ id, activo, tipo, creador, contrato, prueba, color: string|null, acciones: string[], porVerificar: boolean, muestra?: true }>} color es null en las filas de muestra.
  */
 export function filas(proyecto, contenido) {
   const semaforos = evaluarTodo(proyecto);
@@ -77,6 +77,9 @@ export function filas(proyecto, contenido) {
     fila('titulo', juego.titulo?.trim() || 'Sin título', TIPOS_ACTIVO.titulo),
     fila('historia', 'Historia', TIPOS_ACTIVO.historia),
     ...juego.personajes.map((p) => fila(p.id, nombreDe(p, 'Sin nombre'), TIPOS_ACTIVO.personaje)),
-    ...juego.elementos.map((e) => fila(e.id, nombreDe(e, 'Sin nombre'), TIPOS_ACTIVO[e.tipo])),
+    // Los retratos de muestra del ejemplo no se evalúan: se marcan para reemplazarlos.
+    ...juego.elementos.map((e) => (e.origen === 'muestra'
+      ? { id: e.id, activo: nombreDe(e, 'Sin nombre'), tipo: TIPOS_ACTIVO[e.tipo], creador: 'Muestra del ejemplo', contrato: '—', prueba: '—', color: null, acciones: ['Reemplázalo por uno tuyo.'], porVerificar: false, muestra: true }
+      : fila(e.id, nombreDe(e, 'Sin nombre'), TIPOS_ACTIVO[e.tipo]))),
   ];
 }

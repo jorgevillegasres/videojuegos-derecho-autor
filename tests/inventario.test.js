@@ -32,7 +32,7 @@ test('dibuja El juego, escenas, personajes y elementos con sus nombres y detalle
   const { contenedor, inventario, muelle, fondo } = armar();
   inventario.dibujar({ tipo: 'escena', id: muelle.id });
   assert.deepEqual(textos(contenedor, 'h2'), ['Escenas', 'Personajes', 'Elementos']);
-  assert.deepEqual(textos(contenedor, '.entrada-texto'), ['La llave del faro', 'El muelle', 'Escena 2', 'Ana', 'Sin nombre', 'Muelle', 'Ana']);
+  assert.deepEqual(textos(contenedor, '.entrada-texto'), ['El faro de Camila', 'El muelle', 'Escena 2', 'Ana', 'Sin nombre', 'Muelle', 'Ana']);
   assert.deepEqual(textos(contenedor, '.entrada-detalle'), ['El juego', 'inicial', 'sin retrato', 'Fondo', 'Retrato']);
   const activas = [...contenedor.querySelectorAll('[aria-current="true"]')];
   assert.equal(activas.length, 1);
