@@ -49,7 +49,7 @@ function cerrarEditor() {
   document.body.classList.remove('en-editor', 'jugando');
 }
 
-function mostrarEditor(almacen, contenido, proyecto, archivos) {
+function mostrarEditor(almacen, contenido, proyecto, archivos, aviso = null) {
   cerrarEditor();
   document.body.classList.add('en-editor');
   sesionActual = crearSesion({ proyecto, archivos, almacen });
@@ -57,7 +57,7 @@ function mostrarEditor(almacen, contenido, proyecto, archivos) {
     contenido,
     JSZip: window.JSZip,
     catalogo: catalogoActual,
-    avisoInicial: avisoBiblioteca,
+    avisoInicial: [avisoBiblioteca, aviso].filter(Boolean).join(' ') || null,
     crearHerramientas: paletaActual ? (zona) => ({
       pixelart: crearPixelArt(zona, { paleta: paletaActual }),
       grabador: crearGrabador(zona),
@@ -93,7 +93,7 @@ function mostrarInicio(almacen, contenido) {
       try {
         const copia = await importarCopia(archivo, { JSZip: window.JSZip });
         await almacen.reemplazarTodo(copia.proyecto, copia.archivos);
-        mostrarEditor(almacen, contenido, copia.proyecto, copia.archivos);
+        mostrarEditor(almacen, contenido, copia.proyecto, copia.archivos, copia.guiaCorregida ? 'La guía no reconoció la fase guardada en la copia y volvió al inicio.' : null);
       } catch (error) {
         inicio.mostrarError(error.message);
       }
