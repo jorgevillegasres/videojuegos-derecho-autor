@@ -21,8 +21,8 @@ test('los créditos nombran a cada persona con su aporte y declaran lo hecho con
   assert.deepEqual(creditos(p), [
     'Camila R.: autor(a) del juego',
     'Historia: Luis P.',
-    'Personaje «Ana»: Luis P.',
-    'Retrato «Farero»: generado con IA (Generador X)',
+    'Personaje «Lucía»: Luis P.',
+    'Retrato «Guardián»: generado con IA (Generador X)',
     '«Tema» de Autora Ejemplo, CC BY-NC 4.0',
     'Efecto de sonido «Olas»: hecho con IA (Sintetizador Y) con aporte creativo de Camila R.',
     'Voz «sin nombre»: otra persona',
@@ -36,16 +36,16 @@ test('construir arma el árbol: juego del estudiante, título, historia, persona
   const sinRetrato = agregarPersonaje(p, { nombre: 'Sombra' });
   p.juego.destino = 'venta';
   const arbol = construir(p);
-  assert.equal(arbol.nombre, 'La llave del faro');
+  assert.equal(arbol.nombre, 'El faro de Camila');
   assert.equal(arbol.estudiante, 'Camila R.');
   assert.deepEqual(arbol.hijos.map((n) => n.nombre), [
-    'título', 'historia y escenas', 'personaje «Ana»', 'personaje «El farero»', 'personaje «Sombra»',
+    'título', 'historia y escenas', 'personaje «Lucía»', 'personaje «El guardián»', 'personaje «Sombra»',
     'fondo «Muelle»', 'música «Tema»', 'efecto de sonido «Olas»',
   ]);
   const nodoAna = arbol.hijos[2];
   assert.equal(nodoAna.id, ana.id);
   assert.deepEqual(nodoAna.hijos.map((n) => n.id), [ana.retrato]);
-  assert.equal(nodoAna.hijos[0].nombre, 'retrato «Ana»');
+  assert.equal(nodoAna.hijos[0].nombre, 'retrato «Lucía»');
   assert.deepEqual(arbol.hijos[4].hijos, [], 'sin retrato no cuelga nada');
   assert.ok(sinRetrato);
   const nodoTema = arbol.hijos.find((n) => n.id === tema.id);

@@ -44,7 +44,7 @@ test('abrir muestra el paso 1 con la explicación de la prueba, un candidato por
   assert.equal(candidatos.length, 1 + p.juego.personajes.length + p.juego.elementos.length);
   assert.ok(!candidatos.some((c) => c.dataset.candidato === 'titulo'));
   assert.ok(candidatos.every((c) => !c.checked && !c.disabled));
-  assert.deepEqual(textos(contenedor, '.publicar-candidato .candidato-nombre').slice(0, 3), ['Historia', 'Ana', 'El farero']);
+  assert.deepEqual(textos(contenedor, '.publicar-candidato .candidato-nombre').slice(0, 3), ['Historia', 'Lucía', 'El guardián']);
   assert.equal(qa('.publicar-decision').length, 0);
   assert.equal(document.activeElement, q('button[data-accion="cerrar-publicar"]'));
   publicar.cerrar();
@@ -58,7 +58,7 @@ test('elegir un activo crea su decisión precargada; a los tres se deshabilitan 
   assert.deepEqual(sesion.proyecto.registro, [{ id: ana.id, registraria: 'si', aNombreDe: 'Camila R.', prueba: 'Ninguna', porque: '' }]);
   const decision = q(`.publicar-decision[data-decision="${ana.id}"]`);
   assert.ok(decision);
-  assert.equal(decision.querySelector('h3').firstChild.textContent, 'Ana');
+  assert.equal(decision.querySelector('h3').firstChild.textContent, 'Lucía');
   assert.equal(decision.querySelector('input[type="radio"][value="si"]').checked, true);
   assert.equal(decision.querySelector('input[data-campo="aNombreDe"]').value, 'Camila R.');
   assert.equal(decision.querySelector('input[data-campo="prueba"]').value, 'Ninguna');
@@ -109,7 +109,7 @@ test('Siguiente exige al menos una decisión; el paso 2 resume el paquete, el no
   clic(q('button[data-accion="siguiente"]'));
   assert.equal(q('#publicar-titulo').textContent, 'Publicar: el paquete de entrega');
   const resumen = q('.publicar-resumen').textContent;
-  assert.ok(resumen.includes('entrega-camila-r-la-llave-del-faro.zip'));
+  assert.ok(resumen.includes('entrega-camila-r-el-faro-de-camila.zip'));
   assert.ok(resumen.includes(`${p.juego.elementos.length} archivos`));
   assert.ok(resumen.includes('juego.html') && resumen.includes('informe-juridico.html') && resumen.includes('proyecto.json'));
   assert.ok(q('.publicar-peso-ok'), 'con archivos pequeños no hay aviso de peso');

@@ -49,7 +49,7 @@ function armar({ proyecto, confirmar = () => true, archivoElegido = null, catalo
 }
 
 function proyectoConLineas() {
-  const p = crearProyecto({ estudiante: 'Camila R.', titulo: 'La llave del faro', destino: 'gratis' });
+  const p = crearProyecto({ estudiante: 'Camila R.', titulo: 'El faro de Camila', destino: 'gratis' });
   const muelle = p.juego.escenas[0];
   muelle.nombre = 'El muelle';
   const torre = agregarEscena(p, 'La torre');
@@ -126,7 +126,7 @@ test('Jugar abre el reproductor desde la escena inicial; «Jugar desde esta esce
   clic(qa('.inventario button.entrada')[2]);
   clic(q('button[data-accion="jugar-aqui"]'));
   assert.equal(q('.capa-reproductor .escenario-texto').textContent, 'Fin.');
-  assert.deepEqual(textos(contenedor, '.reproductor-titulo'), ['La llave del faro']);
+  assert.deepEqual(textos(contenedor, '.reproductor-titulo'), ['El faro de Camila']);
   clic(q('.capa-reproductor button[data-accion="cerrar"]'));
   contenedor.remove();
 });
@@ -141,7 +141,7 @@ test('Guardar copia descarga el zip con el nombre del juego y reinicia el contad
   assert.ok(q('.aviso-error button[data-accion="guardar-copia"]'));
   for (const [id, a] of archivos) sesion.archivos.set(id, a);
   assert.equal(await editor.guardarCopia(), true);
-  assert.deepEqual(llamadas.at(-1), ['descargar', 'copia-la-llave-del-faro.zip', 'application/zip']);
+  assert.deepEqual(llamadas.at(-1), ['descargar', 'copia-el-faro-de-camila.zip', 'application/zip']);
   assert.equal(sesion.cambiosSinCopia, 0);
   contenedor.remove();
 });
@@ -401,7 +401,7 @@ test('Publicar abre la capa; Generar descarga el paquete, escribe la fecha y la 
   clic(q('.capa-publicar button[data-accion="siguiente"]'));
   clic(q('.capa-publicar button[data-accion="generar"]'));
   await esperar(() => descargas.length === 1);
-  assert.deepEqual(llamadas.at(-1), ['descargar', 'entrega-camila-r-la-llave-del-faro.zip', 'application/zip']);
+  assert.deepEqual(llamadas.at(-1), ['descargar', 'entrega-camila-r-el-faro-de-camila.zip', 'application/zip']);
   assert.equal(sesion.proyecto.publicado, '2026-11-06T15:30:00.000Z');
   assert.deepEqual(sesion.proyecto.registro.map((d) => d.id), [ana.id]);
   assert.equal(sesion.cambiosSinCopia, 0, 'el paquete también es una copia');

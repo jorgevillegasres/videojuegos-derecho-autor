@@ -14,10 +14,10 @@ test('filas: una por ficha, en el orden del inventario, con creador, contrato, p
   const { p, tema, ana } = proyectoPublicable();
   const lista = filas(p, contenido);
   assert.deepEqual(lista.map((f) => f.tipo), ['Título', 'Historia', 'Personaje', 'Personaje', 'Retrato', 'Retrato', 'Fondo', 'Música', 'Efecto']);
-  assert.deepEqual(lista[0], { id: 'titulo', activo: 'La llave del faro', tipo: 'Título', creador: '—', contrato: '—', prueba: '—', color: 'verde', acciones: [], porVerificar: true });
+  assert.deepEqual(lista[0], { id: 'titulo', activo: 'El faro de Camila', tipo: 'Título', creador: '—', contrato: '—', prueba: '—', color: 'verde', acciones: [], porVerificar: true });
   assert.deepEqual(lista[1], { id: 'historia', activo: 'Historia', tipo: 'Historia', creador: 'Yo', contrato: 'No hace falta', prueba: 'Ninguna', color: 'verde', acciones: [], porVerificar: false });
   const filaAna = lista.find((f) => f.id === ana.id);
-  assert.equal(filaAna.activo, 'Ana');
+  assert.equal(filaAna.activo, 'Lucía');
   const filaTema = lista.find((f) => f.id === tema.id);
   assert.deepEqual(filaTema, { id: tema.id, activo: 'Tema', tipo: 'Música', creador: 'Autora Ejemplo', contrato: 'Creative Commons Atribución y no comercial 4.0', prueba: 'Ninguna', color: 'verde', acciones: [], porVerificar: false });
   const filaFondo = lista.find((f) => f.tipo === 'Fondo');

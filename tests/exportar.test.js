@@ -17,7 +17,7 @@ const FECHA = '2026-11-06T15:30:00.000Z';
 
 test('nombreDeEntrega: entrega-<estudiante>-<juego>.zip sin acentos ni espacios', () => {
   const { p } = proyectoPublicable();
-  assert.equal(nombreDeEntrega(p), 'entrega-camila-r-la-llave-del-faro.zip');
+  assert.equal(nombreDeEntrega(p), 'entrega-camila-r-el-faro-de-camila.zip');
   p.estudiante = 'José Ñáñez';
   p.juego.titulo = '';
   assert.equal(nombreDeEntrega(p), 'entrega-jose-nanez-sin-nombre.zip');
@@ -28,7 +28,7 @@ test('generarEntrega arma el zip con juego.html, informe-juridico.html, proyecto
   p.publicado = FECHA;
   const { blob, huella, nombre } = await generarEntrega(p, archivos, { JSZip, contenido, motor });
   assert.equal(blob.type, 'application/zip');
-  assert.equal(nombre, 'entrega-camila-r-la-llave-del-faro.zip');
+  assert.equal(nombre, 'entrega-camila-r-el-faro-de-camila.zip');
   const zip = await JSZip.loadAsync(await blob.arrayBuffer());
   const nombres = Object.keys(zip.files).filter((n) => !zip.files[n].dir).sort();
   assert.deepEqual(nombres, ['archivos/ana.png', 'archivos/farero.png', 'archivos/muelle.png', 'archivos/olas.wav', 'archivos/tema.ogg', 'informe-juridico.html', 'juego.html', 'proyecto.json']);

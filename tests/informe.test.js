@@ -25,8 +25,8 @@ function armar(ajustar = () => {}) {
 test('la portada trae estudiante, juego, destino, fecha, huella y la leyenda educativa', () => {
   const { html, q, texto } = armar();
   assert.ok(html.startsWith('<!DOCTYPE html>'));
-  assert.equal(q('title').textContent, 'Informe jurídico: La llave del faro');
-  assert.equal(q('h1').textContent, 'La llave del faro');
+  assert.equal(q('title').textContent, 'Informe jurídico: El faro de Camila');
+  assert.equal(q('h1').textContent, 'El faro de Camila');
   const portada = texto('.portada');
   assert.ok(portada.includes('Camila R.'));
   assert.ok(portada.includes('Publicarlo gratis'));
@@ -60,10 +60,10 @@ test('la cadena de titularidad es un árbol: el retrato cuelga del personaje y c
   const { q, texto } = armar();
   const arbol = q('#cadena ul.arbol');
   assert.ok(arbol);
-  assert.ok(texto('#cadena > ul.arbol > li').startsWith('La llave del faro'));
-  const ana = [...arbol.querySelectorAll('li')].find((li) => li.firstChild.textContent.includes('personaje «Ana»'));
+  assert.ok(texto('#cadena > ul.arbol > li').startsWith('El faro de Camila'));
+  const ana = [...arbol.querySelectorAll('li')].find((li) => li.firstChild.textContent.includes('personaje «Lucía»'));
   assert.ok(ana, 'nodo del personaje');
-  assert.ok(ana.querySelector('ul li').textContent.includes('retrato «Ana»'), 'el retrato cuelga del personaje');
+  assert.ok(ana.querySelector('ul li').textContent.includes('retrato «Lucía»'), 'el retrato cuelga del personaje');
   const tema = [...arbol.querySelectorAll('li')].find((li) => li.textContent.includes('música «Tema»'));
   const detalle = tema.textContent.replace(/\s+/g, ' ');
   assert.ok(detalle.includes('Otra persona') && detalle.includes('Autora Ejemplo') && detalle.includes('Licencia') && detalle.includes('verde'));
@@ -79,7 +79,7 @@ test('la decisión de registro muestra cada respuesta; sin decisiones lo dice; l
     ];
   });
   const seccion = texto('#registro');
-  assert.ok(seccion.includes('Ana') && seccion.includes('Sí lo registraría') && seccion.includes('Camila R.') && seccion.includes('El archivo PNG'));
+  assert.ok(seccion.includes('Lucía') && seccion.includes('Sí lo registraría') && seccion.includes('Camila R.') && seccion.includes('El archivo PNG'));
   assert.ok(seccion.includes('Es mi personaje principal.'));
   assert.ok(seccion.includes('Tema') && seccion.includes('No lo registraría') && seccion.includes('Autora Ejemplo'));
   assert.ok(seccion.includes(contenido.campos.prueba.breve));

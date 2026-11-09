@@ -23,7 +23,7 @@ test('generarJuegoHtml incrusta el motor, los estilos, el documento, los recurso
   const { p, archivos, muelle } = proyectoPublicable();
   const html = generarJuegoHtml(p, archivos, motor);
   assert.ok(html.startsWith('<!DOCTYPE html>'));
-  assert.ok(html.includes('<title>La llave del faro</title>'));
+  assert.ok(html.includes('<title>El faro de Camila</title>'));
   assert.ok(html.includes('function jugar('), 'el reproductor está dentro');
   assert.ok(html.includes('.escenario-caja'), 'los estilos del reproductor están dentro');
   assert.ok(!/^\s*(import|export)\b/m.test(html), 'sin import ni export: es un script clásico');
@@ -58,10 +58,10 @@ test('el juego.html generado se juega solo en jsdom: avanza, decide y termina en
   const { p, archivos } = proyectoPublicable();
   const html = generarJuegoHtml(p, archivos, motor);
   const { document, q, clic } = abrirJuego(html);
-  assert.equal(document.title, 'La llave del faro');
-  assert.equal(q('.reproductor-titulo').textContent, 'La llave del faro');
-  assert.equal(q('.escenario-nombre').textContent, 'Ana');
-  assert.equal(q('.escenario-texto').textContent, '¿Quién dejó la puerta abierta?');
+  assert.equal(document.title, 'El faro de Camila');
+  assert.equal(q('.reproductor-titulo').textContent, 'El faro de Camila');
+  assert.equal(q('.escenario-nombre').textContent, 'Lucía');
+  assert.equal(q('.escenario-texto').textContent, '¿Quién abrió la reja?');
   assert.ok(q('.escenario-fondo img').getAttribute('src').startsWith('data:application/octet-stream;base64,'));
   assert.ok(q('.escenario-retrato img').classList.contains('pixel'), 'el retrato creado se escala sin suavizado');
   assert.equal(q('button[data-accion="cerrar"]'), null, 'el juego exportado no tiene Cerrar');
