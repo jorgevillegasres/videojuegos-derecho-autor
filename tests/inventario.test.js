@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { instalarDom, clic, textos } from './ayudas/dom.js';
 import { sesionDePrueba } from './ayudas/sesion.js';
-import { agregarEscena, agregarPersonaje, agregarElemento, agregarLinea } from '../plataforma/js/estado/modelo.js';
+import { crearProyecto, agregarEscena, agregarPersonaje, agregarElemento, agregarLinea } from '../plataforma/js/estado/modelo.js';
 import { crearInventario } from '../plataforma/js/editor/inventario.js';
 
 instalarDom();
@@ -136,4 +136,18 @@ test('los puntos de semáforo de personajes y elementos llevan el color y un nom
   assert.ok(puntoFondo.classList.contains('semaforo-amarillo'), 'subido, hecho por mí y sin prueba: A06');
   assert.equal(puntoFondo.getAttribute('aria-label'), 'Semáforo de Muelle: amarillo');
   assert.equal(contenedor.querySelectorAll('.punto-semaforo').length, 4, 'dos personajes y dos elementos');
+});
+
+test('las secciones llevan data-seccion; un elemento de muestra dice «de muestra» y no tiene punto de semáforo', () => {
+  const p = crearProyecto({ estudiante: 'Camila R.', titulo: 'El faro de Camila' });
+  const muestra = agregarElemento(p, { tipo: 'retrato', nombre: 'Retrato de Ana (muestra)', archivo: 'm.png', origen: 'muestra' });
+  const { sesion } = sesionDePrueba(p);
+  const contenedor = document.createElement('div');
+  crearInventario(contenedor, sesion, { alSeleccionar: () => {}, alSubir: () => {} }).dibujar(null);
+  assert.deepEqual([...contenedor.querySelectorAll('[data-seccion]')].map((n) => n.dataset.seccion), ['juego', 'escenas', 'personajes', 'elementos']);
+  const entrada = contenedor.querySelector(`[data-foco="elemento:${muestra.id}"]`);
+  assert.ok(entrada.classList.contains('entrada-muestra'));
+  assert.equal(entrada.querySelector('.entrada-detalle').textContent, 'Retrato de muestra');
+  assert.equal(entrada.querySelector('.punto-semaforo'), null);
+  assert.ok(entrada.querySelector('.marca-muestra'));
 });

@@ -13,7 +13,7 @@ import { panelFicha } from './panel-ficha.js';
 import { NOMBRES_DESTINO } from '../juridico/formulario.js';
 
 export { NOMBRES_DESTINO };
-const NOMBRES_ORIGEN = { creado: 'Creado en la plataforma', subido: 'Subido', biblioteca: 'De la biblioteca' };
+const NOMBRES_ORIGEN = { creado: 'Creado en la plataforma', subido: 'Subido', biblioteca: 'De la biblioteca', muestra: 'Muestra del ejemplo' };
 
 /**
  * @param {HTMLElement} contenedor
@@ -21,9 +21,9 @@ const NOMBRES_ORIGEN = { creado: 'Creado en la plataforma', subido: 'Subido', bi
  * @param {{ contenido?: object|null, alSeleccionar: (seleccion: object|null) => void, confirmar?: (mensaje: string) => boolean }} opciones
  *   contenido es el JSON de contenido/juridico.json (para la ayuda del destino); puede faltar.
  */
-export function crearPropiedades(contenedor, sesion, { contenido = null, alSeleccionar, confirmar = (mensaje) => window.confirm(mensaje), piezaDe = () => null, alEditarPixel = null }) {
+export function crearPropiedades(contenedor, sesion, { contenido = null, alSeleccionar, confirmar = (mensaje) => window.confirm(mensaje), piezaDe = () => null, alEditarPixel = null, alReemplazar = null }) {
   const cambiar = (fn, estructura = false) => sesion.cambiar(fn, { origen: 'propiedades', estructura });
-  const ficha = (id, titulo) => panelFicha(sesion, id, { contenido: contenido ?? {}, alSeleccionar, titulo, piezaDe });
+  const ficha = (id, titulo) => panelFicha(sesion, id, { contenido: contenido ?? {}, alSeleccionar, titulo, piezaDe, alReemplazar });
   const nombreDe = (cosa, alternativa) => cosa.nombre?.trim() || alternativa;
   const elementosDe = (tipo) => sesion.proyecto.juego.elementos.filter((e) => e.tipo === tipo).map((e) => [e.id, nombreDe(e, 'Sin nombre')]);
   const panel = (titulo, ...hijos) => h('section', { class: 'propiedades', 'aria-label': `Propiedades: ${titulo}` }, h('h2', {}, titulo), hijos);
@@ -100,7 +100,7 @@ export function crearPropiedades(contenedor, sesion, { contenido = null, alSelec
     const esImagen = elemento.tipo === 'fondo' || elemento.tipo === 'retrato';
     let muestra;
     if (!url) muestra = h('p', { class: 'vacio' }, 'No se encontró el archivo de este elemento.');
-    else if (esImagen) muestra = h('img', { class: `muestra${elemento.origen === 'creado' ? ' pixel' : ''}`, src: url, alt: `Vista de ${nombreDe(elemento, 'el elemento')}` });
+    else if (esImagen) muestra = h('img', { class: `muestra${elemento.origen === 'creado' || elemento.origen === 'muestra' ? ' pixel' : ''}`, src: url, alt: `Vista de ${nombreDe(elemento, 'el elemento')}` });
     else muestra = h('audio', { class: 'muestra', controls: true, preload: 'none', src: url });
     return panel(NOMBRES_TIPO[elemento.tipo],
       campoTexto('Nombre', 'nombre', elemento.nombre, (v) => cambiar(() => { elemento.nombre = v; })),

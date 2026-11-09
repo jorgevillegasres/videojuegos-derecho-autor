@@ -6,6 +6,7 @@ import { instalarDom, clic, teclear, textos } from './ayudas/dom.js';
 import { sesionDePrueba } from './ayudas/sesion.js';
 import { proyectoPublicable } from './ayudas/proyecto.js';
 import { crearMapaActivos } from '../plataforma/js/editor/mapa-activos.js';
+import { crearProyecto, agregarElemento } from '../plataforma/js/estado/modelo.js';
 
 instalarDom();
 const contenido = JSON.parse(readFileSync(new URL('../plataforma/contenido/juridico.json', import.meta.url), 'utf8'));
@@ -77,4 +78,17 @@ test('Cerrar y Escape cierran y avisan; cerrado, dibujar no hace nada', () => {
   assert.equal(contenedor.hidden, true);
   assert.deepEqual(llamadas, [['cerrar'], ['cerrar']]);
   contenedor.remove();
+});
+
+test('el mapa marca las filas de muestra y no las cuenta en los colores', () => {
+  const p = crearProyecto({ estudiante: 'Camila R.', titulo: 'El faro de Camila' });
+  agregarElemento(p, { tipo: 'retrato', nombre: 'Muestra', archivo: 'm.png', origen: 'muestra' });
+  const { sesion } = sesionDePrueba(p);
+  const contenedor = document.createElement('div');
+  const mapa = crearMapaActivos(contenedor, sesion, { contenido, alSeleccionar: () => {} });
+  mapa.abrir();
+  const fila = contenedor.querySelector('tr.riesgo-muestra');
+  assert.ok(fila.textContent.includes('De muestra'));
+  assert.equal(fila.querySelector('.punto-semaforo'), null);
+  assert.match(contenedor.querySelector('.mapa-resumen').textContent, /^3 activos: 2 en verde, 0 en amarillo, 0 en rojo; 1 de muestra\.$/);
 });

@@ -29,23 +29,24 @@ export function crearMapaActivos(contenedor, sesion, { contenido, alSeleccionar,
 
   function dibujar() {
     const lista = filas(sesion.proyecto, contenido);
-    const cuenta = { verde: 0, amarillo: 0, rojo: 0 };
-    for (const fila of lista) cuenta[fila.color] += 1;
+    const cuenta = { verde: 0, amarillo: 0, rojo: 0, muestra: 0 };
+    for (const fila of lista) cuenta[fila.muestra ? 'muestra' : fila.color] += 1;
+    const resumen = `${lista.length} activos: ${cuenta.verde} en verde, ${cuenta.amarillo} en amarillo, ${cuenta.rojo} en rojo${cuenta.muestra ? `; ${cuenta.muestra} de muestra` : ''}.`;
     vaciar(contenedor).append(h('div', { class: 'mapa', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'mapa-titulo', onkeydown: (e) => { if (e.key === 'Escape') cerrar(); } },
       h('div', { class: 'mapa-cabecera' },
         h('div', {},
           h('h2', { id: 'mapa-titulo' }, 'Mapa de activos'),
-          h('p', { class: 'mapa-resumen' }, `${lista.length} activos: ${cuenta.verde} en verde, ${cuenta.amarillo} en amarillo, ${cuenta.rojo} en rojo.`)),
+          h('p', { class: 'mapa-resumen' }, resumen)),
         h('button', { type: 'button', class: 'btn btn-ghost btn-sm', dataset: { accion: 'cerrar-mapa' }, onclick: cerrar }, 'Cerrar')),
       h('div', { class: 'table-wrap' }, h('table', { class: 'mapa-tabla' },
         h('thead', {}, h('tr', {}, COLUMNAS.map((texto) => h('th', { scope: 'col' }, texto)))),
-        h('tbody', {}, lista.map((fila) => h('tr', { dataset: { ficha: fila.id }, class: `riesgo-${fila.color}` },
+        h('tbody', {}, lista.map((fila) => h('tr', { dataset: { ficha: fila.id }, class: `riesgo-${fila.muestra ? 'muestra' : fila.color}` },
           h('td', {}, h('strong', {}, fila.activo), h('span', { class: 'mapa-tipo' }, fila.tipo)),
           h('td', {}, fila.creador),
           h('td', {}, fila.contrato),
           h('td', {}, fila.prueba),
-          h('td', {}, puntoSemaforo(fila.color, `Riesgo de ${fila.activo}`), ' ', NOMBRES_COLOR[fila.color], ' ',
-            fila.porVerificar ? h('span', { class: 'por-verificar', title: 'Algún texto de esta fila está pendiente de verificación jurídica' }, 'Por verificar') : null),
+          h('td', {}, fila.muestra ? h('span', { class: 'chip' }, 'De muestra') : [puntoSemaforo(fila.color, `Riesgo de ${fila.activo}`), ' ', NOMBRES_COLOR[fila.color], ' ',
+            fila.porVerificar ? h('span', { class: 'por-verificar', title: 'Algún texto de esta fila está pendiente de verificación jurídica' }, 'Por verificar') : null]),
           h('td', {}, fila.acciones.length ? h('ul', { class: 'mapa-acciones' }, fila.acciones.map((a) => h('li', {}, a))) : 'Nada por hacer'),
           h('td', {}, h('button', { type: 'button', class: 'btn btn-ghost btn-sm', dataset: { accion: 'ver-ficha' }, onclick: () => verFicha(fila) }, 'Ver ficha')),
         ))))),

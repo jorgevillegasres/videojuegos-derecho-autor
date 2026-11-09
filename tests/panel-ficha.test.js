@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { instalarDom, clic, escribir, textos } from './ayudas/dom.js';
 import { sesionDePrueba } from './ayudas/sesion.js';
-import { agregarPersonaje, agregarElemento } from '../plataforma/js/estado/modelo.js';
+import { crearProyecto, agregarPersonaje, agregarElemento } from '../plataforma/js/estado/modelo.js';
 import { aplicarCambio } from '../plataforma/js/juridico/formulario.js';
 import { vaciar } from '../plataforma/js/ui/dom.js';
 import { panelFicha } from '../plataforma/js/editor/panel-ficha.js';
@@ -234,4 +234,17 @@ test('el resultado de una ficha sin notas no deja ningún texto «null»', () =>
     if (!qa('.ficha-notas').length) sinNotas++;
   }
   assert.ok(sinNotas > 0, 'al menos una ficha sin notas ejercita el caso');
+});
+
+test('la ficha de un retrato de muestra solo avisa y ofrece reemplazarlo', () => {
+  const p = crearProyecto({ estudiante: 'Camila R.', titulo: 'El faro de Camila' });
+  const muestra = agregarElemento(p, { tipo: 'retrato', nombre: 'Muestra', archivo: 'm.png', origen: 'muestra' });
+  const { sesion } = sesionDePrueba(p);
+  const pedidos = [];
+  const nodo = panelFicha(sesion, muestra.id, { contenido, alReemplazar: (clave) => pedidos.push(clave) });
+  assert.equal(nodo.querySelector('.ficha-muestra-aviso').textContent, 'Retrato de muestra del ejemplo: reemplázalo por uno tuyo.');
+  assert.equal(nodo.querySelector('.ficha-resultado'), null, 'no se evalúa');
+  assert.equal(nodo.querySelector('fieldset'), null, 'no se llena');
+  for (const boton of nodo.querySelectorAll('button[data-accion^="reemplazar-"]')) clic(boton);
+  assert.deepEqual(pedidos, ['pixel', 'subir', 'biblioteca']);
 });

@@ -20,7 +20,7 @@ export function crearPantalla(contenedor, { juego, resolverRecurso }) {
   vaciar(contenedor).append(escenario);
 
   // Las imágenes hechas con la herramienta de pixel art se escalan sin suavizado.
-  const esPixel = (id) => juego.elementos.find((e) => e.id === id)?.origen === 'creado';
+  const esPixel = (id) => ['creado', 'muestra'].includes(juego.elementos.find((e) => e.id === id)?.origen);
 
   function imagen(id, clase) {
     const url = id ? resolverRecurso(id) : null;
