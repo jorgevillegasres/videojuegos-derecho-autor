@@ -346,3 +346,13 @@ la marca «Por verificar» en la banda, como en la ficha.
 5. La banda y su CSS, en el editor; `jugado` desde el reproductor.
 6. El inicio y el arranque.
 7. El recorrido de Playwright reescrito; README; nota en el diseño general.
+
+## 16. Implementación
+
+Construido con `docs/superpowers/plans/2026-11-08-plan-7-modo-guiado.md`. Ese plan fija lo que este
+diseño no decía: la ficha de muestra (`ORIGENES_FICHA`), la normalización de `guia` (`asegurarGuia`),
+que el ejemplo recién armado falla `M_PERSONAJES` además de `M_MUESTRA`, la retirada automática antes de
+redibujar, el anuncio único por cambio, la opción `alTerminar` del reproductor y los botones de acción
+de la banda. Al construirlo se agregaron dos cosas más: los créditos avisan que el juego aún tiene
+piezas de muestra (para no atribuirle al estudiante la historia del ejemplo), y si el botón con el
+foco queda deshabilitado al cambiar de fase, el foco pasa al título de la fase.

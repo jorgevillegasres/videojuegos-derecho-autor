@@ -1,15 +1,18 @@
 # Plataforma de práctica: primer videojuego y derecho de autor
 
-Aplicación web estática. Los estudiantes arman una aventura narrativa y, por cada
-elemento que incorporan, resuelven una ficha jurídica con semáforo. Diseño completo
-en `docs/superpowers/specs/2026-11-04-plataforma-primer-videojuego-design.md`.
+Aplicación web estática. Los estudiantes reciben una aventura narrativa terminada, «La llave del
+faro», y la hacen suya pieza por pieza; por cada elemento que reemplazan o conservan resuelven una
+ficha jurídica con semáforo. Diseño completo en
+`docs/superpowers/specs/2026-11-04-plataforma-primer-videojuego-design.md`, y el del modo guiado en
+`docs/superpowers/specs/2026-11-06-modo-guiado-design.md` (donde difieren, manda este).
 
 ## Estado
 
-Los seis planes de construcción están terminados: núcleo, motor y editor, fichas en pantalla,
-biblioteca, herramientas de creación y publicación. El recorrido completo del estudiante
-(arrancar, armar el juego, llenar fichas, publicar y jugar el `juego.html` exportado) corre
-en Chromium con Playwright.
+Los seis planes de construcción y el modo guiado (plan 7) están terminados. El estudiante recibe un
+juego terminado, «La llave del faro», y en nueve fases guiadas por una banda sobre el editor lo hace
+suyo pieza por pieza, resolviendo la ficha jurídica de cada una. El recorrido completo (arrancar, jugar
+el ejemplo, reemplazar sus piezas, publicar y jugar el `juego.html` exportado) corre en Chromium con
+Playwright.
 
 ## Dónde está publicada
 

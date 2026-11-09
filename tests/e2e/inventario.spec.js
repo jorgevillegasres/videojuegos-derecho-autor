@@ -5,12 +5,13 @@
 // pulsa, así que el recorrido completo no detecta un botón fuera del borde.
 import { test, expect } from '@playwright/test';
 
-async function abrirEditor(page) {
+async function abrirEditor(page, ancho = 1280, alto = 800) {
+  await page.setViewportSize({ width: ancho, height: alto });
   await page.goto('/plataforma/');
   await page.fill('#inicio-estudiante', 'Camila Rojas');
-  await page.fill('#inicio-titulo', 'La llave del faro');
   await page.getByRole('button', { name: 'Empezar' }).click();
   await expect(page.locator('.barra-juego')).toHaveText('La llave del faro');
+  await expect(page.locator('.banda')).toBeVisible();
 }
 
 test('los botones de crear del inventario se ven sin desplazar la columna', async ({ page }) => {
@@ -32,7 +33,7 @@ test('los botones de crear del inventario se ven sin desplazar la columna', asyn
 
   // Un clic en el botón, tal como lo ve el estudiante, crea el personaje.
   await page.getByRole('button', { name: 'Nuevo personaje' }).click();
-  await expect(page.locator('.inventario-seccion').nth(1).locator('button.entrada')).toHaveCount(1);
+  await expect(page.locator('.inventario-seccion').nth(1).locator('button.entrada')).toHaveCount(3);
 });
 
 test('la lista del candado de Publicar no tapa el panel derecho', async ({ page }) => {
@@ -59,3 +60,19 @@ test('la lista del candado de Publicar no tapa el panel derecho', async ({ page 
   await page.mouse.click(cajaNombre.x + cajaNombre.width / 2, cajaNombre.y + cajaNombre.height / 2);
   await expect(nombre).toBeFocused();
 });
+
+for (const [ancho, alto] of [[1280, 800], [1000, 700]]) {
+  test(`la banda no desborda y deja ver las columnas a ${ancho}×${alto}`, async ({ page }) => {
+    await abrirEditor(page, ancho, alto);
+    const sinDesborde = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+    expect(sinDesborde, 'la página no debe desplazarse a lo ancho').toBe(true);
+    const banda = await page.locator('.zona-guia').boundingBox();
+    expect(banda.height, 'la banda no ocupa más de 40 % del alto').toBeLessThanOrEqual(alto * 0.4 + 1);
+    for (const selector of ['.columna-inventario', '.columna-centro', '.columna-propiedades']) {
+      const caja = await page.locator(selector).boundingBox();
+      expect(caja.y, `${selector} empieza bajo la banda`).toBeGreaterThanOrEqual(banda.y + banda.height - 1);
+      expect(caja.height, `${selector} tiene alto útil`).toBeGreaterThan(200);
+    }
+    for (const boton of await page.locator('.banda button').all()) await expect(boton).toBeInViewport();
+  });
+}
